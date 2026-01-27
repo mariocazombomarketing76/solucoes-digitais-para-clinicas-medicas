@@ -13,7 +13,7 @@ import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfUse from './components/TermsOfUse';
 
 const App: React.FC = () => {
-  const whatsappLink = "https://wa.me/message/5LQTAOWAHBXLG1";
+  const whatsappLink = "https://wa.me/244922514198";
   const [modal, setModal] = useState<'privacy' | 'terms' | null>(null);
 
   return (
