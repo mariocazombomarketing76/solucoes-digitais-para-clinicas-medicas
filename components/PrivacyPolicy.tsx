@@ -38,7 +38,7 @@ const PrivacyPolicy: React.FC<ModalProps> = ({ onClose }) => {
           <h3>1. Que informações recolhemos?</h3>
           <p>Recolhemos informações de duas formas:</p>
           <ul>
-            <li><strong>Informações que nos fornece diretamente:</strong> Quando nos contacta através do link do WhatsApp, partilha connosco o seu número de telefone e qualquer outra informação que decida incluir na sua mensagem (nome, nome da clínica, etc.).</li>
+            <li><strong>Informações que nos fornece diretamente:</strong> Quando nos contacta através do link do Telegram, partilha connosco o seu identificador e qualquer outra informação que decida incluir na sua mensagem (nome, nome da clínica, etc.).</li>
             <li><strong>Informações recolhidas automaticamente:</strong> Quando navega no nosso website, podemos recolher informações técnicas como o seu endereço IP, tipo de navegador e sistema operativo, para fins de análise e melhoria do serviço.</li>
           </ul>
 
@@ -55,7 +55,7 @@ const PrivacyPolicy: React.FC<ModalProps> = ({ onClose }) => {
           <ul>
             <li>Com o seu consentimento explícito.</li>
             <li>Para cumprir obrigações legais ou ordens judiciais.</li>
-            <li>Com o WhatsApp, ao utilizar a funcionalidade de contacto, estando essa interação sujeita à Política de Privacidade do próprio WhatsApp.</li>
+            <li>Com o Telegram, ao utilizar a funcionalidade de contacto, estando essa interação sujeita à Política de Privacidade do próprio Telegram.</li>
           </ul>
 
           <h3>4. Segurança dos dados</h3>

@@ -13,7 +13,7 @@ import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfUse from './components/TermsOfUse';
 
 const App: React.FC = () => {
-  const contactLink = "https://t.me/Kambapro_bot";
+  const contactLink = "https://t.me/ClinicasDigitais_bot";
   const [modal, setModal] = useState<'privacy' | 'terms' | null>(null);
 
   return (
