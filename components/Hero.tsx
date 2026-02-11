@@ -1,12 +1,12 @@
 import React from 'react';
-import { WhatsAppIcon } from './Icons';
+import { TelegramIcon } from './Icons';
 import { motion } from 'framer-motion';
 
 interface HeroProps {
-  whatsappLink: string;
+  contactLink: string;
 }
 
-const Hero: React.FC<HeroProps> = ({ whatsappLink }) => {
+const Hero: React.FC<HeroProps> = ({ contactLink }) => {
   return (
     <section className="bg-white overflow-hidden">
       <div className="container mx-auto px-6 pt-8 md:pt-12 pb-16 md:pb-24">
@@ -44,7 +44,7 @@ const Hero: React.FC<HeroProps> = ({ whatsappLink }) => {
                 visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
               }}
             >
-              Sistema digital simples que transforma visitas online em marcações reais, usando website estratégico, WhatsApp organizado e automação inteligente.
+              Sistema digital simples que transforma visitas online em marcações reais, usando website estratégico, Telegram organizado e automação inteligente.
             </motion.p>
             <motion.p
               className="text-sm text-gray-500 mb-8 max-w-2xl mx-auto md:mx-0"
@@ -55,23 +55,26 @@ const Hero: React.FC<HeroProps> = ({ whatsappLink }) => {
             >
               Mais de 2 anos a estruturar soluções digitais focadas em resultados reais, adaptadas à realidade das clínicas privadas em Angola.
             </motion.p>
-            <motion.a
-              href={whatsappLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center px-8 py-4 bg-green-500 hover:bg-green-600 text-white text-lg font-bold rounded-lg shadow-lg"
+            <motion.div
               variants={{
                 hidden: { opacity: 0, y: 20 },
                 visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
               }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
             >
-              <WhatsAppIcon className="w-6 h-6 mr-3" />
-              Analisar a minha clínica gratuitamente no WhatsApp
-            </motion.a>
+              <motion.a
+                href={contactLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center w-full sm:w-auto px-5 py-4 md:px-8 md:py-4 bg-[#0088cc] hover:bg-[#0077b5] text-white text-base md:text-lg font-bold rounded-lg shadow-lg transition-all duration-300"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <TelegramIcon className="w-5 h-5 md:w-6 md:h-6 mr-3 flex-shrink-0" />
+                <span className="leading-tight text-center">Analisar a minha clínica no Telegram</span>
+              </motion.a>
+            </motion.div>
             <motion.p
-              className="text-sm text-gray-500 mt-4"
+              className="text-xs md:text-sm text-gray-500 mt-4"
               variants={{
                 hidden: { opacity: 0, y: 20 },
                 visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
@@ -96,7 +99,7 @@ const Hero: React.FC<HeroProps> = ({ whatsappLink }) => {
                 transition={{ duration: 0.6, delay: 1 }}
             >
                 <h2 className="text-2xl font-bold text-gray-900">Mário Cazombo</h2>
-                <p className="text-gray-600 max-w-xs">Especialista em Marketing e Soluções Digitais para Clínicas Médicas | Projetos executados por empresa legal em Angola.</p>
+                <p className="text-gray-600 max-w-xs px-4 md:px-0">Especialista em Marketing e Soluções Digitais para Clínicas Médicas | Projetos executados por empresa legal em Angola.</p>
             </motion.div>
           </div>
         </div>

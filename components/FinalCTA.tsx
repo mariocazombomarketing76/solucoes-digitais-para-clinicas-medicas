@@ -1,17 +1,17 @@
 import React from 'react';
-import { WhatsAppIcon } from './Icons';
+import { TelegramIcon } from './Icons';
 import { motion } from 'framer-motion';
 
 interface FinalCTAProps {
-  whatsappLink: string;
+  contactLink: string;
 }
 
-const FinalCTA: React.FC<FinalCTAProps> = ({ whatsappLink }) => {
+const FinalCTA: React.FC<FinalCTAProps> = ({ contactLink }) => {
   return (
     <section className="bg-blue-600 text-white overflow-hidden">
       <div className="container mx-auto px-6 py-16 md:py-24 text-center">
         <motion.h2 
-          className="text-3xl md:text-4xl font-extrabold mb-4"
+          className="text-2xl md:text-4xl font-extrabold mb-4"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.5 }}
@@ -20,7 +20,7 @@ const FinalCTA: React.FC<FinalCTAProps> = ({ whatsappLink }) => {
           Pronto para captar mais pacientes?
         </motion.h2>
         <motion.p 
-          className="text-lg md:text-xl text-blue-100 max-w-2xl mx-auto mb-8"
+          className="text-base md:text-xl text-blue-100 max-w-2xl mx-auto mb-8"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.5 }}
@@ -28,27 +28,31 @@ const FinalCTA: React.FC<FinalCTAProps> = ({ whatsappLink }) => {
         >
           Vamos analisar a sua clínica, identificar falhas no processo digital atual e verificar se este sistema faz sentido para si. Sem compromisso.
         </motion.p>
-        <motion.a
-          href={whatsappLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center justify-center px-10 py-5 bg-green-500 hover:bg-green-600 text-white text-xl font-bold rounded-lg shadow-xl"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-           animate={{
-            scale: [1, 1.02, 1],
-          }}
-          transition={{
-            duration: 2.5,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
+        <motion.div
+          className="flex justify-center"
         >
-          <WhatsAppIcon className="w-7 h-7 mr-4" />
-          Analisar a minha clínica gratuitamente no WhatsApp
-        </motion.a>
+          <motion.a
+            href={contactLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center w-full sm:w-auto px-6 py-4 md:px-10 md:py-5 bg-[#0088cc] hover:bg-[#0077b5] text-white text-base md:text-xl font-bold rounded-lg shadow-xl transition-all duration-300"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            animate={{
+              scale: [1, 1.02, 1],
+            }}
+            transition={{
+              duration: 2.5,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          >
+            <TelegramIcon className="w-6 h-6 md:w-7 md:h-7 mr-3 md:mr-4 flex-shrink-0" />
+            <span className="leading-tight">Analisar a minha clínica no Telegram</span>
+          </motion.a>
+        </motion.div>
         <motion.p 
-          className="mt-4 text-sm text-blue-200"
+          className="mt-6 text-xs md:text-sm text-blue-200"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.5 }}

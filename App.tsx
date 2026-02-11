@@ -13,20 +13,20 @@ import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfUse from './components/TermsOfUse';
 
 const App: React.FC = () => {
-  const whatsappLink = "https://wa.me/244922514198";
+  const contactLink = "https://t.me/Kambapro_bot";
   const [modal, setModal] = useState<'privacy' | 'terms' | null>(null);
 
   return (
     <div className="bg-gray-50 text-gray-800 font-sans antialiased">
       <main>
-        <Hero whatsappLink={whatsappLink} />
+        <Hero contactLink={contactLink} />
         <TargetAudience />
         <Problems />
         <Solution />
         <WhyItWorks />
         <Authority />
         <FAQ />
-        <FinalCTA whatsappLink={whatsappLink} />
+        <FinalCTA contactLink={contactLink} />
       </main>
       <Footer 
         onPrivacyClick={() => setModal('privacy')}
