@@ -10,11 +10,12 @@ const Hero: React.FC<HeroProps> = ({ contactLink }) => {
   return (
     <section className="bg-white overflow-hidden">
       <div className="container mx-auto px-6 pt-8 md:pt-12 pb-16 md:pb-24">
-        <motion.div
-          className="mb-12 md:mb-16"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+        <motion.h1
+  className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight mb-4"
+  variants={{
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+        }}
         >
           <img src="https://i.imgur.com/e1EiP3w.png" alt="Clínica Digital Logo" className="h-10 md:h-12" />
         </motion.div>
