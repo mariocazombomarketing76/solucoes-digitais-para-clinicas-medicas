@@ -4,24 +4,28 @@ import { ChevronDownIcon } from './Icons';
 
 const faqData = [
   {
-    question: "Isto funciona para qualquer especialidade médica?",
-    answer: "Sim. A metodologia foi desenhada para clínicas médicas privadas de diferentes especialidades, como clínicas gerais, odontologia, ginecologia, pediatria, oftalmologia, análises clínicas, entre outras. O sistema é adaptado à realidade e ao público de cada clínica, respeitando as boas práticas da comunicação médica e as particularidades de cada serviço."
+    question: "Quanto custa?",
+    answer: "Oferecemos soluções modulares sob consulta. Dependendo do plano selecionado (Presença Digital, Crescimento ou Premium), apresentamos uma proposta sob medida com excelente relação custo-benefício e foco no retorno do investimento real da sua clínica."
   },
   {
-    question: "Preciso de investir em anúncios?",
-    answer: "Não obrigatoriamente. A solução foi pensada para funcionar mesmo sem anúncios pagos, através de uma presença digital bem estruturada, WhatsApp organizado e um funil simples de captação. Caso a clínica opte por investir em anúncios no futuro, a base já estará preparada para aproveitar melhor esse investimento."
+    question: "Quanto tempo demora?",
+    answer: "O planeamento, desenvolvimento, configuração técnica e lançamento completo do seu sistema digital costumam demorar entre 15 a 30 dias úteis, dependendo da complexidade das integrações e do plano escolhido."
   },
   {
-    question: "Em quanto tempo começo a ver resultados?",
-    answer: "Normalmente, os primeiros resultados começam a surgir poucas semanas após a implementação, especialmente na melhoria do atendimento e no aumento de contactos qualificados. O crescimento consistente depende também do envolvimento da clínica, da rapidez no atendimento e da qualidade do serviço prestado aos pacientes."
+    question: "Preciso comprar domínio?",
+    answer: "Não precisa de se preocupar com isso. No âmbito do nosso serviço recorrente completo, nós tratamos de todo o processo de registo do domínio corporativo (ex: .com ou .co.ao) e ativação do certificado de segurança SSL de forma gratuita."
   },
   {
-    question: "A minha equipa precisa de formação técnica?",
-    answer: "Não. A solução foi criada para ser simples e prática. A equipa recebe orientações claras sobre como utilizar o WhatsApp e atender os pacientes de forma mais organizada, sem necessidade de conhecimentos técnicos ou ferramentas complexas."
+    question: "Posso manter o meu website atual?",
+    answer: "Sim, se preferir manter o design atual do seu site, realizamos uma auditoria de conversão para reestruturá-lo tecnicamente. Caso seja mais vantajoso, criamos uma nova versão do zero com altíssima performance integrada aos nossos sistemas de triagem."
   },
   {
-    question: "O WhatsApp fica sob controlo da clínica?",
-    answer: "Sim. O WhatsApp Business pertence totalmente à clínica. Todo o sistema é configurado para apoiar o atendimento, mas o controlo dos contactos, mensagens e dados dos pacientes permanece sempre com a clínica."
+    question: "Preciso de equipa técnica?",
+    answer: "Absolutamente não. O nosso serviço é do tipo chave-na-mão com suporte local permanente em Angola. Cuidamos de toda a manutenção, backups diários, segurança cibernética e atualizações de conteúdo, deixando a sua equipa livre para se focar no atendimento."
+  },
+  {
+    question: "Existe fidelização mínima?",
+    answer: "Para garantir a sustentabilidade do trabalho de SEO, otimização de campanhas e suporte local especializado, trabalhamos com contratos anuais ou semestrais, mas sem rasteiras contratuais. O nosso foco é mantê-lo connosco pelos resultados gerados."
   }
 ];
 

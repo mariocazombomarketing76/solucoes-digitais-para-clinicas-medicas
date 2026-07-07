@@ -1,64 +1,79 @@
 import React from 'react';
-import { TelegramIcon } from './Icons';
 import { motion } from 'framer-motion';
+import { FileText, ArrowRight } from 'lucide-react';
 
 interface FinalCTAProps {
   contactLink: string;
 }
 
 const FinalCTA: React.FC<FinalCTAProps> = ({ contactLink }) => {
+  const scrollToDiagnostic = () => {
+    const element = document.getElementById('diagnostico');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
-    <section className="bg-blue-600 text-white overflow-hidden">
-      <div className="container mx-auto px-6 py-16 md:py-24 text-center">
+    <section className="bg-gradient-to-r from-blue-700 to-indigo-800 text-white overflow-hidden border-t border-blue-800">
+      <div className="container mx-auto px-6 py-20 md:py-28 text-center relative">
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.08),transparent)] pointer-events-none"></div>
+        
         <motion.h2 
-          className="text-2xl md:text-4xl font-extrabold mb-4"
+          className="text-3xl md:text-5xl font-extrabold mb-6 font-display tracking-tight max-w-3xl mx-auto leading-tight"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.5 }}
           transition={{ duration: 0.6 }}
         >
-          Pronto para captar mais pacientes?
+          Está a perder pacientes por falta de presença digital?
         </motion.h2>
+
         <motion.p 
-          className="text-base md:text-xl text-blue-100 max-w-2xl mx-auto mb-8"
+          className="text-lg md:text-xl text-blue-100 max-w-3xl mx-auto mb-10 leading-relaxed"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.5 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          Vamos analisar a sua clínica, identificar falhas no processo digital atual e verificar se este sistema faz sentido para si. Sem compromisso.
+          Solicite gratuitamente uma análise da sua clínica e descubra oportunidades para melhorar a experiência dos pacientes e aumentar pedidos de consulta.
         </motion.p>
+
         <motion.div
           className="flex justify-center"
-        >
-          <motion.a
-            href={contactLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center w-full sm:w-auto px-6 py-4 md:px-10 md:py-5 bg-[#0088cc] hover:bg-[#0077b5] text-white text-base md:text-xl font-bold rounded-lg shadow-xl transition-all duration-300"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            animate={{
-              scale: [1, 1.02, 1],
-            }}
-            transition={{
-              duration: 2.5,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          >
-            <TelegramIcon className="w-6 h-6 md:w-7 md:h-7 mr-3 md:mr-4 flex-shrink-0" />
-            <span className="leading-tight">Analisar a minha clínica no Telegram</span>
-          </motion.a>
-        </motion.div>
-        <motion.p 
-          className="mt-6 text-xs md:text-sm text-blue-200"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true, amount: 0.5 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
-          (sem compromisso · resposta em até 24h)
+          <motion.button
+            onClick={scrollToDiagnostic}
+            className="inline-flex items-center justify-center w-full sm:w-auto px-10 py-5 bg-emerald-500 hover:bg-emerald-600 text-white text-lg md:text-xl font-bold rounded-2xl shadow-2xl shadow-emerald-500/20 transition-all duration-300 gap-3"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            animate={{
+              boxShadow: ["0 10px 30px -10px rgba(16,185,129,0.3)", "0 10px 30px 10px rgba(16,185,129,0.5)", "0 10px 30px -10px rgba(16,185,129,0.3)"]
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
+            <FileText className="w-6 h-6 flex-shrink-0" />
+            <span className="leading-tight">Solicitar Diagnóstico Gratuito</span>
+            <ArrowRight className="w-5 h-5 flex-shrink-0" />
+          </motion.button>
+        </motion.div>
+
+        <motion.p 
+          className="mt-6 text-xs md:text-sm text-blue-200 uppercase tracking-wider font-semibold"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
+          Empresa registada em Angola • Resposta garantida em até 24h úteis
         </motion.p>
       </div>
     </section>

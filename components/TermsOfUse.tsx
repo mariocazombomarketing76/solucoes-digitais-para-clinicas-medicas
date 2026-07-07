@@ -31,7 +31,7 @@ const TermsOfUse: React.FC<ModalProps> = ({ onClose }) => {
         </button>
         <div className="prose max-w-none text-gray-700">
           <h2>Termos de Uso</h2>
-          <p className="text-sm text-gray-500">Última atualização: 20 de Julho de 2024</p>
+          <p className="text-sm text-gray-500">Última atualização: 22 de Maio de 2026</p>
 
           <p>Bem-vindo! Ao aceder e utilizar este website, concorda em cumprir os seguintes termos e condições de uso. Estes termos aplicam-se a todos os visitantes e utilizadores do site.</p>
 
@@ -46,7 +46,7 @@ const TermsOfUse: React.FC<ModalProps> = ({ onClose }) => {
           <p>A <strong>Mario Cazombo e Filhos, Lda</strong> não será responsável por qualquer perda ou dano, incluindo, sem limitação, perdas ou danos indiretos ou consequenciais, decorrentes do uso deste website.</p>
           
           <h3>4. Links para Terceiros</h3>
-          <p>O nosso website contém links para sites de terceiros (como o Telegram) que não são controlados por nós. Não temos controlo sobre o conteúdo, políticas de privacidade ou práticas de sites de terceiros e não assumimos qualquer responsabilidade por eles.</p>
+          <p>O nosso website contém links para sites de terceiros (como o WhatsApp) que não são controlados por nós. Não temos controlo sobre o conteúdo, políticas de privacidade ou práticas de sites de terceiros e não assumimos qualquer responsabilidade por eles.</p>
 
           <h3>5. Lei Aplicável</h3>
           <p>Estes termos e condições serão regidos e interpretados de acordo com as leis de Angola, e qualquer litígio estará sujeito à jurisdição exclusiva dos tribunais de Angola.</p>
