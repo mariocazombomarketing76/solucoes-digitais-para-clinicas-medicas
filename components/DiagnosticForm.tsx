@@ -115,7 +115,7 @@ const DiagnosticForm: React.FC = () => {
       `- *Localização*: ${formData.cidade}\n` +
       `- *Contacto*: ${formData.telefone}\n` +
       `- *Website atual*: ${formData.website || "Não possui"}`;
-    return `https://wa.me/244923000000?text=${encodeURIComponent(text)}`;
+    return `https://wa.me/message/5LQTAOWAHBXLG1?text=${encodeURIComponent(text)}`;
   };
 
   return (
