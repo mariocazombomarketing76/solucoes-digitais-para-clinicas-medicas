@@ -16,9 +16,6 @@ const Hero: React.FC<HeroProps> = ({ contactLink }) => {
 
   return (
     <section className="bg-white overflow-hidden border-b border-gray-100">
-      {/* Micro-H1 for perfect SEO structure */}
-      <h1 className="sr-only">Clínicas Digitais Angola</h1>
-
       <div className="container mx-auto px-6 pt-6 md:pt-10 pb-16 md:pb-24">
         {/* Header brand bar */}
         <motion.div
@@ -71,15 +68,15 @@ const Hero: React.FC<HeroProps> = ({ contactLink }) => {
             </motion.div>
 
             {/* Headline */}
-            <motion.h2
+            <motion.h1
               className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight mb-6 font-display"
               variants={{
                 hidden: { opacity: 0, y: 15 },
                 visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
               }}
             >
-              O sistema digital que ajuda clínicas privadas a atrair mais pacientes
-            </motion.h2>
+              O sistema digital que ajuda clínicas, consultórios e laboratórios médicos a atrair mais pacientes
+            </motion.h1>
 
             {/* Subtitle */}
             <motion.p
@@ -89,7 +86,7 @@ const Hero: React.FC<HeroProps> = ({ contactLink }) => {
                 visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
               }}
             >
-              Desenvolvemos websites profissionais, automação inteligente, presença digital e sistemas de atendimento que ajudam clínicas privadas em Angola a melhorar a experiência dos pacientes e aumentar pedidos de consulta.
+              Desenvolvemos websites profissionais, automação inteligente, presença digital e sistemas de atendimento que ajudam clínicas, consultórios e laboratórios médicos a melhorar a experiência dos pacientes e aumentar pedidos de consulta.
             </motion.p>
 
             {/* Buttons row */}
@@ -179,7 +176,7 @@ const Hero: React.FC<HeroProps> = ({ contactLink }) => {
               {/* Specialist Bio Info with Institutional backup */}
               <div className="text-center">
                 <h3 className="text-xl font-bold text-gray-900">Mário Cazombo</h3>
-                <p className="text-xs font-semibold text-blue-600 mb-2">Diretor Técnico & Especialista Digital</p>
+                <p className="text-xs font-semibold text-blue-600 mb-2">Especialista em Marketing & Soluções Digitais</p>
                 
                 <hr className="my-3 border-gray-200" />
                 

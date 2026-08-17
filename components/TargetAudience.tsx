@@ -55,7 +55,7 @@ const TargetAudience: React.FC = () => {
             Alinhamento Estratégico
           </span>
           <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mt-4 mb-3">
-            Desenhado exclusivamente para clínicas privadas
+            Desenhado exclusivamente para clínicas médicas
           </h3>
           <p className="text-lg text-gray-600">
             Ajudamos instituições de saúde a modernizar a sua presença digital.

@@ -20,12 +20,12 @@ const Authority: React.FC = () => {
               <div className="relative w-36 h-36 rounded-2xl bg-white flex items-center justify-center overflow-hidden border-2 border-gray-200 shadow-sm mb-4">
                 <img 
                   src="https://i.imgur.com/oTgNEGC.jpg" 
-                  alt="Diretor Técnico Mário Cazombo" 
+                  alt="Especialista Mário Cazombo" 
                   className="w-full h-full object-cover object-[center_20%]" 
                 />
               </div>
               <p className="text-sm font-bold text-gray-800">Mário Cazombo</p>
-              <p className="text-xs text-blue-600 font-semibold">Diretor de Projetos Digitais</p>
+              <p className="text-xs text-blue-600 font-semibold text-center">Especialista em Marketing & Soluções Digitais</p>
             </div>
 
             {/* Right side: Institutional Copy */}
