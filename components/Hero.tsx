@@ -75,7 +75,7 @@ const Hero: React.FC<HeroProps> = ({ contactLink }) => {
                 visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
               }}
             >
-              O sistema digital que ajuda clínicas, consultórios e laboratórios médicos a atrair mais pacientes
+              O sistema digital que ajuda clínicas e consultórios médicos a atrair mais pacientes
             </motion.h1>
 
             {/* Subtitle */}
@@ -86,7 +86,7 @@ const Hero: React.FC<HeroProps> = ({ contactLink }) => {
                 visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
               }}
             >
-              Desenvolvemos websites profissionais, automação inteligente, presença digital e sistemas de atendimento que ajudam clínicas, consultórios e laboratórios médicos a melhorar a experiência dos pacientes e aumentar pedidos de consulta.
+              Desenvolvemos Sistemas Digitais Inteligentes e Automatizados, especializados em ajudar clínicas e consultórios a captar, converter e atender pacientes através da tecnologia.
             </motion.p>
 
             {/* Buttons row */}
