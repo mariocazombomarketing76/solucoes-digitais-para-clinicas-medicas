@@ -76,11 +76,18 @@ const cardVariants = {
   }
 };
 
-const Plans: React.FC = () => {
+interface PlansProps {
+  onSelectPlan?: (planName: string) => void;
+}
+
+const Plans: React.FC<PlansProps> = ({ onSelectPlan }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.15 });
 
-  const handlePropostaClick = () => {
+  const handlePropostaClick = (planName: string) => {
+    if (onSelectPlan) {
+      onSelectPlan(planName);
+    }
     const element = document.getElementById('diagnostico');
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
@@ -159,7 +166,7 @@ const Plans: React.FC = () => {
                 </div>
 
                 <button
-                  onClick={handlePropostaClick}
+                  onClick={() => handlePropostaClick(plan.name)}
                   className={`w-full py-4 px-6 rounded-xl font-bold transition-all duration-300 text-center tracking-wide text-base ${
                     plan.highlight
                       ? "bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/20 hover:scale-[1.02]"

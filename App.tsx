@@ -19,6 +19,7 @@ import { MessageSquare } from 'lucide-react';
 const App: React.FC = () => {
   const contactLink = "https://wa.me/message/5LQTAOWAHBXLG1"; // WhatsApp Business Official Link
   const [modal, setModal] = useState<'privacy' | 'terms' | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<string>("Secretária Digital Pro");
 
   return (
     <div className="bg-gray-50 text-gray-800 font-sans antialiased scroll-smooth relative">
@@ -42,10 +43,10 @@ const App: React.FC = () => {
         <WhyItWorks />
 
         {/* 7. Value Plans Selection */}
-        <Plans />
+        <Plans onSelectPlan={(plan) => setSelectedPlan(plan)} />
 
         {/* 8. Interactive Diagnostic Form */}
-        <DiagnosticForm />
+        <DiagnosticForm selectedPlan={selectedPlan} />
 
         {/* 9. About the Company & Director */}
         <Authority />

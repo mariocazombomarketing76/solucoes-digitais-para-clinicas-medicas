@@ -38,7 +38,7 @@ const Authority: React.FC = () => {
               </h3>
               
               <p className="text-gray-700 leading-relaxed text-base">
-                A <strong>ClinicasDigitais</strong> é uma iniciativa da <strong>Mario Cazombo e Filhos, Lda</strong>, especializada em transformação digital e consultoria tecnológica para clínicas privadas e laboratórios de saúde em Angola.
+                A <strong>ClinicasDigitais</strong> é uma iniciativa da <strong>Mario Cazombo e Filhos, Lda</strong>, especializada em transformação digital e consultoria tecnológica para clínicas privadas, consultórios e laboratórios de saúde em Angola.
               </p>
               <p className="text-gray-700 leading-relaxed text-base">
                 Desenvolvemos ecossistemas recorrentes estruturados (websites, backups, automação inteligente e otimização no Google) para aproximar pacientes de tratamentos de excelência, com conformidade legal angolana completa.
