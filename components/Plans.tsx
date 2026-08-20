@@ -4,7 +4,7 @@ import { Check, Sparkles, Building, BarChart3, ShieldAlert } from 'lucide-react'
 
 const plans = [
   {
-    name: "Presença Digital",
+    name: "Secretária Digital Start",
     description: "Ideal para clínicas que desejam posicionar-se profissionalmente e transmitir credibilidade imediata aos pacientes na internet.",
     icon: Building,
     features: [
@@ -21,11 +21,11 @@ const plans = [
     badge: "Essencial"
   },
   {
-    name: "Crescimento",
+    name: "Secretária Digital Pro",
     description: "O sistema perfeito para clínicas em expansão que querem atrair mais pacientes de forma consistente e organizada.",
     icon: BarChart3,
     features: [
-      "Tudo do plano Presença Digital",
+      "Tudo do plano Secretária Digital Start",
       "Páginas dedicadas por Especialidade",
       "SEO Local estruturado",
       "Otimização completa do Google Business",
@@ -39,11 +39,11 @@ const plans = [
     badge: "Mais Procurado"
   },
   {
-    name: "Premium",
+    name: "Secretária Digital Elite",
     description: "Transformação digital completa com inteligência artificial para clínicas de referência que buscam o mais alto nível de eficiência.",
     icon: Sparkles,
     features: [
-      "Tudo do plano Crescimento",
+      "Tudo do plano Secretária Digital Pro",
       "Atendimento inicial inteligente com IA (WhatsApp)",
       "Automação completa do fluxo de pedidos",
       "Sistemas avançados de captação de pacientes",
