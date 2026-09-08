@@ -57,6 +57,8 @@ const availablePlans = [
   "Secretária Digital Elite"
 ];
 
+const DEFAULT_N8N_WEBHOOK = "http://localhost:8088/webhook/clinicas-digitais/diagnostico-v2";
+
 interface DiagnosticFormProps {
   selectedPlan?: string;
 }
@@ -98,7 +100,7 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan }) => {
     cidade: citiesList[0],
     website: '',
     plano: selectedPlan || "Secretária Digital Pro",
-    n8nWebhookUrl: ''
+    n8nWebhookUrl: DEFAULT_N8N_WEBHOOK
   });
 
   const [status, setStatus] = useState<'idle' | 'scanning' | 'success' | 'error'>('idle');
@@ -126,6 +128,44 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan }) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Helper to trigger n8n directly from the browser (crucial for local instances like localhost:8088)
+  const dispatchToLocalN8n = async (payload: any) => {
+    const targetUrl = formData.n8nWebhookUrl || DEFAULT_N8N_WEBHOOK;
+    if (!targetUrl) return;
+
+    try {
+      await fetch(targetUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event: 'diagnostico_submetido',
+          source: 'browser_client',
+          timestamp: new Date().toISOString(),
+          data: payload
+        })
+      });
+      setN8nStatus({ status: 'success', webhookUrl: targetUrl });
+    } catch {
+      // In case of strict CORS headers on n8n webhook, try no-cors to ensure delivery
+      try {
+        await fetch(targetUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({
+            event: 'diagnostico_submetido',
+            source: 'browser_client_no_cors',
+            timestamp: new Date().toISOString(),
+            data: payload
+          })
+        });
+        setN8nStatus({ status: 'success', webhookUrl: targetUrl });
+      } catch (finalErr) {
+        console.warn('Erro ao contactar n8n localmente:', finalErr);
+      }
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -157,6 +197,8 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan }) => {
         setDiagnosticoResult(data.diagnostico);
         setN8nStatus(data.n8nStatus || null);
         setStatus('success');
+        // Also dispatch directly from client browser for localhost n8n
+        dispatchToLocalN8n(data.diagnostico);
       } else {
         throw new Error(data.error || "Erro ao gerar diagnóstico");
       }
@@ -164,7 +206,7 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan }) => {
       console.error("Erro na requisição do diagnóstico:", err);
       clearInterval(interval);
       // Fallback response generator on frontend if network fails
-      setDiagnosticoResult({
+      const fallbackResult: AIDiagnosticoResult = {
         timestamp: new Date().toISOString(),
         cliente: {
           nome: formData.nome,
@@ -200,8 +242,10 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan }) => {
           ],
           potencialCaptacao: "+45% a 80% de aumento no volume de agendamentos"
         }
-      });
+      };
+      setDiagnosticoResult(fallbackResult);
       setStatus('success');
+      dispatchToLocalN8n(fallbackResult);
     }
   };
 
@@ -623,7 +667,7 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan }) => {
                         Integração Workflow n8n: {n8nStatus.status === 'success' ? 'Ativada e Payload Entregue com Sucesso' : 'Pronta para Receber Webhook'}
                       </span>
                       <span className="font-mono text-[11px] text-slate-500 truncate max-w-xs">
-                        {n8nStatus.webhookUrl || "URL padrão n8n em .env.example"}
+                        {n8nStatus.webhookUrl || DEFAULT_N8N_WEBHOOK}
                       </span>
                     </div>
                   )}

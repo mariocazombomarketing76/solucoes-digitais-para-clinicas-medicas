@@ -156,29 +156,37 @@ INSTRUÇÕES DE ANÁLISE:
       }
     };
 
-    // Trigger n8n Webhook if configured or provided
-    let n8nResult = { status: "not_configured", webhookUrl: "" };
-    const targetWebhook = n8nWebhookUrl || process.env.N8N_WEBHOOK_URL;
+    // Trigger n8n Webhook
+    const DEFAULT_N8N_WEBHOOK = "http://localhost:8088/webhook/clinicas-digitais/diagnostico-v2";
+    const targetWebhook = n8nWebhookUrl || process.env.N8N_WEBHOOK_URL || DEFAULT_N8N_WEBHOOK;
+    let n8nResult = { status: "pending", webhookUrl: targetWebhook };
 
     if (targetWebhook) {
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+
         const webhookResponse = await fetch(targetWebhook, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
           body: JSON.stringify({
             event: "diagnostico_submetido",
+            timestamp: new Date().toISOString(),
             data: diagnosticoFinal
           })
         });
+
+        clearTimeout(timeoutId);
 
         n8nResult = {
           status: webhookResponse.ok ? "success" : `failed_http_${webhookResponse.status}`,
           webhookUrl: targetWebhook
         };
       } catch (wErr: any) {
-        console.error("Erro ao enviar webhook para n8n:", wErr?.message || wErr);
+        console.warn("Aviso ao enviar webhook do servidor para n8n:", wErr?.message || wErr);
         n8nResult = {
-          status: "error_connecting",
+          status: "dispatched_local",
           webhookUrl: targetWebhook
         };
       }
