@@ -57,7 +57,7 @@ const availablePlans = [
   "Secretária Digital Elite"
 ];
 
-const DEFAULT_N8N_WEBHOOK = "http://localhost:8088/webhook/clinicas-digitais/diagnostico-v2";
+const DEFAULT_N8N_WEBHOOK = "https://lively-molehill-apache.ngrok-free.dev/webhook/clinicas-digitais/diagnostico-v2";
 
 interface DiagnosticFormProps {
   selectedPlan?: string;
@@ -130,15 +130,21 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan }) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const [isRetryingN8n, setIsRetryingN8n] = useState(false);
+
   // Helper to trigger n8n directly from the browser (crucial for local instances like localhost:8088)
   const dispatchToLocalN8n = async (payload: any) => {
     const targetUrl = formData.n8nWebhookUrl || DEFAULT_N8N_WEBHOOK;
     if (!targetUrl) return;
 
+    setIsRetryingN8n(true);
     try {
       await fetch(targetUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true'
+        },
         body: JSON.stringify({
           event: 'diagnostico_submetido',
           source: 'browser_client',
@@ -148,12 +154,15 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan }) => {
       });
       setN8nStatus({ status: 'success', webhookUrl: targetUrl });
     } catch {
-      // In case of strict CORS headers on n8n webhook, try no-cors to ensure delivery
+      // In case of strict CORS headers or mixed content on n8n webhook, try no-cors mode
       try {
         await fetch(targetUrl, {
           method: 'POST',
           mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain' },
+          headers: { 
+            'Content-Type': 'text/plain',
+            'ngrok-skip-browser-warning': 'true'
+          },
           body: JSON.stringify({
             event: 'diagnostico_submetido',
             source: 'browser_client_no_cors',
@@ -163,8 +172,11 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan }) => {
         });
         setN8nStatus({ status: 'success', webhookUrl: targetUrl });
       } catch (finalErr) {
-        console.warn('Erro ao contactar n8n localmente:', finalErr);
+        console.info('Nota: Se estiver a testar em localhost, certifique-se de que o n8n está a escutar ou utilize um túnel como ngrok.');
+        setN8nStatus({ status: 'client_mixed_content_check', webhookUrl: targetUrl });
       }
+    } finally {
+      setIsRetryingN8n(false);
     }
   };
 
@@ -456,22 +468,27 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan }) => {
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
-                        className="mt-3 p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2"
+                        className="mt-3 p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3"
                       >
-                        <label className="block text-xs font-bold text-slate-700">
-                          URL do Webhook n8n (Ativado ao Submeter)
-                        </label>
-                        <input
-                          type="url"
-                          name="n8nWebhookUrl"
-                          value={formData.n8nWebhookUrl}
-                          onChange={handleInputChange}
-                          placeholder="Ex: https://seu-n8n.com/webhook/clinicas-digitais"
-                          className="w-full text-xs px-3 py-2 rounded-lg border border-gray-300 font-mono text-slate-800"
-                        />
-                        <p className="text-[11px] text-slate-500">
-                          Quando o formulário for submetido, os dados e a análise da IA serão enviados via HTTP POST em formato JSON para o seu workflow n8n.
-                        </p>
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 mb-1">
+                            URL do Webhook n8n (Ativado ao Submeter)
+                          </label>
+                          <input
+                            type="text"
+                            name="n8nWebhookUrl"
+                            value={formData.n8nWebhookUrl}
+                            onChange={handleInputChange}
+                            placeholder="http://localhost:8088/webhook/clinicas-digitais/diagnostico-v2"
+                            className="w-full text-xs px-3 py-2 rounded-lg border border-gray-300 font-mono text-slate-800 focus:ring-1 focus:ring-blue-500"
+                          />
+                        </div>
+                        <div className="bg-blue-50/70 border border-blue-200/80 rounded-lg p-3 text-[11px] text-blue-900 space-y-1">
+                          <p className="font-semibold">💡 Dica para testar no n8n local:</p>
+                          <p>
+                            Se o seu n8n estiver a correr localmente (<code className="font-mono bg-blue-100 px-1 py-0.5 rounded">http://localhost:8088</code>), pode disparar diretamente do seu navegador ou usar uma ferramenta gratuita como <strong>ngrok</strong> (<code className="font-mono bg-blue-100 px-1 py-0.5 rounded">ngrok http 8088</code>) para obter um URL HTTPS público e receber webhooks da nuvem sem restrições de rede local.
+                          </p>
+                        </div>
                       </motion.div>
                     )}
                   </div>
@@ -661,14 +678,25 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan }) => {
 
                   {/* Status do n8n Webhook */}
                   {n8nStatus && (
-                    <div className="p-4 rounded-xl bg-slate-100 border border-slate-200 text-xs text-slate-700 flex flex-col md:flex-row items-center justify-between gap-2">
-                      <span className="font-semibold flex items-center gap-2">
-                        <span className={`w-2.5 h-2.5 rounded-full ${n8nStatus.status === 'success' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
-                        Integração Workflow n8n: {n8nStatus.status === 'success' ? 'Ativada e Payload Entregue com Sucesso' : 'Pronta para Receber Webhook'}
-                      </span>
-                      <span className="font-mono text-[11px] text-slate-500 truncate max-w-xs">
-                        {n8nStatus.webhookUrl || DEFAULT_N8N_WEBHOOK}
-                      </span>
+                    <div className="p-4 rounded-xl bg-slate-100 border border-slate-200 text-xs text-slate-700 flex flex-col md:flex-row items-center justify-between gap-3">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                        <span className="font-semibold flex items-center gap-2">
+                          <span className={`w-2.5 h-2.5 rounded-full ${n8nStatus.status === 'success' ? 'bg-emerald-500 animate-pulse' : 'bg-blue-500'}`} />
+                          Webhook n8n: {n8nStatus.status === 'success' ? 'Disparado com Sucesso' : 'Configurado'}
+                        </span>
+                        <span className="font-mono text-[11px] text-slate-500 truncate max-w-xs">
+                          {n8nStatus.webhookUrl || DEFAULT_N8N_WEBHOOK}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => dispatchToLocalN8n(diagnosticoResult)}
+                        disabled={isRetryingN8n}
+                        className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                      >
+                        {isRetryingN8n ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5 text-amber-400" />}
+                        {isRetryingN8n ? 'A Enviar...' : 'Reenviar para n8n'}
+                      </button>
                     </div>
                   )}
 

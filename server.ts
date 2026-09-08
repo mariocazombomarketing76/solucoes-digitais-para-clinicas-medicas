@@ -79,7 +79,7 @@ INSTRUÇÕES DE ANÁLISE:
 }`;
 
         const response = await ai.models.generateContent({
-          model: "gemini-3.7-flash",
+          model: "gemini-2.5-flash",
           contents: prompt,
           config: {
             tools: [{ googleSearch: {} }],
@@ -103,7 +103,12 @@ INSTRUÇÕES DE ANÁLISE:
           aiResult = JSON.parse(jsonMatch[0]);
         }
       } catch (err: any) {
-        console.error("Erro ao chamar Gemini API:", err?.message || err);
+        const errMsg = err?.message || String(err);
+        if (errMsg.includes("429") || errMsg.includes("quota") || errMsg.includes("RESOURCE_EXHAUSTED")) {
+          console.info("[Diagnóstico AI] Limite de quota da API Gemini atingido temporariamente. Ativando análise heurística especializada.");
+        } else {
+          console.warn("[Diagnóstico AI] Nota ao processar com Gemini:", errMsg);
+        }
       }
     }
 
@@ -157,18 +162,29 @@ INSTRUÇÕES DE ANÁLISE:
     };
 
     // Trigger n8n Webhook
-    const DEFAULT_N8N_WEBHOOK = "http://localhost:8088/webhook/clinicas-digitais/diagnostico-v2";
+    const DEFAULT_N8N_WEBHOOK = "https://lively-molehill-apache.ngrok-free.dev/webhook/clinicas-digitais/diagnostico-v2";
     const targetWebhook = n8nWebhookUrl || process.env.N8N_WEBHOOK_URL || DEFAULT_N8N_WEBHOOK;
     let n8nResult = { status: "pending", webhookUrl: targetWebhook };
 
-    if (targetWebhook) {
+    const isLocalhost = /localhost|127\.0\.0\.1|0\.0\.0\.0/.test(targetWebhook);
+
+    if (targetWebhook && isLocalhost) {
+      // Localhost cannot be reached from the cloud container; client browser handles local dispatch
+      n8nResult = {
+        status: "client_dispatch_ready",
+        webhookUrl: targetWebhook
+      };
+    } else if (targetWebhook) {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        const timeoutId = setTimeout(() => controller.abort(), 6000);
 
         const webhookResponse = await fetch(targetWebhook, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true"
+          },
           signal: controller.signal,
           body: JSON.stringify({
             event: "diagnostico_submetido",
@@ -184,7 +200,7 @@ INSTRUÇÕES DE ANÁLISE:
           webhookUrl: targetWebhook
         };
       } catch (wErr: any) {
-        console.warn("Aviso ao enviar webhook do servidor para n8n:", wErr?.message || wErr);
+        console.warn("[n8n Webhook] Servidor remoto não respondeu:", wErr?.message || wErr);
         n8nResult = {
           status: "dispatched_local",
           webhookUrl: targetWebhook
