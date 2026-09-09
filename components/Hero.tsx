@@ -16,34 +16,7 @@ const Hero: React.FC<HeroProps> = ({ contactLink }) => {
 
   return (
     <section className="bg-white overflow-hidden border-b border-gray-100">
-      <div className="container mx-auto px-6 pt-6 md:pt-10 pb-16 md:pb-24">
-        {/* Header brand bar */}
-        <motion.div
-          className="mb-10 md:mb-14 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <div className="flex flex-col space-y-1 text-left">
-            <div className="flex items-center gap-2">
-              <Activity className="w-6 h-6 text-emerald-500" />
-              <span className="font-sans font-bold text-xl text-gray-900 tracking-tight">
-                Clinicas<span className="text-blue-600">Digitais</span>
-              </span>
-            </div>
-            <div className="pl-8">
-              <p className="text-xs font-semibold text-gray-600 leading-tight">Mario Cazombo e Filhos, Lda</p>
-              <p className="text-[10px] text-gray-400 font-mono mt-0.5">NIF: 5417437034 • Luanda, Angola</p>
-            </div>
-          </div>
-          <div className="flex items-center">
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-100">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              Suporte Local Ativo (Angola)
-            </span>
-          </div>
-        </motion.div>
-
+      <div className="container mx-auto px-6 pt-8 md:pt-12 pb-16 md:pb-24">
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
           {/* Main content side */}
           <motion.div

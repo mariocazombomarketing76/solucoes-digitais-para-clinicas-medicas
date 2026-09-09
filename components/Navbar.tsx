@@ -85,24 +85,15 @@ const Navbar: React.FC<NavbarProps> = ({ contactLink }) => {
           <button 
             type="button" 
             onClick={() => scrollToSection('diagnostico')}
-            className="hover:text-blue-600 transition-colors flex items-center gap-1.5 text-blue-700 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-200"
+            className="hover:bg-blue-100/80 hover:text-blue-800 transition-all flex items-center gap-1.5 text-blue-700 bg-blue-50 px-3.5 py-1.5 rounded-full border border-blue-200 font-semibold"
           >
             <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-            Diagnóstico IA
+            <span>Diagnóstico Grátis Com IA</span>
           </button>
         </nav>
 
         {/* Right CTA Actions */}
         <div className="flex items-center gap-2 sm:gap-3">
-          <button
-            type="button"
-            onClick={() => scrollToSection('diagnostico')}
-            className="hidden sm:inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-sm transition-all gap-1.5 active:scale-95"
-          >
-            <Sparkles className="w-4 h-4" />
-            <span>Diagnóstico Grátis</span>
-          </button>
-
           <a
             href={contactLink}
             target="_blank"
@@ -154,7 +145,7 @@ const Navbar: React.FC<NavbarProps> = ({ contactLink }) => {
                 >
                   <span className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-blue-600" />
-                    Diagnóstico Gratuito com IA & n8n
+                    Diagnóstico Grátis Com IA
                   </span>
                   <ChevronRight className="w-4 h-4 text-blue-500" />
                 </button>
