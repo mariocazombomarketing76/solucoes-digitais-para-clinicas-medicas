@@ -362,6 +362,198 @@ INSTRUÇÕES DE ANÁLISE:
   }
 });
 
+// API Endpoint for Live 24/7 Digital Secretary Demo (Chat + Side-by-side Patient Data)
+app.post("/api/demo-secretaria", async (req, res) => {
+  try {
+    const {
+      userMessage,
+      history = [],
+      leadInfo = {},
+      currentPatientData = {},
+      n8nDemoWebhookUrl
+    } = req.body;
+
+    if (!userMessage || typeof userMessage !== "string") {
+      return res.status(400).json({ error: "Mensagem do utilizador é obrigatória." });
+    }
+
+    const DEFAULT_DEMO_WEBHOOK = "https://edson76.app.n8n.cloud/webhook/clinicas-digitais/demo-secretaria";
+    const targetWebhook = n8nDemoWebhookUrl || process.env.N8N_DEMO_SECRETARIA_WEBHOOK || DEFAULT_DEMO_WEBHOOK;
+
+    let n8nHandled = false;
+    let reply = "";
+    let updatedPatientData = { ...currentPatientData };
+
+    // 1. Try to dispatch to n8n if available
+    if (targetWebhook) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 12000); // 12s timeout for interactive chat
+
+        const n8nResp = await fetch(targetWebhook, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true"
+          },
+          signal: controller.signal,
+          body: JSON.stringify({
+            mensagem: userMessage,
+            historico: history,
+            lead: leadInfo,
+            dadosCompiladosAtuais: currentPatientData,
+            timestamp: new Date().toISOString()
+          })
+        });
+
+        clearTimeout(timeoutId);
+
+        if (n8nResp.ok) {
+          const n8nData = await n8nResp.json();
+          if (n8nData && (n8nData.resposta || n8nData.reply || n8nData.message)) {
+            reply = n8nData.resposta || n8nData.reply || n8nData.message;
+            if (n8nData.dadosPaciente || n8nData.patientData) {
+              updatedPatientData = { ...updatedPatientData, ...(n8nData.dadosPaciente || n8nData.patientData) };
+            }
+            n8nHandled = true;
+          }
+        }
+      } catch (webhookErr) {
+        // Fallback gracefully to Gemini AI
+      }
+    }
+
+    // 2. Intelligent AI Processing (Gemini or heuristic medical compiler) if n8n was not yet responding
+    if (!n8nHandled) {
+      const ai = getGeminiClient();
+      const clinicaName = leadInfo.clinica || "Clínica Médica de Referência";
+      const gestorName = leadInfo.nome || "Dr(a). Diretor(a)";
+
+      if (ai) {
+        try {
+          const prompt = `
+És a Secretária Médica Digital 24/7 da "${clinicaName}" em Angola.
+O teu papel é realizar um atendimento humanizado, caloroso, cordial e profissional a um paciente que acabou de entrar em contacto por chat/WhatsApp.
+Usa um tom respeitoso típico de Angola (ex: "Com certeza", "Muito gosto", "Estamos à sua disposição").
+Objetivo do atendimento:
+1. Responder à dúvida ou solicitação do paciente de forma clara, acolhedora e eficiente.
+2. Identificar ou confirmar: Nome do Paciente, Especialidade pretendida, Sintomas/Motivo, Preferência de dia/horário, Tipo de consulta (Particular ou Seguro de Saúde como ENSA, etc.).
+3. Conduzir o paciente para o agendamento de forma natural, sem parecer robótico.
+
+Histórico recente da conversa:
+${JSON.stringify(history.slice(-6))}
+
+Dados já compilados anteriormente sobre este paciente:
+${JSON.stringify(currentPatientData)}
+
+Nova mensagem recebida do paciente:
+"${userMessage}"
+
+Retorna APENAS um JSON no formato estrito:
+{
+  "reply": "Texto da resposta que a secretária digital envia ao paciente no chat (máximo 2 a 3 parágrafos breves e cordiais)",
+  "patientData": {
+    "nomePaciente": "Nome extraído do paciente se mencionado, ou manter anterior",
+    "especialidade": "Especialidade médica identificada (ex: Cardiologia, Pediatria, Clínica Geral, Ginecologia, Oftalmologia, etc.)",
+    "medicoPretendido": "Nome do médico se citado ou 'Equipa Médica'",
+    "sintomasOuMotivo": "Resumo dos sintomas ou razão da consulta",
+    "dataSugerida": "Data ou dia da semana sugerido/mencionado",
+    "horarioSugerido": "Horário ou turno sugerido/mencionado (ex: Manhã, Tarde, 14h30)",
+    "tipoAtendimento": "Particular | Seguro de Saúde | A definir",
+    "seguroNome": "Nome da seguradora se citado (ex: ENSA, Fidelidade, etc.) ou 'Nenhum'",
+    "statusAgendamento": "Em Triagem | Especialidade Identificada | Horário em Confirmação | Pré-Agendado",
+    "nivelUrgencia": "Rotina | Prioritária | Atenção Médica",
+    "percentualConcluido": 30, // número de 10 a 100 de acordo com os dados preenchidos
+    "proximoPasso": "Breve frase indicando o próximo passo do sistema (ex: Confirmar preferência de horário, Aguardar confirmação do paciente, etc.)"
+  }
+}
+`;
+
+          const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt,
+            config: {
+              responseMimeType: 'application/json',
+              temperature: 0.3
+            }
+          });
+
+          const rawText = response.text || "";
+          const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            const parsed = JSON.parse(jsonMatch[0]);
+            reply = parsed.reply;
+            updatedPatientData = {
+              ...updatedPatientData,
+              ...parsed.patientData
+            };
+            n8nHandled = true;
+          }
+        } catch (geminiErr) {
+          console.warn("[Demo Secretária] Contingência ativada:", geminiErr);
+        }
+      }
+
+      // Fallback rule-based medical generator if offline
+      if (!reply) {
+        const lower = userMessage.toLowerCase();
+        let esp = updatedPatientData.especialidade || "Clínica Geral";
+        let status = updatedPatientData.statusAgendamento || "Em Triagem";
+        let percent = updatedPatientData.percentualConcluido || 35;
+
+        if (lower.includes("cardio") || lower.includes("coração") || lower.includes("pressão")) {
+          esp = "Cardiologia";
+          percent = Math.max(percent, 55);
+        } else if (lower.includes("criança") || lower.includes("pediat")) {
+          esp = "Pediatria";
+          percent = Math.max(percent, 55);
+        } else if (lower.includes("olho") || lower.includes("visão")) {
+          esp = "Oftalmologia";
+          percent = Math.max(percent, 55);
+        } else if (lower.includes("ginec") || lower.includes("mulher")) {
+          esp = "Ginecologia & Obstetrícia";
+          percent = Math.max(percent, 55);
+        }
+
+        if (lower.includes("quinta") || lower.includes("amanhã") || lower.includes("segunda") || lower.includes("sexta") || lower.includes("hora") || lower.includes("tarde") || lower.includes("manhã")) {
+          status = "Horário em Confirmação";
+          percent = Math.max(percent, 80);
+          reply = `Com certeza! Registamos a sua preferência na nossa agenda digital. Temos vagas disponíveis no período da manhã às 10h00 e à tarde a partir das 14h30. Qual seria o horário mais conveniente para si? Também gostaria de confirmar se a consulta será particular ou através de seguro de saúde (ex: ENSA, Fidelidade)?`;
+        } else {
+          reply = `Olá! Muito gosto em atender-lhe na ${clinicaName}. Posso com certeza ajudar com o seu agendamento de ${esp}. Para agilizarmos a sua ficha de atendimento, poderia indicar-nos o seu nome completo e qual o dia de sua preferência para a consulta?`;
+        }
+
+        updatedPatientData = {
+          ...updatedPatientData,
+          especialidade: esp,
+          statusAgendamento: status,
+          percentualConcluido: percent,
+          sintomasOuMotivo: updatedPatientData.sintomasOuMotivo || userMessage.slice(0, 70),
+          tipoAtendimento: lower.includes("seguro") || lower.includes("ensa") ? "Seguro de Saúde" : (updatedPatientData.tipoAtendimento || "Particular"),
+          proximoPasso: "Aguardando confirmação final do paciente para notificar a receção."
+        };
+      }
+    }
+
+    return res.json({
+      success: true,
+      reply,
+      patientData: updatedPatientData,
+      leadQualificada: true,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error: any) {
+    console.error("Erro na demo da secretária:", error);
+    return res.status(500).json({ error: "Erro interno no processador da Secretária Digital." });
+  }
+});
+
+// Standalone HTML page for Live Secretary Demo
+app.get(["/demo-secretaria", "/demo-secretaria.html"], (req, res) => {
+  res.sendFile(path.join(process.cwd(), "demo-secretaria.html"));
+});
+
 async function startServer() {
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {

@@ -60,6 +60,7 @@ const DEFAULT_N8N_WEBHOOK = "https://edson76.app.n8n.cloud/webhook/clinicas-digi
 
 interface DiagnosticFormProps {
   selectedPlan?: string;
+  onOpenDemo?: (leadInfo?: any) => void;
 }
 
 export interface AIDiagnosticoResult {
@@ -91,7 +92,7 @@ export interface AIDiagnosticoResult {
   };
 }
 
-const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan }) => {
+const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan, onOpenDemo }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.15 });
 
@@ -867,6 +868,46 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan }) => {
                         </li>
                       ))}
                     </ul>
+                  </div>
+
+                  {/* Strategic Gated Conversion: Live Demo with VIP Pass */}
+                  <div className="p-5 sm:p-6 bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white rounded-2xl sm:rounded-3xl border border-blue-800/50 shadow-xl flex flex-col md:flex-row items-center justify-between gap-5 text-left">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-blue-500/20 text-emerald-400 border border-emerald-400/30 flex items-center justify-center flex-shrink-0">
+                        <Sparkles className="w-6 h-6 text-amber-300" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-400/30 flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                            Passe VIP Liberado
+                          </span>
+                          <span className="text-xs text-slate-400">Diretor Clínico Qualificado</span>
+                        </div>
+                        <h4 className="text-base sm:text-lg font-bold text-white tracking-tight">
+                          Experimente a Secretária Digital na {formData.clinica}
+                        </h4>
+                        <p className="text-xs sm:text-sm text-slate-300 mt-0.5">
+                          Teste o chat com um paciente simulado e veja a ficha médica a compilar no CRM em tempo real.
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => onOpenDemo ? onOpenDemo({
+                        nome: formData.nome,
+                        clinica: formData.clinica,
+                        telefone: formData.telefone,
+                        email: formData.email,
+                        volumeAtendimento: "Entre 15 e 40 consultas/dia"
+                      }) : null}
+                      className="whitespace-nowrap px-6 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs sm:text-sm shadow-lg transition-all flex items-center justify-center gap-2 hover:scale-105 flex-shrink-0 cursor-pointer w-full md:w-auto"
+                    >
+                      <Sparkles className="w-4 h-4 text-amber-300" />
+                      <span>Testar Secretária 24/7</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
                   </div>
 
                   {/* Call to Action WhatsApp */}

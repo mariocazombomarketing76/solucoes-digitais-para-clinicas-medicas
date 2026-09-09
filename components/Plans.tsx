@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { Check, Sparkles, Building, BarChart3, ShieldAlert } from 'lucide-react';
+import { Check, Sparkles, Building, BarChart3, ShieldAlert, ArrowRight, Activity, Zap } from 'lucide-react';
 
 const plans = [
   {
@@ -78,9 +78,10 @@ const cardVariants = {
 
 interface PlansProps {
   onSelectPlan?: (planName: string) => void;
+  onOpenDemo?: () => void;
 }
 
-const Plans: React.FC<PlansProps> = ({ onSelectPlan }) => {
+const Plans: React.FC<PlansProps> = ({ onSelectPlan, onOpenDemo }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.15 });
 
@@ -165,22 +166,69 @@ const Plans: React.FC<PlansProps> = ({ onSelectPlan }) => {
                   </ul>
                 </div>
 
-                <button
-                  onClick={() => handlePropostaClick(plan.name)}
-                  className={`w-full py-4 px-6 rounded-xl font-bold transition-all duration-300 text-center tracking-wide text-base ${
-                    plan.highlight
-                      ? "bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/20 hover:scale-[1.02]"
-                      : "bg-white hover:bg-gray-100 text-slate-900 border border-gray-300 shadow-sm hover:scale-[1.02]"
-                  }`}
-                >
-                  Solicitar Proposta
-                </button>
+                <div className="space-y-3">
+                  {plan.highlight && (
+                    <button
+                      type="button"
+                      onClick={() => onOpenDemo ? onOpenDemo() : null}
+                      className="w-full py-3.5 px-4 rounded-xl font-bold transition-all duration-300 text-center tracking-wide text-xs sm:text-sm bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.02]"
+                    >
+                      <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                      <span>Testar Secretária 24/7</span>
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => handlePropostaClick(plan.name)}
+                    className={`w-full py-4 px-6 rounded-xl font-bold transition-all duration-300 text-center tracking-wide text-base ${
+                      plan.highlight
+                        ? "bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/20 hover:scale-[1.02]"
+                        : "bg-white hover:bg-gray-100 text-slate-900 border border-gray-300 shadow-sm hover:scale-[1.02]"
+                    }`}
+                  >
+                    Solicitar Proposta
+                  </button>
+                </div>
               </motion.div>
             );
           })}
         </motion.div>
 
-        <div className="mt-12 text-center text-sm text-gray-500 max-w-lg mx-auto">
+        {/* Strategic Callout Banner to Convert Leads to the Live Demo */}
+        <div className="mt-12 max-w-4xl mx-auto bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white p-6 sm:p-8 rounded-3xl border border-blue-800/40 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-4 text-center md:text-left">
+            <div className="w-14 h-14 rounded-2xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center text-blue-400 flex-shrink-0">
+              <Activity className="w-7 h-7 text-emerald-400" />
+            </div>
+            <div>
+              <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
+                <span className="bg-emerald-500/20 text-emerald-300 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border border-emerald-400/30 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  Simulação Interativa
+                </span>
+                <span className="text-xs text-slate-400">Acesso para Diretores</span>
+              </div>
+              <h4 className="text-lg sm:text-xl font-bold text-white tracking-tight">
+                Deseja ver a Secretária Digital a funcionar antes de contratar?
+              </h4>
+              <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl">
+                Interaja com o chat inteligente à esquerda e veja os dados da triagem e da consulta a serem compilados no CRM médico em tempo real à direita.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => onOpenDemo ? onOpenDemo() : null}
+            className="whitespace-nowrap px-6 py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-2xl text-xs sm:text-sm shadow-xl transition-all flex items-center justify-center gap-2 hover:scale-105 flex-shrink-0 cursor-pointer w-full md:w-auto"
+          >
+            <Sparkles className="w-4 h-4 text-amber-300" />
+            <span>Testar Secretária 24/7</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="mt-10 text-center text-sm text-gray-500 max-w-lg mx-auto">
           * Todas as nossas soluções são acompanhadas por contrato legal em Angola de prestação de serviços tecnológicos emitido por <strong>Mario Cazombo e Filhos, Lda</strong>.
         </div>
       </div>

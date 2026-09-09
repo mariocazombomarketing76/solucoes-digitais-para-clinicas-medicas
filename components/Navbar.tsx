@@ -4,9 +4,10 @@ import { Activity, Menu, X, Phone, Sparkles, Layers, CheckCircle2, ChevronRight 
 
 interface NavbarProps {
   contactLink: string;
+  onOpenDemo?: () => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ contactLink }) => {
+const Navbar: React.FC<NavbarProps> = ({ contactLink, onOpenDemo }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -90,6 +91,15 @@ const Navbar: React.FC<NavbarProps> = ({ contactLink }) => {
             <Sparkles className="w-3.5 h-3.5 text-blue-600" />
             <span>Diagnóstico Grátis Com IA</span>
           </button>
+
+          <button 
+            type="button" 
+            onClick={() => onOpenDemo ? onOpenDemo() : null}
+            className="hover:bg-emerald-100 hover:text-emerald-900 transition-all flex items-center gap-1.5 text-emerald-700 bg-emerald-50 px-3.5 py-1.5 rounded-full border border-emerald-300 font-bold shadow-sm"
+          >
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Testar Secretária 24/7</span>
+          </button>
         </nav>
 
         {/* Right CTA Actions */}
@@ -138,6 +148,21 @@ const Navbar: React.FC<NavbarProps> = ({ contactLink }) => {
               </div>
 
               <div className="flex flex-col space-y-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsOpen(false);
+                    if (onOpenDemo) onOpenDemo();
+                  }}
+                  className="w-full text-left px-4 py-3 rounded-xl text-sm font-bold text-emerald-800 bg-emerald-50 border border-emerald-300 flex items-center justify-between shadow-sm"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                    Testar Secretária 24/7
+                  </span>
+                  <ChevronRight className="w-4 h-4 text-emerald-600" />
+                </button>
+
                 <button
                   type="button"
                   onClick={() => scrollToSection('diagnostico')}

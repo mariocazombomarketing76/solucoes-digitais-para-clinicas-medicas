@@ -16,8 +16,14 @@ import {
   BarChart2, 
   RefreshCw, 
   Cpu, 
-  Sparkles 
+  Sparkles,
+  ArrowRight,
+  Activity
 } from 'lucide-react';
+
+interface SolutionProps {
+  onOpenDemo?: () => void;
+}
 
 const systemFeatures = [
   { title: "Website Premium", desc: "Design exclusivo e focado em conversão, otimizado para prender a atenção do paciente e gerar marcações.", icon: Globe, color: "text-blue-600 bg-blue-50" },
@@ -56,7 +62,7 @@ const itemVariants = {
   },
 };
 
-const Solution: React.FC = () => {
+const Solution: React.FC<SolutionProps> = ({ onOpenDemo }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.1 });
 
@@ -113,6 +119,36 @@ const Solution: React.FC = () => {
             );
           })}
         </motion.div>
+
+        {/* Strategic Trigger Banner in Solution Section */}
+        <div className="mt-14 max-w-4xl mx-auto bg-white rounded-3xl p-6 sm:p-8 border border-gray-200 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-4 text-center sm:text-left">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 flex-shrink-0">
+              <Activity className="w-6 h-6 text-emerald-600" />
+            </div>
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100/60 px-2.5 py-0.5 rounded-full">
+                Tecnologia em Ação
+              </span>
+              <h4 className="text-base sm:text-lg font-bold text-gray-900 mt-1">
+                Quer ver a Secretária Digital a atender um paciente agora?
+              </h4>
+              <p className="text-xs sm:text-sm text-gray-600">
+                Abra o simulador e teste o agendamento em tempo real com o painel de CRM lado a lado.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => onOpenDemo ? onOpenDemo() : null}
+            className="whitespace-nowrap px-5 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs sm:text-sm shadow-md transition-all flex items-center gap-2 hover:scale-105 flex-shrink-0 cursor-pointer"
+          >
+            <Sparkles className="w-4 h-4 text-amber-300" />
+            <span>Testar Secretária 24/7</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </section>
   );

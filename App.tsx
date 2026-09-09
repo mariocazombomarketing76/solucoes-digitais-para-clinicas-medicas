@@ -48,10 +48,14 @@ const App: React.FC = () => {
         <WhyItWorks />
 
         {/* 7. Value Plans Selection */}
-        <Plans onSelectPlan={(plan) => setSelectedPlan(plan)} />
+        <Plans 
+          onSelectPlan={(plan) => setSelectedPlan(plan)} 
+        />
 
         {/* 8. Interactive Diagnostic Form */}
-        <DiagnosticForm selectedPlan={selectedPlan} />
+        <DiagnosticForm 
+          selectedPlan={selectedPlan} 
+        />
 
         {/* 9. About the Company & Director */}
         <Authority />
@@ -84,8 +88,10 @@ const App: React.FC = () => {
       </a>
 
       {/* Mobile Bottom Fixed Action Bar */}
-      <MobileStickyBar contactLink={contactLink} />
-      
+      <MobileStickyBar 
+        contactLink={contactLink} 
+      />
+
       {/* Modals */}
       <AnimatePresence>
         {modal === 'privacy' && <PrivacyPolicy onClose={() => setModal(null)} />}
