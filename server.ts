@@ -25,6 +25,10 @@ const getGeminiClient = () => {
   });
 };
 
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok", service: "clinicas-digitais", timestamp: new Date().toISOString() });
+});
+
 // API Endpoint for Real-time AI Diagnostic
 app.post("/api/diagnostico", async (req, res) => {
   try {

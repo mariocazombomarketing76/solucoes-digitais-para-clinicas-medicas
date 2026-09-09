@@ -7,7 +7,7 @@ const Authority: React.FC = () => {
   const isInView = useInView(ref, { once: true, amount: 0.2 });
 
   return (
-    <section ref={ref} className="py-16 md:py-24 bg-white overflow-hidden border-b border-gray-100">
+    <section id="sobre" ref={ref} className="py-16 md:py-24 bg-white overflow-hidden border-b border-gray-100">
       {/* SEO Tags */}
       <h2 className="sr-only">Marketing Digital para Clínicas</h2>
 

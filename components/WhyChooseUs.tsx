@@ -99,7 +99,7 @@ const WhyChooseUs: React.FC = () => {
   const isInView = useInView(ref, { once: true, amount: 0.1 });
 
   return (
-    <section ref={ref} className="py-16 md:py-24 bg-gray-50 border-t border-gray-100 overflow-hidden">
+    <section id="diferenciais" ref={ref} className="py-16 md:py-24 bg-gray-50 border-t border-gray-100 overflow-hidden">
       <div className="container mx-auto px-6">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <span className="text-xs font-bold uppercase tracking-widest text-blue-600 bg-blue-100 px-3 py-1 rounded-full">

@@ -21,7 +21,8 @@ import {
   Check,
   Settings,
   ExternalLink,
-  Layers
+  Layers,
+  AlertCircle
 } from 'lucide-react';
 
 const specialtiesList = [
@@ -110,6 +111,7 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan }) => {
 
   const [status, setStatus] = useState<'idle' | 'scanning' | 'success' | 'rate_limited' | 'error'>('idle');
   const [rateLimitInfo, setRateLimitInfo] = useState<{ message: string; email: string; clinica: string } | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
   const [scanStep, setScanStep] = useState(0);
   const [diagnosticoResult, setDiagnosticoResult] = useState<AIDiagnosticoResult | null>(null);
   const [n8nStatus, setN8nStatus] = useState<{ status: string; webhookUrl?: string } | null>(null);
@@ -191,9 +193,14 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.nome || !formData.clinica || !formData.telefone || !formData.email) {
-      alert("Por favor, preencha os campos obrigatórios (Nome, Clínica, Telefone e E-mail).");
+      setValidationError("Por favor, preencha todos os campos obrigatórios (Nome, Clínica, Telefone e E-mail) para gerar o diagnóstico.");
+      const card = document.getElementById('diagnostico-form-card');
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth' });
+      }
       return;
     }
+    setValidationError(null);
 
     setStatus('scanning');
     setScanStep(0);
@@ -326,14 +333,27 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan }) => {
           <AnimatePresence mode="wait">
             {status === 'idle' && (
               <motion.div
+                id="diagnostico-form-card"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -30 }}
                 transition={{ duration: 0.5 }}
-                className="bg-white rounded-3xl shadow-xl border border-gray-200 p-8 md:p-12 relative"
+                className="bg-white rounded-3xl shadow-xl border border-gray-200 p-5 sm:p-8 md:p-12 relative"
               >
                 <form onSubmit={handleSubmit} className="space-y-6">
                   
+                  {/* Banner de Erro de Validação */}
+                  {validationError && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm flex items-center gap-2.5 shadow-sm"
+                    >
+                      <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-500" />
+                      <span className="font-semibold">{validationError}</span>
+                    </motion.div>
+                  )}
+
                   {/* Selector de Plano */}
                   <div className="bg-blue-50/70 rounded-2xl p-4 border border-blue-100">
                     <label className="block text-xs font-bold uppercase tracking-wider text-blue-900 mb-2 flex items-center gap-2">
@@ -346,8 +366,11 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan }) => {
                           <button
                             type="button"
                             key={plan}
-                            onClick={() => setFormData(prev => ({ ...prev, plano: plan }))}
-                            className={`py-3 px-4 rounded-xl text-xs md:text-sm font-bold transition-all text-left flex items-center justify-between border ${
+                            onClick={() => {
+                              setFormData(prev => ({ ...prev, plano: plan }));
+                              if (validationError) setValidationError(null);
+                            }}
+                            className={`py-3.5 px-4 rounded-xl text-xs md:text-sm font-bold transition-all text-left flex items-center justify-between border min-h-[48px] active:scale-[0.98] ${
                               isSelected
                                 ? "bg-blue-600 text-white border-blue-600 shadow-md ring-2 ring-blue-400/30"
                                 : "bg-white text-gray-700 border-gray-200 hover:border-gray-300"
@@ -374,7 +397,7 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan }) => {
                         value={formData.nome}
                         onChange={handleInputChange}
                         placeholder="Ex: Dr. António Silva"
-                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-gray-800"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-gray-800 text-base"
                       />
                     </div>
 
@@ -390,7 +413,7 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan }) => {
                         value={formData.clinica}
                         onChange={handleInputChange}
                         placeholder="Ex: Clínica MedSaúde"
-                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-gray-800"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-gray-800 text-base"
                       />
                     </div>
                   </div>
@@ -405,7 +428,7 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan }) => {
                         name="especialidade"
                         value={formData.especialidade}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white outline-none transition-all text-gray-800"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white outline-none transition-all text-gray-800 text-base"
                       >
                         {specialtiesList.map((spec, i) => (
                           <option key={i} value={spec}>{spec}</option>
@@ -425,7 +448,7 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan }) => {
                         value={formData.telefone}
                         onChange={handleInputChange}
                         placeholder="Ex: +244 923 000 000"
-                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-gray-800"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-gray-800 text-base"
                       />
                     </div>
                   </div>
@@ -443,7 +466,7 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan }) => {
                         value={formData.email}
                         onChange={handleInputChange}
                         placeholder="Ex: geral@medsaude.com"
-                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-gray-800"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-gray-800 text-base"
                       />
                     </div>
 
@@ -456,7 +479,7 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan }) => {
                         name="cidade"
                         value={formData.cidade}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white outline-none transition-all text-gray-800"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white outline-none transition-all text-gray-800 text-base"
                       >
                         {citiesList.map((city, i) => (
                           <option key={i} value={city}>{city}</option>
@@ -479,7 +502,7 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan }) => {
                       value={formData.website}
                       onChange={handleInputChange}
                       placeholder="Ex: www.minhaclinica.com"
-                      className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-gray-800"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-gray-800 text-base"
                     />
                   </div>
 

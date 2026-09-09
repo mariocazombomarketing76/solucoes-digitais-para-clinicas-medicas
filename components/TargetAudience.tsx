@@ -45,7 +45,7 @@ const TargetAudience: React.FC = () => {
   };
 
   return (
-    <section ref={ref} className="py-16 md:py-24 bg-blue-50/50 overflow-hidden border-b border-gray-100">
+    <section id="especialidades" ref={ref} className="py-16 md:py-24 bg-blue-50/50 overflow-hidden border-b border-gray-100">
       {/* SEO Tag */}
       <h2 className="sr-only">Transformação Digital para Clínicas</h2>
 

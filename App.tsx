@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
+import Navbar from './components/Navbar';
+import MobileStickyBar from './components/MobileStickyBar';
 import Hero from './components/Hero';
 import TargetAudience from './components/TargetAudience';
 import Problems from './components/Problems';
@@ -22,7 +24,10 @@ const App: React.FC = () => {
   const [selectedPlan, setSelectedPlan] = useState<string>("Secretária Digital Pro");
 
   return (
-    <div className="bg-gray-50 text-gray-800 font-sans antialiased scroll-smooth relative">
+    <div className="bg-gray-50 text-gray-800 font-sans antialiased scroll-smooth relative pb-16 md:pb-0">
+      {/* Sticky Header Navigation */}
+      <Navbar contactLink={contactLink} />
+
       <main>
         {/* 1. Hero Section */}
         <Hero contactLink={contactLink} />
@@ -64,19 +69,22 @@ const App: React.FC = () => {
         onTermsClick={() => setModal('terms')}
       />
 
-      {/* Floating WhatsApp Button */}
+      {/* Floating WhatsApp Button for Desktop/Tablet */}
       <a
         href={contactLink}
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Falar no WhatsApp"
-        className="fixed bottom-6 right-6 z-40 bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 flex items-center justify-center group"
+        className="hidden md:flex fixed bottom-6 right-6 z-40 bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 items-center justify-center group"
       >
         <MessageSquare className="w-7 h-7" />
         <span className="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-500 ease-in-out font-bold text-sm ml-0 group-hover:ml-2">
           Falar no WhatsApp
         </span>
       </a>
+
+      {/* Mobile Bottom Fixed Action Bar */}
+      <MobileStickyBar contactLink={contactLink} />
       
       {/* Modals */}
       <AnimatePresence>

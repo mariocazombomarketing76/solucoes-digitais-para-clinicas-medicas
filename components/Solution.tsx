@@ -61,7 +61,7 @@ const Solution: React.FC = () => {
   const isInView = useInView(ref, { once: true, amount: 0.1 });
 
   return (
-    <section id="sistema" ref={ref} className="py-16 md:py-24 bg-gray-50 overflow-hidden border-b border-gray-100">
+    <section id="solucoes" ref={ref} className="py-16 md:py-24 bg-gray-50 overflow-hidden border-b border-gray-100">
       {/* SEO Tag */}
       <h2 className="sr-only">Websites para Clínicas em Angola</h2>
 
