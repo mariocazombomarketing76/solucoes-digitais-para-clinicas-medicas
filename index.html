@@ -345,10 +345,15 @@
   // ---- Painel (ficha ao vivo) ----
   function iniciarPolling() {
     pararPolling();
-    pollTimer = setInterval(atualizarFicha, 4000);
+    // Polling automático removido para poupar execuções do n8n.
+    // A ficha é atualizada apenas após cada resposta da Sofia (ver chamada a atualizarFicha()).
   }
+
   function pararPolling() {
-    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+    if (pollTimer) {
+      clearInterval(pollTimer);
+      pollTimer = null;
+    }
   }
 
   function atualizarFicha() {
