@@ -48,7 +48,7 @@ app.post("/api/diagnostico", async (req, res) => {
       return res.status(400).json({ error: "Campos obrigatórios ausentes: nome, clinica, telefone e email são necessários." });
     }
 
-    const DEFAULT_N8N_WEBHOOK = "https://edson76.app.n8n.cloud/webhook/clinicas-digitais/diagnostico-v2";
+    const DEFAULT_N8N_WEBHOOK = "https://lively-molehill-apache.ngrok-free.dev/webhook/clinicas-digitais/diagnostico-v2";
     const targetWebhook = n8nWebhookUrl || process.env.N8N_WEBHOOK_URL || DEFAULT_N8N_WEBHOOK;
 
     const clientIp = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() || req.socket.remoteAddress || "127.0.0.1";
@@ -377,7 +377,7 @@ app.post("/api/demo-secretaria", async (req, res) => {
       return res.status(400).json({ error: "Mensagem do utilizador é obrigatória." });
     }
 
-    const DEFAULT_DEMO_WEBHOOK = "https://edson76.app.n8n.cloud/webhook/clinicas-digitais/demo-secretaria";
+    const DEFAULT_DEMO_WEBHOOK = "https://lively-molehill-apache.ngrok-free.dev/webhook/clinicas-digitais/demo-secretaria";
     const targetWebhook = n8nDemoWebhookUrl || process.env.N8N_DEMO_SECRETARIA_WEBHOOK || DEFAULT_DEMO_WEBHOOK;
 
     let n8nHandled = false;

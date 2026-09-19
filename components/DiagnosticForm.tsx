@@ -56,7 +56,7 @@ const availablePlans = [
   "Secretária Digital Elite"
 ];
 
-const DEFAULT_N8N_WEBHOOK = "https://edson76.app.n8n.cloud/webhook/clinicas-digitais/diagnostico-v2";
+const DEFAULT_N8N_WEBHOOK = "https://lively-molehill-apache.ngrok-free.dev/webhook/clinicas-digitais/diagnostico-v2";
 
 interface DiagnosticFormProps {
   selectedPlan?: string;

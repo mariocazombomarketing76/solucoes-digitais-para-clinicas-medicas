@@ -109,7 +109,7 @@ Edite o arquivo `.env`:
 GEMINI_API_KEY=sua_chave_gemini_aqui
 
 # URL do Webhook de Produção do n8n
-N8N_WEBHOOK_URL=https://edson76.app.n8n.cloud/webhook/clinicas-digitais/diagnostico-v2
+N8N_WEBHOOK_URL=https://lively-molehill-apache.ngrok-free.dev/webhook/clinicas-digitais/diagnostico-v2
 ```
 
 ### 5. Iniciar o Servidor de Desenvolvimento
@@ -144,7 +144,7 @@ sequenceDiagram
 
     Cliente->>LP: Preenche dados da clínica e escolhe o plano
     LP->>API: POST /api/diagnostico (com dados normalizados)
-    API->>n8n: POST https://edson76.app.n8n.cloud/.../diagnostico-v2
+    API->>n8n: POST https://lively-molehill-apache.ngrok-free.dev/.../diagnostico-v2
     n8n->>n8n: Validação Anti-abuso (100/dia & Dedupe e-mail)
     alt Limite atingido ou e-mail repetido hoje
         n8n-->>API: HTTP 429 Too Many Requests

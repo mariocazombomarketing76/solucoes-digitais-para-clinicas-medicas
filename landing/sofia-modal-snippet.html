@@ -201,8 +201,8 @@
 <script>
 (function () {
   // ---- CONFIGURAÇÃO (URLs do teu workflow n8n) ----
-  var URL_CHAT  = "https://tim-kernel-separated-theory.trycloudflare.com/webhook/1b7bb92e-8e17-4762-bc59-9ac160e977e8/chat";
-  var URL_FICHA = "https://edson76.app.n8n.cloud/webhook/clinica-demo-ficha";
+  var URL_CHAT  = "https://lively-molehill-apache.ngrok-free.dev/webhook/1b7bb92e-8e17-4762-bc59-9ac160e977e8/chat";
+  var URL_FICHA = "https://lively-molehill-apache.ngrok-free.dev/webhook/clinica-demo-ficha";
   var TEXTO_BOTAO = "testar secretária 24/7"; // comparação sem maiúsculas/acentos-sensível
 
   // ---- Estado ----
@@ -262,7 +262,10 @@
 
     fetch(URL_CHAT, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true"
+      },
       body: JSON.stringify({ action: "sendMessage", chatInput: texto, sessionId: sessionId })
     })
       .then(function (r) { return r.json(); })
@@ -310,7 +313,9 @@
 
   function atualizarFicha() {
     if (!sessionId) return;
-    fetch(URL_FICHA + "?session_id=" + encodeURIComponent(sessionId))
+    fetch(URL_FICHA + "?session_id=" + encodeURIComponent(sessionId), {
+      headers: { "ngrok-skip-browser-warning": "true" }
+    })
       .then(function (r) { return r.json(); })
       .then(function (data) {
         // A resposta pode vir como objeto, array, ou {data:[...]}. Normalizamos.
