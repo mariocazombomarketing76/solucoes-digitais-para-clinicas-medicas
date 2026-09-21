@@ -25,6 +25,29 @@ const getGeminiClient = () => {
   });
 };
 
+// ==========================================
+// OTIMIZAÇÃO DE CONSUMO DE IA & RATE LIMITING
+// ==========================================
+// 1. Cache em memória por 24 horas (Chave: clinica + email) para evitar chamadas redundantes à IA
+interface CachedDiagnostic {
+  data: any;
+  timestamp: number;
+}
+const diagnosticsCache = new Map<string, CachedDiagnostic>();
+
+// 2. Proteção Anti-Abuso local por IP (máximo 5 pedidos a cada 10 minutos por IP)
+const ipRequestHistory = new Map<string, number[]>();
+const isRateLimitedIP = (ip: string): boolean => {
+  const now = Date.now();
+  const windowMs = 10 * 60 * 1000; // 10 minutos
+  const maxReqs = 5;
+  const timestamps = (ipRequestHistory.get(ip) || []).filter(t => now - t < windowMs);
+  if (timestamps.length >= maxReqs) return true;
+  timestamps.push(now);
+  ipRequestHistory.set(ip, timestamps);
+  return false;
+};
+
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", service: "clinicas-digitais", timestamp: new Date().toISOString() });
 });
@@ -52,6 +75,34 @@ app.post("/api/diagnostico", async (req, res) => {
     const targetWebhook = n8nWebhookUrl || process.env.N8N_WEBHOOK_URL || DEFAULT_N8N_WEBHOOK;
 
     const clientIp = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() || req.socket.remoteAddress || "127.0.0.1";
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedClinica = clinica.trim().toLowerCase();
+    const cacheKey = `${normalizedClinica}_${normalizedEmail}`;
+
+    // 1. ECONOMIA DE IA: Se o mesmo utilizador/clínica já fez diagnóstico nas últimas 24h, retorna do cache
+    const cached = diagnosticsCache.get(cacheKey);
+    if (cached && (Date.now() - cached.timestamp < 24 * 60 * 60 * 1000)) {
+      console.log(`[Diagnóstico - Economia IA] Retornando diagnóstico em cache para ${clinica} (${email}). Economia de 100% dos tokens.`);
+      return res.json({
+        success: true,
+        source: "cache_economia_ia",
+        diagnostico: cached.data,
+        cached: true
+      });
+    }
+
+    // 2. PROTEÇÃO DE QUOTA: Rate-limiter por IP (máximo 5 chamadas em 10 minutos)
+    if (isRateLimitedIP(clientIp)) {
+      console.warn(`[Diagnóstico - Proteção] IP ${clientIp} bloqueado temporariamente por excesso de requisições.`);
+      return res.status(429).json({
+        success: false,
+        isRateLimited: true,
+        message: "Muitas solicitações a partir desta rede. Por favor, aguarde alguns minutos antes de solicitar um novo diagnóstico.",
+        email,
+        clinica
+      });
+    }
 
     const payload = {
       nome,
@@ -232,6 +283,9 @@ app.post("/api/diagnostico", async (req, res) => {
         }
       };
 
+      // Salva em cache para economizar 100% de IA nas próximas requisições deste utilizador/clínica
+      diagnosticsCache.set(cacheKey, { data: diagnosticoFinal, timestamp: Date.now() });
+
       return res.json({
         success: true,
         source: "n8n_real_ai",
@@ -241,7 +295,7 @@ app.post("/api/diagnostico", async (req, res) => {
     }
 
     // 2. CONTINGENCY FALLBACK: If n8n was temporarily unavailable
-    console.info("[Diagnóstico] n8n temporariamente inacessível. Acionando motor de contingência.");
+    console.info("[Diagnóstico] n8n temporariamente inacessível. Acionando motor de contingência com consumo reduzido.");
 
     let aiResult = null;
     let groundingSources = [];
@@ -250,36 +304,29 @@ app.post("/api/diagnostico", async (req, res) => {
 
     if (ai) {
       try {
-        const prompt = `Você é o Diretor de Tecnologia e Analista de Saúde Digital Sênior do 'Sistemas Clínicas Digitais' em Luanda, Angola.
-Sua missão é realizar um diagnóstico digital em tempo real para a seguinte instituição de saúde:
-- Nome do Responsável: ${nome}
-- Nome da Clínica/Consultório: ${clinica}
-- Especialidade Principal: ${especialidade}
-- Cidade/Província em Angola: ${cidade}
-- Website Atual: ${website || "Não possui website informado"}
-- Plano Selecionado pelo Cliente: ${plano}
+        const prompt = `Analista Digital Sênior - Clínicas Digitais Angola. Gere diagnóstico JSON conciso para:
+Clínica: ${clinica} | Responsável: ${nome} | Especialidade: ${especialidade} | Cidade: ${cidade} | Web: ${website || "Nenhum"} | Plano: ${plano}
 
-INSTRUÇÕES DE ANÁLISE:
-1. Avalie o nível de maturidade digital de 1.0 a 10.0.
-2. Elabore um relatório técnico adaptado ESPECIFICAMENTE ao plano escolhido ("${plano}").
-3. Responda ESTRITAMENTE em formato JSON com a seguinte estrutura:
+Retorne JSON estrito:
 {
-  "score": number (ex: 4.5),
-  "nivel": "Inicial" | "Intermediário" | "Avançado",
-  "resumoExecutivo": "string curta resumindo o estado digital atual",
-  "topRecomendacoes": ["recomendação 1", "recomendação 2", "recomendação 3"],
-  "pontosFortes": ["string", "string", "string"],
-  "gargalos": ["string", "string", "string"],
-  "insightsRealTime": ["string", "string"],
-  "planoBeneficios": ["benefício 1", "benefício 2", "benefício 3"],
-  "potencialCaptacao": "estimativa ex: +45% a 80% de aumento"
+  "score": 4.5,
+  "nivel": "Inicial"|"Intermediário"|"Avançado",
+  "resumoExecutivo": "string concisa com max 30 palavras",
+  "topRecomendacoes": ["rec1", "rec2", "rec3"],
+  "pontosFortes": ["pt1", "pt2", "pt3"],
+  "gargalos": ["gar1", "gar2", "gar3"],
+  "insightsRealTime": ["ins1", "ins2"],
+  "planoBeneficios": ["ben1", "ben2", "ben3"],
+  "potencialCaptacao": "+40% a 75% no volume de pacientes"
 }`;
 
         const response = await ai.models.generateContent({
           model: "gemini-2.5-flash",
           contents: prompt,
           config: {
-            temperature: 0.3
+            temperature: 0.2,
+            maxOutputTokens: 600,
+            responseMimeType: "application/json"
           }
         });
 
@@ -348,6 +395,9 @@ INSTRUÇÕES DE ANÁLISE:
         groundingSources
       }
     };
+
+    // Salva em cache para economizar 100% de IA nas próximas requisições
+    diagnosticsCache.set(cacheKey, { data: diagnosticoFinal, timestamp: Date.now() });
 
     return res.json({
       success: true,
