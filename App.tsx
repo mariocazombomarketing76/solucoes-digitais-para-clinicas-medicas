@@ -50,6 +50,7 @@ const App: React.FC = () => {
         {/* 7. Value Plans Selection */}
         <Plans 
           onSelectPlan={(plan) => setSelectedPlan(plan)} 
+          contactLink={contactLink}
         />
 
         {/* 8. Interactive Diagnostic Form */}
