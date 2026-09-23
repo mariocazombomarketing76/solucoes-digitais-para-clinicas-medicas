@@ -675,7 +675,6 @@
     overlay.classList.add("sofia-open");
     if (!sessionId) {
       sessionId = "sofia-" + Date.now() + "-" + Math.floor(Math.random() * 100000);
-      addMsg("bot", "Olá! 👋 Sou a Sofia, secretária digital da Clínica Vida+. Como posso ajudar hoje com a sua consulta ou marcação?");
     }
     input.focus();
     iniciarPolling();
