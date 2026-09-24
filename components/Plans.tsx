@@ -159,13 +159,28 @@ const Plans: React.FC<PlansProps> = ({
       <div className="container mx-auto px-4 sm:px-6">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-14 md:mb-16">
-          <span className="text-xs font-bold uppercase tracking-widest text-blue-700 bg-blue-100/90 border border-blue-200 px-3.5 py-1.5 rounded-full inline-flex items-center gap-1.5 shadow-sm">
-            <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-            Tabela de Investimento Transparente
-          </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 mt-4 mb-4 tracking-tight">
+          <div className="inline-flex items-center gap-2 mb-3">
+            <span className="text-xs font-bold uppercase tracking-widest text-blue-700 bg-blue-100/90 border border-blue-200 px-3.5 py-1.5 rounded-full inline-flex items-center gap-1.5 shadow-sm">
+              <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+              Tabela de Investimento Transparente
+            </span>
+          </div>
+
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 mt-2 mb-4 tracking-tight">
             Planos de Solução Digital
           </h2>
+
+          {/* Promotional Notice Highlight Banner */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 shadow-sm mb-4">
+            <span className="flex h-2.5 w-2.5 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
+            </span>
+            <span className="text-xs sm:text-sm font-semibold">
+              ⚡ <strong>Tabela Promocional:</strong> Estes preços são promocionais, válidos por <strong>90 dias</strong>.
+            </span>
+          </div>
+
           <p className="text-base sm:text-lg text-gray-600 leading-relaxed max-w-2xl mx-auto">
             Soluções completas com suporte técnico permanente em Angola, servidores de alto tráfego e retorno mensurável em captação de pacientes.
           </p>
@@ -251,16 +266,25 @@ const Plans: React.FC<PlansProps> = ({
                     </div>
 
                     {/* Monthly Fee (Biggest & Boldest) */}
-                    <div className="flex items-baseline gap-1.5 my-1">
-                      <span className={`text-3xl sm:text-4xl font-extrabold tracking-tight ${
-                        isPro ? "text-white" : "text-slate-900"
+                    <div className="flex flex-wrap items-baseline justify-between gap-1.5 my-1">
+                      <div className="flex items-baseline gap-1.5">
+                        <span className={`text-3xl sm:text-4xl font-extrabold tracking-tight ${
+                          isPro ? "text-white" : "text-slate-900"
+                        }`}>
+                          {plan.monthlyFee}
+                        </span>
+                        <span className={`text-sm font-semibold ${
+                          isPro ? "text-slate-400" : "text-gray-500"
+                        }`}>
+                          /mês
+                        </span>
+                      </div>
+                      <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                        isPro 
+                          ? "bg-amber-400/20 text-amber-300 border border-amber-400/30" 
+                          : "bg-amber-100 text-amber-800 border border-amber-200"
                       }`}>
-                        {plan.monthlyFee}
-                      </span>
-                      <span className={`text-sm font-semibold ${
-                        isPro ? "text-slate-400" : "text-gray-500"
-                      }`}>
-                        /mês
+                        Promocional (90 dias)
                       </span>
                     </div>
 
@@ -429,7 +453,7 @@ const Plans: React.FC<PlansProps> = ({
         {/* Regulatory & Legal Notes */}
         <div className="mt-8 text-center text-xs text-gray-500 max-w-2xl mx-auto space-y-1.5">
           <p>
-            * Todos os valores estão sujeitos a IVA conforme a legislação angolana em vigor. Os preços de setup podem variar consoante a complexidade do projeto.
+            * <strong>Condição Promocional:</strong> Todos os preços indicados nesta tabela são promocionais, válidos por 90 dias para novas contratações. Valores sujeitos a IVA conforme a legislação angolana em vigor. Os preços de setup podem variar consoante a complexidade do projeto.
           </p>
           <p>
             Todas as nossas soluções são acompanhadas por contrato legal em Angola de prestação de serviços tecnológicos emitido por <strong>Mario Cazombo e Filhos, Lda</strong>.
