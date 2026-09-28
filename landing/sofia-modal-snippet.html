@@ -639,32 +639,224 @@
   overlay.addEventListener("click", function (e) { if (e.target === overlay) fecharModal(); });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") fecharModal(); });
 
+  // ---- RECONHECIMENTO AVANÇADO DE NOME DO PACIENTE ----
+  function extrairNomePaciente(texto, remetente, nomeAtual) {
+    if (!texto) return null;
+    var t = texto.trim();
+    if (!t) return null;
+
+    function semAcentos(str) {
+      return (str || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+    }
+
+    var PALAVRAS_STOP = [
+      "ola", "oi", "bom", "boa", "dia", "tarde", "noite", "alo",
+      "consulta", "consultas", "marcar", "agendar", "agendamento",
+      "medico", "medica", "medicos", "doutor", "doutora", "dr", "dra",
+      "clinica", "hospital", "paciente", "especialidade", "especialidades",
+      "cardiologia", "pediatria", "ginecologia", "oftalmologia", "dentista", "odontologia",
+      "ortopedia", "dermatologia", "neurologia", "urologia", "fisioterapia", "nutricao", "psicologia",
+      "dor", "dores", "febre", "sintoma", "sintomas", "exame", "exames",
+      "rececao", "recepcao", "secretaria", "sofia", "assistente",
+      "quero", "queria", "gostaria", "preciso", "precisava", "tenho", "tem", "pode", "podia", "poderia",
+      "saber", "ver", "fazer", "falar", "confirmar", "cancelar", "remarcar",
+      "favor", "obrigado", "obrigada", "agradecido", "agradecida",
+      "quanto", "custa", "custo", "valor", "valores", "preco", "precos",
+      "quando", "onde", "como", "qual", "quais", "porque", "por",
+      "sim", "nao", "claro", "certeza", "ok", "tudo", "bem", "perfeito", "excelente",
+      "amanha", "hoje", "ontem", "semana", "mes",
+      "segunda", "terca", "quarta", "quinta", "sexta", "sabado", "domingo",
+      "manha", "cedo", "hora", "horas", "horario", "vaga", "vagas",
+      "particular", "seguro", "convenio", "ensa", "fidelidade", "saude",
+      "informacao", "informacoes", "atendimento", "urgencia", "emergencia"
+    ];
+
+    var stopSet = {};
+    for (var i = 0; i < PALAVRAS_STOP.length; i++) {
+      stopSet[PALAVRAS_STOP[i]] = true;
+    }
+
+    var preposicoes = ["de", "da", "do", "dos", "das", "e"];
+    var prepSet = {};
+    for (var p = 0; p < preposicoes.length; p++) {
+      prepSet[preposicoes[p]] = true;
+    }
+
+    function formatarNome(str) {
+      if (!str) return "";
+      return str
+        .trim()
+        .replace(/\s+/g, " ")
+        .toLowerCase()
+        .split(" ")
+        .map(function(w, idx) {
+          if (/^(dr|dra|sr|sra)\.?$/i.test(w)) {
+            return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() + (w.indexOf('.') === -1 ? '.' : '');
+          }
+          if (idx > 0 && prepSet[w.toLowerCase()]) {
+            return w.toLowerCase();
+          }
+          return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+        })
+        .join(" ");
+    }
+
+    function ehNomeValido(nomeStr) {
+      if (!nomeStr) return false;
+      var limpo = nomeStr.trim().replace(/^[-–—:,.\s]+|[-–—:,.\s]+$/g, "");
+      if (limpo.length < 3 || limpo.length > 60) return false;
+      if (/\d|@|https?:\/\//.test(limpo)) return false;
+
+      var partes = limpo.split(/\s+/);
+      if (partes.length < 1 || partes.length > 6) return false;
+
+      var invalidCount = 0;
+      for (var k = 0; k < partes.length; k++) {
+        var wordClean = semAcentos(partes[k].replace(/[^\w]/g, ""));
+        if (!wordClean) continue;
+        if (stopSet[wordClean]) {
+          invalidCount++;
+        }
+      }
+      
+      if (invalidCount > 0 && (invalidCount >= partes.length || partes.length === 1)) {
+        return false;
+      }
+
+      return true;
+    }
+
+    function limparCandidato(raw) {
+      if (!raw) return "";
+      var c = raw.trim();
+      c = c.split(/[\n;\?!]/)[0];
+      if (c.indexOf(",") !== -1) {
+        c = c.split(",")[0];
+      }
+      c = c.replace(/\s+(?:e\s+(?:o\s+)?meu|e\s+(?:o\s+)?telefone|e\s+(?:o\s+)?telemóvel|e\s+(?:o\s+)?contacto|telefone|tel|whatsapp|contacto|queria|gostaria|para|com|às|ás|no|na|pelo|pela|meu\s+número)\b.*$/i, "");
+      c = c.replace(/\s+\+?\d[\d\s\-\.]{6,}.*$/, "");
+      c = c.replace(/\s+[^\s@]+@[^\s@]+.*$/, "");
+      c = c.replace(/\s+(?:e|de|da|do|dos|das|para|com|que)$/i, "");
+      c = c.replace(/^[-–—:,\.\s]+|[-–—:,\.\s]+$/g, "");
+      return c.trim();
+    }
+
+    var candidato = null;
+
+    // 1. Mensagem do próprio paciente (remetente: 'user')
+    if (remetente === "user") {
+      // 1.A - Padrões explícitos com prefixos comuns
+      var padroesPrefixos = [
+        /(?:(?:o\s+)?meu\s+nome(?:\s+completo)?\s*(?:é|seria|foi|:)?\s+)([A-Za-zÀ-ÖØ-öø-ÿ\s'\.\-]{3,60})/i,
+        /(?:(?:nome(?:\s+completo)?(?:\s+do\s+paciente)?|paciente|titular)\s*:\s*)([A-Za-zÀ-ÖØ-öø-ÿ\s'\.\-]{3,60})/i,
+        /(?:(?:eu\s+)?(?:me\s+chamo|chamo[\s-]me)\s+)([A-Za-zÀ-ÖØ-öø-ÿ\s'\.\-]{3,60})/i,
+        /(?:(?:eu\s+)?sou\s+(?:o|a)?\s*)([A-Za-zÀ-ÖØ-öø-ÿ\s'\.\-]{3,60})/i,
+        /(?:aqui\s+(?:é|fala)\s+(?:o|a)?\s*)([A-Za-zÀ-ÖØ-öø-ÿ\s'\.\-]{3,60})/i,
+        /(?:(?:em\s+nome\s+de|para\s+o\s+paciente|para\s+a\s+paciente|consulta\s+para|marcação\s+para|agendar\s+para)\s+)([A-Za-zÀ-ÖØ-öø-ÿ\s'\.\-]{3,60})/i,
+        /(?:(?:pode\s+chamar[\s-]me(?:\s+de)?|trate[\s-]me\s+por|chame[\s-]me\s+de)\s+)([A-Za-zÀ-ÖØ-öø-ÿ\s'\.\-]{3,60})/i
+      ];
+
+      for (var i = 0; i < padroesPrefixos.length; i++) {
+        var m = t.match(padroesPrefixos[i]);
+        if (m && m[1]) {
+          var limpo = limparCandidato(m[1]);
+          if (ehNomeValido(limpo)) {
+            candidato = formatarNome(limpo);
+            break;
+          }
+        }
+      }
+
+      // 1.B - Mensagem isolada que É o nome completo
+      if (!candidato) {
+        var textoBaseNome = t;
+        if (/[-–—]/.test(textoBaseNome)) {
+          textoBaseNome = textoBaseNome.split(/[-–—]/)[0].trim();
+        } else if (/,/.test(textoBaseNome)) {
+          textoBaseNome = textoBaseNome.split(",")[0].trim();
+        }
+
+        var palavras = textoBaseNome.trim().split(/\s+/);
+        if (palavras.length >= 2 && palavras.length <= 5) {
+          var todasPalavrasLetras = true;
+          var temStopwords = false;
+
+          for (var j = 0; j < palavras.length; j++) {
+            var w = palavras[j].replace(/[.,]/g, "");
+            var wSemAc = semAcentos(w);
+            if (!/^[a-zA-ZÀ-ÖØ-öø-ÿ\.\'-]+$/.test(w)) {
+              todasPalavrasLetras = false;
+              break;
+            }
+            if (stopSet[wSemAc]) {
+              temStopwords = true;
+              break;
+            }
+          }
+
+          if (todasPalavrasLetras && !temStopwords && ehNomeValido(textoBaseNome)) {
+            candidato = formatarNome(textoBaseNome);
+          }
+        }
+      }
+    }
+
+    // 2. Mensagem da Sofia reconhecendo o nome do paciente
+    if (!candidato && remetente === "bot") {
+      var padroesBot = [
+        /(?:Olá|Oi|Prazer|Muito prazer|Muito gosto|Tudo bem|Muito obrigado|Muito obrigada|Perfeito|Com certeza|Boa tarde|Bom dia|Boa noite),?\s+(?:sr\.?|sra\.?|senhor|senhora|dr\.?|dra\.?)?\s*([A-ZÁÀÂÃÉÈÊÍÓÔÕÚÇ][a-záàâãéèêíóôõúç]+(?:\s+(?:de|da|do|dos|das|e|[A-ZÁÀÂÃÉÈÊÍÓÔÕÚÇ][a-záàâãéèêíóôõúç]+)){1,5})/i,
+        /(?:paciente|agendamento\s+para|consulta\s+para|ficha\s+de)\s+([A-ZÁÀÂÃÉÈÊÍÓÔÕÚÇ][a-záàâãéèêíóôõúç]+(?:\s+(?:de|da|do|dos|das|e|[A-ZÁÀÂÃÉÈÊÍÓÔÕÚÇ][a-záàâãéèêíóôõúç]+)){1,5})/i
+      ];
+
+      for (var b = 0; b < padroesBot.length; b++) {
+        var mBot = t.match(padroesBot[b]);
+        if (mBot && mBot[1]) {
+          var botLimpo = limparCandidato(mBot[1]);
+          if (ehNomeValido(botLimpo)) {
+            candidato = formatarNome(botLimpo);
+            break;
+          }
+        }
+      }
+    }
+
+    if (nomeAtual) {
+      nomeAtual = limparCandidato(nomeAtual);
+    }
+
+    if (candidato) {
+      candidato = limparCandidato(candidato);
+    }
+
+    if (!candidato) return nomeAtual ? formatarNome(nomeAtual) : null;
+
+    if (!nomeAtual || nomeAtual === "—" || nomeAtual.trim() === "" || nomeAtual === "Aguardando na conversa...") {
+      return formatarNome(candidato);
+    }
+
+    var palavrasAtual = nomeAtual.trim().split(/\s+/);
+    var palavrasNovo = candidato.trim().split(/\s+/);
+    if (palavrasNovo.length >= palavrasAtual.length) {
+      return formatarNome(candidato);
+    }
+
+    return formatarNome(nomeAtual);
+  }
+
   // ---- LEITOR INTELIGENTE AUTOMÁTICO NO FRONTEND ----
   function extrairDadosAutomaticamente(texto, remetente) {
     if (!texto) return;
     var alterado = false;
     var t = texto.trim();
 
-    // 1. NOME
-    if (!fichaAoVivo.patient_name || fichaAoVivo.patient_name === "—") {
-      // Quando o cliente escreve: "meu nome é ...", "chamo-me ...", "sou o ...", "aqui é ...", "nome: ..."
-      var mNomeUser = t.match(/(?:meu nome é|chamo-me|sou (?:o|a)|aqui é (?:o|a)|nome:\s*|paciente:\s*)([A-ZÁÀÂÃÉÈÊÍÓÔÕÚÇ][a-záàâãéèêíóôõúç]+(?:\s+[A-ZÁÀÂÃÉÈÊÍÓÔÕÚÇ][a-záàâãéèêíóôõúç]+)*)/i);
-      if (mNomeUser && mNomeUser[1]) {
-        var n = mNomeUser[1].trim();
-        if (n.length > 2 && !/^(doutor|dra|bom|ola|boa)/i.test(n)) {
-          fichaAoVivo.patient_name = n;
-          alterado = true;
-        }
-      }
-      // Quando a Sofia cumprimenta pelo nome: "Olá Maria!", "Tudo bem Carlos?"
-      var mNomeBot = t.match(/(?:Olá|Oi|Prazer|Tudo bem|Muito obrigado),?\s+([A-ZÁÀÂÃÉÈÊÍÓÔÕÚÇ][a-záàâãéèêíóôõúç]+)[!\?\.,]/i);
-      if (mNomeBot && mNomeBot[1] && !fichaAoVivo.patient_name) {
-        var nBot = mNomeBot[1].trim();
-        if (nBot.length > 2 && !/^(doutor|dra|paciente|senhor|senhora)/i.test(nBot)) {
-          fichaAoVivo.patient_name = nBot;
-          alterado = true;
-        }
-      }
+    // 1. NOME COMPLETO DO PACIENTE
+    var nomeDetectado = extrairNomePaciente(t, remetente, fichaAoVivo.patient_name);
+    if (nomeDetectado && nomeDetectado !== fichaAoVivo.patient_name) {
+      fichaAoVivo.patient_name = nomeDetectado;
+      alterado = true;
     }
 
     // 2. TELEFONE (Angola: 9xx xxx xxx ou números internacionais)

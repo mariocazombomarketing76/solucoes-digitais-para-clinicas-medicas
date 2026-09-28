@@ -61,6 +61,171 @@ interface DemoSecretariaModalProps {
   contactLink: string;
 }
 
+// Helper to extract and format patient full name from chat messages
+function extractLocalPatientFullName(text: string, currentName?: string): string | null {
+  if (!text) return currentName || null;
+
+  const normalizeNoAccents = (str: string) =>
+    (str || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+  const STOP_WORDS = new Set([
+    "ola", "oi", "bom", "boa", "dia", "tarde", "noite", "alo",
+    "consulta", "consultas", "marcar", "agendar", "agendamento",
+    "medico", "medica", "medicos", "doutor", "doutora", "dr", "dra",
+    "clinica", "hospital", "paciente", "especialidade", "especialidades",
+    "cardiologia", "pediatria", "ginecologia", "oftalmologia", "dentista", "odontologia",
+    "ortopedia", "dermatologia", "neurologia", "urologia", "fisioterapia", "nutricao", "psicologia",
+    "dor", "dores", "febre", "sintoma", "sintomas", "exame", "exames",
+    "rececao", "recepcao", "secretaria", "sofia", "assistente",
+    "quero", "queria", "gostaria", "preciso", "precisava", "tenho", "tem", "pode", "podia", "poderia",
+    "saber", "ver", "fazer", "falar", "confirmar", "cancelar", "remarcar",
+    "favor", "obrigado", "obrigada", "agradecido", "agradecida",
+    "quanto", "custa", "custo", "valor", "valores", "preco", "precos",
+    "quando", "onde", "como", "qual", "quais", "porque", "por",
+    "sim", "nao", "claro", "certeza", "ok", "tudo", "bem", "perfeito", "excelente",
+    "amanha", "hoje", "ontem", "semana", "mes",
+    "segunda", "terca", "quarta", "quinta", "sexta", "sabado", "domingo",
+    "manha", "cedo", "hora", "horas", "horario", "vaga", "vagas",
+    "particular", "seguro", "convenio", "ensa", "fidelidade", "saude",
+    "informacao", "informacoes", "atendimento", "urgencia", "emergencia"
+  ]);
+
+  const PREPOSITIONS = new Set(["de", "da", "do", "dos", "das", "e"]);
+
+  const formatName = (str: string): string => {
+    return str
+      .trim()
+      .replace(/\s+/g, " ")
+      .toLowerCase()
+      .split(" ")
+      .map((w, idx) => {
+        if (/^(dr|dra|sr|sra)\.?$/i.test(w)) {
+          return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() + (w.includes(".") ? "" : ".");
+        }
+        if (idx > 0 && PREPOSITIONS.has(w.toLowerCase())) {
+          return w.toLowerCase();
+        }
+        return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+      })
+      .join(" ");
+  };
+
+  const isValidName = (nameStr: string): boolean => {
+    if (!nameStr) return false;
+    const clean = nameStr.trim().replace(/^[-–—:,.\s]+|[-–—:,.\s]+$/g, "");
+    if (clean.length < 3 || clean.length > 60) return false;
+    if (/\d|@|https?:\/\//.test(clean)) return false;
+
+    const parts = clean.split(/\s+/);
+    if (parts.length < 1 || parts.length > 6) return false;
+
+    let invalidCount = 0;
+    for (const part of parts) {
+      const partClean = normalizeNoAccents(part.replace(/[^\w]/g, ""));
+      if (STOP_WORDS.has(partClean)) {
+        invalidCount++;
+      }
+    }
+
+    if (invalidCount > 0 && (invalidCount >= parts.length || parts.length === 1)) {
+      return false;
+    }
+
+    return true;
+  };
+
+  const cleanCandidate = (raw: string): string => {
+    let c = raw.trim().split(/[\n;\?!]/)[0];
+    if (c.includes(",")) c = c.split(",")[0];
+    c = c.replace(/\s+(?:e\s+(?:o\s+)?meu|e\s+(?:o\s+)?telefone|e\s+(?:o\s+)?telemóvel|e\s+(?:o\s+)?contacto|telefone|tel|whatsapp|contacto|queria|gostaria|para|com|às|ás|no|na|pelo|pela|meu\s+número)\b.*$/i, "");
+    c = c.replace(/\s+\+?\d[\d\s\-\.]{6,}.*$/, "");
+    c = c.replace(/\s+[^\s@]+@[^\s@]+.*$/, "");
+    c = c.replace(/\s+(?:e|de|da|do|dos|das|para|com|que)$/i, "");
+    c = c.replace(/^[-–—:,\.\s]+|[-–—:,\.\s]+$/g, "");
+    return c.trim();
+  };
+
+  let candidate: string | null = null;
+  const t = text ? text.trim() : "";
+
+  if (t) {
+    const prefixes = [
+      /(?:(?:o\s+)?meu\s+nome(?:\s+completo)?\s*(?:é|seria|foi|:)?\s+)([A-Za-zÀ-ÖØ-öø-ÿ\s'\.\-]{3,60})/i,
+      /(?:(?:nome(?:\s+completo)?(?:\s+do\s+paciente)?|paciente|titular)\s*:\s*)([A-Za-zÀ-ÖØ-öø-ÿ\s'\.\-]{3,60})/i,
+      /(?:(?:eu\s+)?(?:me\s+chamo|chamo[\s-]me)\s+)([A-Za-zÀ-ÖØ-öø-ÿ\s'\.\-]{3,60})/i,
+      /(?:(?:eu\s+)?sou\s+(?:o|a)?\s*)([A-Za-zÀ-ÖØ-öø-ÿ\s'\.\-]{3,60})/i,
+      /(?:aqui\s+(?:é|fala)\s+(?:o|a)?\s*)([A-Za-zÀ-ÖØ-öø-ÿ\s'\.\-]{3,60})/i,
+      /(?:(?:em\s+nome\s+de|para\s+o\s+paciente|para\s+a\s+paciente|consulta\s+para|marcação\s+para|agendar\s+para)\s+)([A-Za-zÀ-ÖØ-öø-ÿ\s'\.\-]{3,60})/i,
+      /(?:(?:pode\s+chamar[\s-]me(?:\s+de)?|trate[\s-]me\s+por|chame[\s-]me\s+de)\s+)([A-Za-zÀ-ÖØ-öø-ÿ\s'\.\-]{3,60})/i
+    ];
+
+    for (const pat of prefixes) {
+      const m = t.match(pat);
+      if (m && m[1]) {
+        const cleaned = cleanCandidate(m[1]);
+        if (isValidName(cleaned)) {
+          candidate = formatName(cleaned);
+          break;
+        }
+      }
+    }
+
+    if (!candidate) {
+      let baseName = t;
+      if (/[-–—]/.test(baseName)) {
+        baseName = baseName.split(/[-–—]/)[0].trim();
+      } else if (/,/.test(baseName)) {
+        baseName = baseName.split(",")[0].trim();
+      }
+
+      const words = baseName.trim().split(/\s+/);
+      if (words.length >= 2 && words.length <= 5) {
+        let allWordsLetters = true;
+        let hasStopwords = false;
+
+        for (const w of words) {
+          const wClean = w.replace(/[.,]/g, "");
+          const wNoAcc = normalizeNoAccents(wClean);
+          if (!/^[a-zA-ZÀ-ÖØ-öø-ÿ\.\'-]+$/.test(w)) {
+            allWordsLetters = false;
+            break;
+          }
+          if (STOP_WORDS.has(wNoAcc)) {
+            hasStopwords = true;
+            break;
+          }
+        }
+
+        if (allWordsLetters && !hasStopwords && isValidName(baseName)) {
+          candidate = formatName(baseName);
+        }
+      }
+    }
+  }
+
+  if (currentName) {
+    currentName = cleanCandidate(currentName);
+  }
+
+  if (candidate) {
+    candidate = cleanCandidate(candidate);
+  }
+
+  if (!candidate) return currentName ? formatName(currentName) : null;
+
+  if (!currentName || currentName === "—" || currentName.trim() === "" || currentName === "Aguardando no chat...") {
+    return formatName(candidate);
+  }
+
+  const currWords = currentName.trim().split(/\s+/);
+  const candWords = candidate.trim().split(/\s+/);
+  if (candWords.length >= currWords.length) {
+    return formatName(candidate);
+  }
+
+  return formatName(currentName);
+}
+
 const DemoSecretariaModal: React.FC<DemoSecretariaModalProps> = ({
   isOpen,
   onClose,
@@ -176,6 +341,18 @@ const DemoSecretariaModal: React.FC<DemoSecretariaModalProps> = ({
     setIsLoading(true);
     setMsgCount(prev => prev + 1);
 
+    // Optimistic patient name extraction for instant visual feedback
+    const localDetectedName = extractLocalPatientFullName(messageText, patientData.nomePaciente);
+    let currentPayloadData = { ...patientData };
+    if (localDetectedName && localDetectedName !== patientData.nomePaciente) {
+      currentPayloadData = {
+        ...currentPayloadData,
+        nomePaciente: localDetectedName,
+        percentualConcluido: Math.max(currentPayloadData.percentualConcluido || 15, 35)
+      };
+      setPatientData(currentPayloadData);
+    }
+
     try {
       const response = await fetch('/api/demo-secretaria', {
         method: 'POST',
@@ -184,7 +361,7 @@ const DemoSecretariaModal: React.FC<DemoSecretariaModalProps> = ({
           userMessage: messageText,
           history: newHistory.map(m => ({ role: m.role, content: m.content })),
           leadInfo: lead,
-          currentPatientData: patientData
+          currentPatientData: currentPayloadData
         })
       });
 
