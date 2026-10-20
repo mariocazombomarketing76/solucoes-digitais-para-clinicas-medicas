@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Activity, Menu, X, Phone, Sparkles, Layers, CheckCircle2, ChevronRight } from 'lucide-react';
+import { Activity, Menu, X, Phone, Sparkles, Layers, CheckCircle2, ChevronRight, MessageSquare } from 'lucide-react';
 
 interface NavbarProps {
   contactLink: string;
@@ -59,59 +59,50 @@ const Navbar: React.FC<NavbarProps> = ({ contactLink, onOpenDemo }) => {
           </div>
         </a>
 
-        {/* Desktop Navigation Links */}
-        <nav className="hidden lg:flex items-center gap-6 text-sm font-semibold text-gray-600">
+        {/* Desktop Navigation Links: Resultados · Demonstração · Planos · Perguntas */}
+        <nav className="hidden lg:flex items-center gap-7 text-sm font-semibold text-gray-700">
           <button 
             type="button" 
-            onClick={() => scrollToSection('especialidades')}
-            className="hover:text-blue-600 transition-colors"
+            onClick={() => scrollToSection('resultados')}
+            className="hover:text-blue-600 transition-colors cursor-pointer"
           >
-            Especialidades
+            Resultados
           </button>
           <button 
             type="button" 
-            onClick={() => scrollToSection('solucoes')}
-            className="hover:text-blue-600 transition-colors"
+            data-action="open-sofia"
+            onClick={() => onOpenDemo ? onOpenDemo() : scrollToSection('demonstracao')}
+            className="hover:text-emerald-600 transition-colors flex items-center gap-1.5 cursor-pointer"
           >
-            Soluções
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Demonstração</span>
           </button>
           <button 
             type="button" 
             onClick={() => scrollToSection('planos')}
-            className="hover:text-blue-600 transition-colors flex items-center gap-1"
+            className="hover:text-blue-600 transition-colors cursor-pointer"
           >
-            <Layers className="w-4 h-4 text-blue-500" />
             Planos
           </button>
           <button 
             type="button" 
-            onClick={() => scrollToSection('diagnostico')}
-            className="hover:bg-blue-100/80 hover:text-blue-800 transition-all flex items-center gap-1.5 text-blue-700 bg-blue-50 px-3.5 py-1.5 rounded-full border border-blue-200 font-semibold"
+            onClick={() => scrollToSection('perguntas')}
+            className="hover:text-blue-600 transition-colors cursor-pointer"
           >
-            <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-            <span>Diagnóstico Grátis Com IA</span>
-          </button>
-
-          <button 
-            type="button" 
-            onClick={() => onOpenDemo ? onOpenDemo() : null}
-            className="hover:bg-emerald-100 hover:text-emerald-900 transition-all flex items-center gap-1.5 text-emerald-700 bg-emerald-50 px-3.5 py-1.5 rounded-full border border-emerald-300 font-bold shadow-sm"
-          >
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Testar Secretária 24/7</span>
+            Perguntas
           </button>
         </nav>
 
-        {/* Right CTA Actions */}
+        {/* Right Fixed CTA Action: Testar grátis */}
         <div className="flex items-center gap-2 sm:gap-3">
           <a
-            href={contactLink}
+            href={`https://wa.me/message/5LQTAOWAHBXLG1?text=${encodeURIComponent("Olá! Quero testar a Secretária Digital 15 dias grátis na minha clínica.")}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center px-3.5 sm:px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-sm transition-all gap-1.5 active:scale-95"
+            className="inline-flex items-center justify-center px-4 sm:px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-md shadow-emerald-600/20 transition-all gap-1.5 active:scale-95"
           >
-            <Phone className="w-4 h-4" />
-            <span className="hidden xs:inline">WhatsApp</span>
+            <MessageSquare className="w-4 h-4" />
+            <span>Testar grátis</span>
           </a>
 
           {/* Mobile/Tablet Hamburger Toggle */}
@@ -150,6 +141,16 @@ const Navbar: React.FC<NavbarProps> = ({ contactLink, onOpenDemo }) => {
               <div className="flex flex-col space-y-1">
                 <button
                   type="button"
+                  onClick={() => scrollToSection('resultados')}
+                  className="w-full text-left px-4 py-3 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 flex items-center justify-between"
+                >
+                  <span>Resultados</span>
+                  <ChevronRight className="w-4 h-4 text-gray-400" />
+                </button>
+
+                <button
+                  type="button"
+                  data-action="open-sofia"
                   onClick={() => {
                     setIsOpen(false);
                     if (onOpenDemo) onOpenDemo();
@@ -158,21 +159,9 @@ const Navbar: React.FC<NavbarProps> = ({ contactLink, onOpenDemo }) => {
                 >
                   <span className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                    Testar Secretária 24/7
+                    Demonstração (Sofia no WhatsApp)
                   </span>
                   <ChevronRight className="w-4 h-4 text-emerald-600" />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => scrollToSection('diagnostico')}
-                  className="w-full text-left px-4 py-3 rounded-xl text-sm font-bold text-blue-700 bg-blue-50/80 border border-blue-200 flex items-center justify-between"
-                >
-                  <span className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-blue-600" />
-                    Diagnóstico Grátis Com IA
-                  </span>
-                  <ChevronRight className="w-4 h-4 text-blue-500" />
                 </button>
 
                 <button
@@ -180,56 +169,29 @@ const Navbar: React.FC<NavbarProps> = ({ contactLink, onOpenDemo }) => {
                   onClick={() => scrollToSection('planos')}
                   className="w-full text-left px-4 py-3 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 flex items-center justify-between"
                 >
-                  <span className="flex items-center gap-2">
-                    <Layers className="w-4 h-4 text-gray-500" />
-                    Planos (Start, Pro & Elite)
-                  </span>
+                  <span>Planos</span>
                   <ChevronRight className="w-4 h-4 text-gray-400" />
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => scrollToSection('solucoes')}
+                  onClick={() => scrollToSection('perguntas')}
                   className="w-full text-left px-4 py-3 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 flex items-center justify-between"
                 >
-                  <span className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-gray-500" />
-                    Soluções e Tecnologias
-                  </span>
-                  <ChevronRight className="w-4 h-4 text-gray-400" />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => scrollToSection('especialidades')}
-                  className="w-full text-left px-4 py-3 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 flex items-center justify-between"
-                >
-                  <span className="flex items-center gap-2">
-                    <Activity className="w-4 h-4 text-gray-500" />
-                    Especialidades Atendidas
-                  </span>
+                  <span>Perguntas</span>
                   <ChevronRight className="w-4 h-4 text-gray-400" />
                 </button>
               </div>
 
-              <div className="pt-2 flex flex-col gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => scrollToSection('diagnostico')}
-                  className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-center text-sm shadow-md flex items-center justify-center gap-2 active:scale-95"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  Preencher Diagnóstico Agora
-                </button>
-
+              <div className="pt-2">
                 <a
-                  href={contactLink}
+                  href={`https://wa.me/message/5LQTAOWAHBXLG1?text=${encodeURIComponent("Olá! Quero testar a Secretária Digital 15 dias grátis na minha clínica.")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-center text-sm shadow-md flex items-center justify-center gap-2 active:scale-95"
+                  className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-center text-sm shadow-md flex items-center justify-center gap-2 active:scale-95"
                 >
-                  <Phone className="w-4 h-4" />
-                  Falar no WhatsApp com Diretor Técnico
+                  <MessageSquare className="w-4 h-4" />
+                  Testar grátis no WhatsApp (15 dias)
                 </a>
               </div>
 

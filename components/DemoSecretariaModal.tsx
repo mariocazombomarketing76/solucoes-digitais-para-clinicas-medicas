@@ -226,6 +226,21 @@ function extractLocalPatientFullName(text: string, currentName?: string): string
   return formatName(currentName);
 }
 
+// Render markdown bold and WhatsApp formatting for chat messages
+const renderFormattedChatText = (text: string) => {
+  if (!text) return null;
+  const parts = text.split(/(\*\*.*?\*\*|\*[^\*\n\r]+\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={i} className="font-bold">{part.slice(2, -2)}</strong>;
+    }
+    if (part.startsWith('*') && part.endsWith('*') && part.length > 2) {
+      return <strong key={i} className="font-bold">{part.slice(1, -1)}</strong>;
+    }
+    return part;
+  });
+};
+
 const DemoSecretariaModal: React.FC<DemoSecretariaModalProps> = ({
   isOpen,
   onClose,
@@ -268,6 +283,7 @@ const DemoSecretariaModal: React.FC<DemoSecretariaModalProps> = ({
   });
 
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const sessionIdRef = useRef<string>(`sofia-react-${Date.now()}-${Math.floor(Math.random() * 100000)}`);
 
   // Check if user is already qualified from Diagnosis form or localStorage
   useEffect(() => {
@@ -290,19 +306,7 @@ const DemoSecretariaModal: React.FC<DemoSecretariaModalProps> = ({
     }
   }, [initialLeadInfo, isOpen]);
 
-  // Initial welcome message once qualified
-  useEffect(() => {
-    if (isOpen && isQualified && messages.length === 0) {
-      const clinicaNome = lead.clinica || 'Clínica Médica';
-      const welcomeMsg: Message = {
-        id: 'welcome-1',
-        role: 'assistant',
-        content: `Olá! Bem-vindo(a) à **${clinicaNome}**. Sou a Secretária Digital inteligente de plantão 24 horas por dia.\n\nComo posso ajudar hoje? Caso deseje marcar uma consulta, pode indicar-me a especialidade médica ou os sintomas que apresenta.`,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-      setMessages([welcomeMsg]);
-    }
-  }, [isOpen, isQualified, lead.clinica, messages.length]);
+
 
   // Auto-scroll chat to bottom on new messages
   useEffect(() => {
@@ -361,7 +365,8 @@ const DemoSecretariaModal: React.FC<DemoSecretariaModalProps> = ({
           userMessage: messageText,
           history: newHistory.map(m => ({ role: m.role, content: m.content })),
           leadInfo: lead,
-          currentPatientData: currentPayloadData
+          currentPatientData: currentPayloadData,
+          sessionId: sessionIdRef.current
         })
       });
 
@@ -669,7 +674,7 @@ const DemoSecretariaModal: React.FC<DemoSecretariaModalProps> = ({
                           ? 'bg-blue-600 text-white rounded-tr-none'
                           : 'bg-white text-gray-800 border border-gray-200/80 rounded-tl-none'
                       }`}>
-                        <div className="whitespace-pre-wrap">{msg.content}</div>
+                        <div className="whitespace-pre-wrap leading-relaxed">{renderFormattedChatText(msg.content)}</div>
                         <div className={`text-[10px] mt-1.5 flex items-center justify-end gap-1 ${
                           msg.role === 'user' ? 'text-blue-200' : 'text-gray-400'
                         }`}>

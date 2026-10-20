@@ -55,7 +55,7 @@ const TargetAudience: React.FC = () => {
             Alinhamento Estratégico
           </span>
           <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mt-4 mb-3">
-            Desenhado exclusivamente para clínicas médicas
+            Focados em clínicas médicas
           </h3>
           <p className="text-lg text-gray-600">
             Ajudamos instituições de saúde a modernizar a sua presença digital.
@@ -86,14 +86,6 @@ const TargetAudience: React.FC = () => {
           })}
         </motion.div>
 
-        <div className="mt-12 bg-white border border-gray-150 p-5 rounded-2xl max-w-3xl mx-auto flex flex-col sm:flex-row items-center gap-4 shadow-sm">
-          <span className="flex-shrink-0 bg-amber-50 text-amber-600 font-bold px-3 py-1.5 rounded-lg text-xs uppercase border border-amber-200">
-            Atenção
-          </span>
-          <p className="text-sm text-gray-600 text-center sm:text-left leading-relaxed">
-            Não prestamos serviços pontuais de web design amador. Fornecemos um <span className="font-semibold text-gray-900">sistema profissional completo de presença e atendimento recorrente</span> para instituições de saúde sérias em Angola.
-          </p>
-        </div>
       </div>
     </section>
   );

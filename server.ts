@@ -63,20 +63,26 @@ app.post("/api/diagnostico", async (req, res) => {
       email,
       cidade,
       website,
-      plano = "Secretária Digital Pro",
-      n8nWebhookUrl
+      plano = "Secretária + Presença Digital",
+      n8nWebhookUrl,
+      consultasFaltam,
+      comoMarcaConsultas
     } = req.body;
 
-    if (!nome || !clinica || !telefone || !email) {
-      return res.status(400).json({ error: "Campos obrigatórios ausentes: nome, clinica, telefone e email são necessários." });
+    if (!nome || !clinica || !telefone) {
+      return res.status(400).json({ error: "Campos obrigatórios ausentes: nome, clinica e telefone são necessários." });
     }
+
+    const effectiveEmail = (email && typeof email === 'string' && email.trim()) 
+      ? email.trim() 
+      : `contacto-${String(telefone).replace(/\D/g, '') || Date.now()}@clinicasdigitais.local`;
 
     const DEFAULT_N8N_WEBHOOK = "https://lively-molehill-apache.ngrok-free.dev/webhook/clinicas-digitais/diagnostico-v2";
     const targetWebhook = n8nWebhookUrl || process.env.N8N_WEBHOOK_URL || DEFAULT_N8N_WEBHOOK;
 
     const clientIp = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() || req.socket.remoteAddress || "127.0.0.1";
 
-    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedEmail = effectiveEmail.trim().toLowerCase();
     const normalizedClinica = clinica.trim().toLowerCase();
     const cacheKey = `${normalizedClinica}_${normalizedEmail}`;
 
@@ -109,10 +115,12 @@ app.post("/api/diagnostico", async (req, res) => {
       clinica,
       especialidade,
       telefone,
-      email,
+      email: effectiveEmail,
       cidade,
       website: website || "",
       plano,
+      consultasFaltam: consultasFaltam || "",
+      comoMarcaConsultas: comoMarcaConsultas || "",
       ip: clientIp,
       timestamp: new Date().toISOString(),
       cliente: {
@@ -120,10 +128,12 @@ app.post("/api/diagnostico", async (req, res) => {
         clinica,
         especialidade,
         telefone,
-        email,
+        email: effectiveEmail,
         cidade,
         website: website || "",
         plano,
+        consultasFaltam: consultasFaltam || "",
+        comoMarcaConsultas: comoMarcaConsultas || "",
         ip: clientIp
       },
       data: {
@@ -132,10 +142,12 @@ app.post("/api/diagnostico", async (req, res) => {
           clinica,
           especialidade,
           telefone,
-          email,
+          email: effectiveEmail,
           cidade,
           website: website || "",
           plano,
+          consultasFaltam: consultasFaltam || "",
+          comoMarcaConsultas: comoMarcaConsultas || "",
           ip: clientIp
         }
       }
@@ -592,6 +604,342 @@ function extractPatientFullName(text: string, replyText: string = "", currentNam
   return formatName(currentName);
 }
 
+// Helper to extract the 100% literal response from n8n AI agent workflows
+function extractLiteralN8NReply(data: any): string | null {
+  if (!data) return null;
+
+  if (typeof data === "string") {
+    const trimmed = data.trim();
+    // If output is stringified JSON, check if it contains a nested reply or output
+    if ((trimmed.startsWith("{") && trimmed.endsWith("}")) || (trimmed.startsWith("[") && trimmed.endsWith("]"))) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        const inner = extractLiteralN8NReply(parsed);
+        if (inner) return inner;
+      } catch {
+        // keep string
+      }
+    }
+    return trimmed;
+  }
+
+  let item = data;
+  if (Array.isArray(data)) {
+    if (data.length === 0) return null;
+    item = data[0];
+  }
+
+  if (typeof item === "string") return item.trim();
+
+  if (item && typeof item === "object") {
+    // If n8n wrapped the item in json
+    if (item.json && typeof item.json === "object") {
+      item = item.json;
+    }
+
+    // Ordered list of candidate fields where n8n AI Agent nodes place their literal text
+    const candidates = [
+      item.output,
+      item.text,
+      item.response,
+      item.message,
+      item.resposta,
+      item.reply,
+      item.content,
+      item.result,
+      item.data?.output,
+      item.data?.text,
+      item.data?.response,
+      item.data?.message,
+      item.data?.resposta,
+      item.choices?.[0]?.message?.content,
+      item.choices?.[0]?.text
+    ];
+
+    for (const c of candidates) {
+      if (typeof c === "string" && c.trim()) {
+        const cTrim = c.trim();
+        // Check for nested stringified JSON
+        if ((cTrim.startsWith("{") && cTrim.endsWith("}")) || (cTrim.startsWith("[") && cTrim.endsWith("]"))) {
+          try {
+            const parsed = JSON.parse(cTrim);
+            const nested = extractLiteralN8NReply(parsed);
+            if (nested) return nested;
+          } catch {
+            // keep cTrim
+          }
+        }
+        return cTrim;
+      }
+      if (c && typeof c === "object") {
+        if (typeof c.text === "string" && c.text.trim()) return c.text.trim();
+        if (typeof c.content === "string" && c.content.trim()) return c.content.trim();
+        if (typeof c.output === "string" && c.output.trim()) return c.output.trim();
+        if (typeof c.message === "string" && c.message.trim()) return c.message.trim();
+      }
+    }
+  }
+
+  return null;
+}
+
+// Universal n8n Dispatcher: Automatically handles both Production (/webhook/) and Test (/webhook-test/) modes
+async function fetchN8NWithTestFallback(targetUrl: string, payload: any, timeoutMs = 45000) {
+  const urlsToTry: string[] = [targetUrl];
+  
+  if (targetUrl.includes("/webhook/")) {
+    urlsToTry.push(targetUrl.replace("/webhook/", "/webhook-test/"));
+  } else if (targetUrl.includes("/webhook-test/")) {
+    urlsToTry.push(targetUrl.replace("/webhook-test/", "/webhook/"));
+  }
+
+  let lastError: any = null;
+  let lastResp: any = null;
+
+  for (const url of urlsToTry) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+          "User-Agent": "SofiaDigitalSecretary/1.0"
+        },
+        signal: controller.signal,
+        body: JSON.stringify(payload)
+      });
+
+      clearTimeout(timeoutId);
+
+      // If n8n returned 404 (webhook not registered in this specific test/prod mode), try the other mode
+      if (resp.status === 404 && urlsToTry.length > 1) {
+        lastResp = resp;
+        continue;
+      }
+
+      return {
+        ok: resp.ok,
+        status: resp.status,
+        response: resp,
+        usedUrl: url
+      };
+    } catch (err: any) {
+      lastError = err;
+    }
+  }
+
+  return {
+    ok: false,
+    status: lastResp?.status || 502,
+    response: lastResp,
+    error: lastError,
+    usedUrl: targetUrl
+  };
+}
+
+// Compiles patient & CRM clinical fields directly from user message, Sofia's literal answer and any existing data
+function compilePatientDataFromConversation(
+  userText: string,
+  replyText: string,
+  existingData: any = {}
+): any {
+  const normUser = (userText || "").replace(/[\u00A0\u1680\u2000-\u200B\u202F\u205F\u3000\uFEFF]/g, " ").trim();
+  const normReply = (replyText || "").replace(/[\u00A0\u1680\u2000-\u200B\u202F\u205F\u3000\uFEFF]/g, " ").trim();
+  const fullText = `${normUser}\n${normReply}`;
+
+  const data = { ...existingData };
+
+  // 1. NOME DO PACIENTE
+  const detectedName = extractPatientFullName(normUser, normReply, data.nomePaciente);
+  if (detectedName) {
+    data.nomePaciente = detectedName.replace(/\s+(?:e|de|da|do|dos|das|para|com|que)$/i, "").trim();
+  }
+
+  // 2. ESPECIALIDADE MÉDICA
+  const specialties = [
+    { key: "Cardiologia", regex: /\bcardiolog(?:ia|ista)\b|coração|pressão\s+alta|arritmia/i },
+    { key: "Pediatria", regex: /\bpediatr(?:ia|a)\b|\bcriança\b|\bfilho\b|\bfilha\b|\bbebé\b|\bbebê\b/i },
+    { key: "Ginecologia & Obstetrícia", regex: /\bginecolog(?:ia|ista)\b|\bobstetr(?:ícia|a)\b|parto|gravid(?:ez|a)|\bmulher\b/i },
+    { key: "Clínica Geral", regex: /clínica\s+geral|clínico\s+geral|consulta\s+geral|medicina\s+geral/i },
+    { key: "Oftalmologia", regex: /\boftalmolog(?:ia|ista)\b|\bvisão\b|\bolho(?:s)?\b|catarata/i },
+    { key: "Odontologia / Dentista", regex: /\bodontolog(?:ia|ista)\b|\bdentista\b|\bestomatolog(?:ia|ista)\b|\bdente(?:s)?\b/i },
+    { key: "Ortopedia & Traumatologia", regex: /\bortoped(?:ia|ista)\b|\btraumatolog(?:ia|ista)\b|\bosso(?:s)?\b|\bfratura\b|\bjoelho\b|\bcoluna\b/i },
+    { key: "Dermatologia", regex: /\bdermatolog(?:ia|ista)\b|\bpele\b|\bmanchas\b/i },
+    { key: "Neurologia", regex: /\bneurolog(?:ia|ista)\b|enxaqueca|cérebro/i },
+    { key: "Urologia", regex: /\burolog(?:ia|ista)\b|próstata/i },
+    { key: "Fisioterapia", regex: /\bfisioterap(?:ia|euta)\b/i },
+    { key: "Nutrição", regex: /\bnutriç(?:ão|ionista)\b|\bdieta\b/i },
+    { key: "Psicologia & Psiquiatria", regex: /\bpsicolog(?:ia|o|a)\b|\bpsiquiatr(?:ia|a)\b/i },
+    { key: "Exames & Análises Clínicas", regex: /análises\s+clínicas|ecografia|raio-x|ressonância|exame(?:s)?/i }
+  ];
+
+  for (const s of specialties) {
+    if (s.regex.test(fullText)) {
+      data.especialidade = s.key;
+      break;
+    }
+  }
+
+  // 3. MÉDICO PRETENDIDO (Normaliza espaços e aceita Dr., Dra., Doutor(a))
+  const docMatch = fullText.match(/(?:Dra?\.?|Doutor(?:a)?)\s+([A-ZÁÀÂÃÉÈÊÍÓÔÕÚÇ][a-záàâãéèêíóôõúç]+(?:\s+(?:de|da|do|dos|das\s+)?[A-ZÁÀÂÃÉÈÊÍÓÔÕÚÇ][a-záàâãéèêíóôõúç]+)*)/i);
+  if (docMatch && docMatch[0]) {
+    data.medicoPretendido = docMatch[0].trim();
+  } else if (!data.medicoPretendido) {
+    data.medicoPretendido = "Equipa Médica";
+  }
+
+  // 4. DATA SUGERIDA (Dias da semana, 'amanhã', ou datas por extenso '25 de outubro')
+  const datePatterns = [
+    /(?:\d{1,2}(?:º)?\s+de\s+(?:janeiro|fevereiro|março|marco|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)(?:\s+(?:de\s+)?\d{4})?)/i,
+    /\b\d{1,2}[\/\-\.]\d{1,2}(?:[\/\-\.]\d{2,4})?\b/,
+    /(?:amanhã|depois de amanhã|segunda-feira|terça-feira|quarta-feira|quinta-feira|sexta-feira|sábado|domingo|segunda|terça|quarta|quinta|sexta|sábado)/i,
+    /(?:(?:para|marcar|consulta|atendimento)\s+hoje|\bhoje\s+(?:de\s+)?(?:manhã|tarde|noite))/i
+  ];
+  for (const dp of datePatterns) {
+    const dm = fullText.match(dp);
+    if (dm && dm[0]) {
+      data.dataSugerida = dm[0].trim();
+      break;
+    }
+  }
+
+  // 5. HORÁRIO SUGERIDO
+  const timeMatch = fullText.match(/\b\d{1,2}(?:[:h]\d{2})?(?:\s*(?:–|-|às|as)\s*\d{1,2}(?:[:h]\d{2})?)?\b/i) ||
+                    fullText.match(/(?:período\s+da\s+)?(?:manhã|tarde|noite)/i);
+  if (timeMatch && timeMatch[0] && !/^\d{1,2}$/.test(timeMatch[0].trim())) {
+    data.horarioSugerido = timeMatch[0].trim();
+  }
+
+  // 6. CONTACTO TELEFÓNICO
+  const phoneMatch = fullText.match(/(?:\+?244\s*)?(9\d{2}[\s.-]?\d{3}[\s.-]?\d{3})/);
+  if (phoneMatch && phoneMatch[1]) {
+    data.telefone = phoneMatch[1].replace(/[^\d+]/g, '');
+  }
+
+  // 7. TIPO DE ATENDIMENTO
+  if (/seguro|ensa|advancecare|fidelidade|prudential|convenio|convénio|multicare/i.test(fullText)) {
+    data.tipoAtendimento = "Seguro de Saúde";
+    const segMatch = fullText.match(/(?:seguro\s+(?:da\s+)?)?(ensa|advancecare|fidelidade|prudential|multicare|saham)/i);
+    if (segMatch && segMatch[1]) {
+      data.seguroNome = segMatch[1].toUpperCase();
+    }
+  } else if (/particular|privado|dinheiro|tpa/i.test(fullText)) {
+    data.tipoAtendimento = "Particular";
+  }
+
+  // 8. SINTOMAS OU MOTIVO
+  if (!data.sintomasOuMotivo || data.sintomasOuMotivo === "Aguardando relato...") {
+    if (normUser.length > 5 && !normUser.toLowerCase().startsWith("olá") && !normUser.toLowerCase().startsWith("bom")) {
+      data.sintomasOuMotivo = normUser.slice(0, 90);
+    } else if (data.especialidade) {
+      data.sintomasOuMotivo = `Triagem para ${data.especialidade}`;
+    }
+  }
+
+  // 9. STATUS DO AGENDAMENTO E PRÓXIMO PASSO
+  if (data.dataSugerida && (data.telefone || normReply.includes("confirmar a reserva"))) {
+    data.statusAgendamento = "Pré-Agendado";
+    data.proximoPasso = "Encaminhado para confirmação final e registo na receção.";
+  } else if (data.dataSugerida || data.horarioSugerido) {
+    data.statusAgendamento = "Horário em Confirmação";
+    data.proximoPasso = normReply.includes("telefone") || normReply.includes("WhatsApp")
+      ? "Aguardando contacto WhatsApp para envio de confirmação."
+      : "Confirmar preferência de horário com o paciente.";
+  } else if (data.especialidade) {
+    data.statusAgendamento = "Especialidade Identificada";
+    data.proximoPasso = "Definir dia e horário mais conveniente para o paciente.";
+  } else {
+    data.statusAgendamento = data.statusAgendamento || "Em Triagem";
+    data.proximoPasso = "Acolhimento e identificação das necessidades clínicas.";
+  }
+
+  // 10. PERCENTUAL CONCLUÍDO
+  let count = 0;
+  if (data.nomePaciente && data.nomePaciente !== "Identificando no chat...") count++;
+  if (data.especialidade && data.especialidade !== "Identificando...") count++;
+  if (data.medicoPretendido && data.medicoPretendido !== "Pendente" && data.medicoPretendido !== "Equipa Médica") count++;
+  if (data.dataSugerida && data.dataSugerida !== "Pendente") count++;
+  if (data.horarioSugerido && data.horarioSugerido !== "Pendente") count++;
+  if (data.telefone) count++;
+  if (data.tipoAtendimento && data.tipoAtendimento !== "A definir") count++;
+  if (data.sintomasOuMotivo && data.sintomasOuMotivo !== "Aguardando relato...") count++;
+
+  const computedPercent = Math.min(100, Math.max(25, Math.round((count / 5) * 100)));
+  data.percentualConcluido = Math.max(data.percentualConcluido || 0, computedPercent);
+
+  return data;
+}
+
+// Dedicated Proxy Endpoint for Sofia Chat - guarantees literal n8n response without CORS or ngrok browser interstitial issues
+app.post("/api/sofia-chat", async (req, res) => {
+  try {
+    const { action = "sendMessage", chatInput, message, sessionId, currentPatientData = {} } = req.body;
+    const userText = (chatInput || message || "").trim();
+
+    if (!userText) {
+      return res.status(400).json({ error: "Mensagem é obrigatória." });
+    }
+
+    const DEFAULT_N8N_URL = "https://lively-molehill-apache.ngrok-free.dev/webhook/1b7bb92e-8e17-4762-bc59-9ac160e977e8/chat";
+    const n8nUrl = process.env.N8N_CHAT_WEBHOOK_URL || DEFAULT_N8N_URL;
+    const activeSessionId = sessionId || `sofia-${Date.now()}`;
+
+    const n8nResult = await fetchN8NWithTestFallback(n8nUrl, {
+      action,
+      chatInput: userText,
+      input: userText,
+      message: userText,
+      text: userText,
+      sessionId: activeSessionId
+    }, 45000);
+
+    if (n8nResult.ok && n8nResult.response) {
+      const n8nData = await n8nResult.response.json();
+      const literalReply = extractLiteralN8NReply(n8nData);
+
+      if (literalReply) {
+        // Compile clinical fields directly from Sofia's literal response
+        let compiledData = compilePatientDataFromConversation(userText, literalReply, currentPatientData);
+
+        // Merge any direct structured data if provided by the n8n workflow
+        if (n8nData && (n8nData.dadosPaciente || n8nData.patientData)) {
+          compiledData = { ...compiledData, ...(n8nData.dadosPaciente || n8nData.patientData) };
+        }
+
+        return res.json({
+          success: true,
+          output: literalReply,
+          reply: literalReply,
+          patientData: compiledData,
+          source: "n8n_literal",
+          endpointUsed: n8nResult.usedUrl,
+          raw: n8nData
+        });
+      }
+    }
+
+    // If n8n was temporarily unavailable or in error, report clearly
+    const errStatus = n8nResult.status || 502;
+    console.warn(`[Sofia Chat] n8n retornou status ${errStatus}. Detalhes:`, n8nResult.error?.message || "Sem resposta do agente.");
+
+    return res.status(errStatus).json({
+      error: "Falha ao obter resposta literal do workflow n8n",
+      status: errStatus,
+      endpointUsed: n8nResult.usedUrl,
+      hint: "Certifique-se de que o workflow no n8n está Ativo ou que clicou em 'Execute workflow' no canvas."
+    });
+  } catch (err: any) {
+    console.error("[Sofia Chat] Erro ao comunicar com n8n:", err);
+    return res.status(502).json({
+      error: "Falha de comunicação com o workflow n8n",
+      message: err.message
+    });
+  }
+});
+
 // API Endpoint for Live 24/7 Digital Secretary Demo (Chat + Side-by-side Patient Data)
 app.post("/api/demo-secretaria", async (req, res) => {
   try {
@@ -600,69 +948,75 @@ app.post("/api/demo-secretaria", async (req, res) => {
       history = [],
       leadInfo = {},
       currentPatientData = {},
-      n8nDemoWebhookUrl
+      n8nDemoWebhookUrl,
+      sessionId
     } = req.body;
 
     if (!userMessage || typeof userMessage !== "string") {
       return res.status(400).json({ error: "Mensagem do utilizador é obrigatória." });
     }
 
-    const DEFAULT_DEMO_WEBHOOK = "https://lively-molehill-apache.ngrok-free.dev/webhook/clinicas-digitais/demo-secretaria";
-    const targetWebhook = n8nDemoWebhookUrl || process.env.N8N_DEMO_SECRETARIA_WEBHOOK || DEFAULT_DEMO_WEBHOOK;
+    // Active n8n AI Agent Chat Webhook
+    const DEFAULT_DEMO_WEBHOOK = "https://lively-molehill-apache.ngrok-free.dev/webhook/1b7bb92e-8e17-4762-bc59-9ac160e977e8/chat";
+    const targetWebhook = n8nDemoWebhookUrl || process.env.N8N_DEMO_SECRETARIA_WEBHOOK || process.env.N8N_CHAT_WEBHOOK_URL || DEFAULT_DEMO_WEBHOOK;
+    const activeSessionId = sessionId || leadInfo.sessionId || `session-${leadInfo.telefone || 'demo'}`;
 
     let n8nHandled = false;
     let reply = "";
     let updatedPatientData = { ...currentPatientData };
+    let endpointUsed = targetWebhook;
 
-    // 1. Try to dispatch to n8n if available
+    // 1. Dispatch directly to the n8n AI Agent workflow to get the LITERAL agent response
     if (targetWebhook) {
       try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 12000); // 12s timeout for interactive chat
+        const n8nResult = await fetchN8NWithTestFallback(targetWebhook, {
+          action: "sendMessage",
+          chatInput: userMessage,
+          input: userMessage,
+          message: userMessage,
+          text: userMessage,
+          sessionId: activeSessionId,
+          mensagem: userMessage,
+          historico: history,
+          lead: leadInfo,
+          dadosCompiladosAtuais: currentPatientData,
+          timestamp: new Date().toISOString()
+        }, 45000);
 
-        const n8nResp = await fetch(targetWebhook, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "ngrok-skip-browser-warning": "true"
-          },
-          signal: controller.signal,
-          body: JSON.stringify({
-            mensagem: userMessage,
-            historico: history,
-            lead: leadInfo,
-            dadosCompiladosAtuais: currentPatientData,
-            timestamp: new Date().toISOString()
-          })
-        });
+        endpointUsed = n8nResult.usedUrl;
 
-        clearTimeout(timeoutId);
+        if (n8nResult.ok && n8nResult.response) {
+          const n8nData = await n8nResult.response.json();
+          const literalReply = extractLiteralN8NReply(n8nData);
 
-        if (n8nResp.ok) {
-          const n8nData = await n8nResp.json();
-          if (n8nData && (n8nData.resposta || n8nData.reply || n8nData.message)) {
-            reply = n8nData.resposta || n8nData.reply || n8nData.message;
-            if (n8nData.dadosPaciente || n8nData.patientData) {
+          if (literalReply) {
+            // Keep the exact literal answer returned by the n8n AI Agent without altering it!
+            reply = literalReply;
+            n8nHandled = true;
+
+            // Transcribe clinical & CRM data directly from Sofia's literal response
+            updatedPatientData = compilePatientDataFromConversation(userMessage, literalReply, updatedPatientData);
+
+            // Merge any explicit patientData from n8n nodes if provided
+            if (n8nData && (n8nData.dadosPaciente || n8nData.patientData)) {
               updatedPatientData = { ...updatedPatientData, ...(n8nData.dadosPaciente || n8nData.patientData) };
             }
-            n8nHandled = true;
           }
         }
       } catch (webhookErr) {
-        // Fallback gracefully to Gemini AI
+        console.warn("[Demo Secretária] Webhook n8n indisponível, usando contingência:", webhookErr);
       }
     }
 
     // 2. Intelligent AI Processing (Gemini or heuristic medical compiler) if n8n was not yet responding
     if (!n8nHandled) {
       const ai = getGeminiClient();
-      const clinicaName = leadInfo.clinica || "Clínica Médica de Referência";
-      const gestorName = leadInfo.nome || "Dr(a). Diretor(a)";
+      const clinicaName = leadInfo.clinica || "Clínica Viva Para Sempre";
 
       if (ai) {
         try {
           const prompt = `
-És a Secretária Médica Digital 24/7 da "${clinicaName}" em Angola.
+És a Sofia, Secretária Médica Digital 24/7 da "${clinicaName}" em Angola.
 O teu papel é realizar um atendimento humanizado, caloroso, cordial e profissional a um paciente que acabou de entrar em contacto por chat/WhatsApp.
 Usa um tom respeitoso típico de Angola (ex: "Com certeza", "Muito gosto", "Estamos à sua disposição").
 Objetivo do atendimento:
@@ -765,20 +1119,16 @@ Retorna APENAS um JSON no formato estrito:
       }
     }
 
-    // Garantir que o Nome Completo do Paciente seja capturado e compilado na Ficha
-    const finalPatientName = extractPatientFullName(userMessage, reply, updatedPatientData.nomePaciente);
-    if (finalPatientName) {
-      updatedPatientData.nomePaciente = finalPatientName.replace(/\s+(?:e|de|da|do|dos|das|para|com|que)$/i, "").trim();
-      if (!updatedPatientData.percentualConcluido || updatedPatientData.percentualConcluido < 30) {
-        updatedPatientData.percentualConcluido = 35;
-      }
-    }
+    // Garantir que a ficha contenha todos os dados compilados da conversa
+    updatedPatientData = compilePatientDataFromConversation(userMessage, reply, updatedPatientData);
 
     return res.json({
       success: true,
       reply,
       patientData: updatedPatientData,
       leadQualificada: true,
+      source: n8nHandled ? "n8n_literal" : "contingency",
+      endpointUsed,
       timestamp: new Date().toISOString()
     });
 
@@ -791,6 +1141,16 @@ Retorna APENAS um JSON no formato estrito:
 // Standalone HTML page for Live Secretary Demo
 app.get(["/demo-secretaria", "/demo-secretaria.html"], (req, res) => {
   res.sendFile(path.join(process.cwd(), "demo-secretaria.html"));
+});
+
+app.get("/robots.txt", (req, res) => {
+  res.type("text/plain");
+  res.sendFile(path.join(process.cwd(), "public", "robots.txt"));
+});
+
+app.get("/sitemap.xml", (req, res) => {
+  res.type("application/xml");
+  res.sendFile(path.join(process.cwd(), "public", "sitemap.xml"));
 });
 
 async function startServer() {

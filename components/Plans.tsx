@@ -1,17 +1,14 @@
 import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { 
-  Check, 
   Sparkles, 
-  Building, 
-  BarChart3, 
+  MessageSquare, 
+  Globe, 
   Crown, 
   Lightbulb, 
   ArrowRight, 
   Activity, 
-  CreditCard, 
-  MessageSquare,
-  HelpCircle
+  CreditCard
 } from 'lucide-react';
 
 export interface PlanItem {
@@ -23,6 +20,7 @@ export interface PlanItem {
   contract: string;
   icon: React.ElementType;
   badge?: string;
+  freeTrialBadge?: string;
   isPopular?: boolean;
   featuresPrefix?: string;
   features: string[];
@@ -33,77 +31,74 @@ export interface PlanItem {
 
 const plansData: PlanItem[] = [
   {
-    id: "start",
-    name: "Secretária Digital Start",
-    subtitle: "Ideal para consultórios individuais, clínicas pequenas ou recém-abertas que precisam de credibilidade imediata.",
-    setupFee: "A partir de 150.000 Kz",
+    id: "secretaria",
+    name: "Secretária",
+    subtitle: "Atendimento imediato no WhatsApp para responder aos pacientes, confirmar consultas e reduzir as faltas na sua clínica.",
+    setupFee: "Configuração incluída",
     monthlyFee: "55.000 Kz",
-    contract: "6 meses",
-    icon: Building,
+    contract: "Sem fidelização",
+    icon: MessageSquare,
     badge: "Entrada",
+    freeTrialBadge: "30 dias grátis",
     isPopular: false,
     features: [
-      "Website Premium Institucional",
-      "Hospedagem de Alta Performance",
-      "Certificado de Segurança SSL",
-      "E-mail Profissional Corporativo",
-      "Integração direta com WhatsApp",
-      "Formulário básico de contacto",
-      "Backups automáticos semanais",
-      "Suporte técnico especializado"
+      "Sofia no WhatsApp 24h",
+      "Lembretes e confirmações automáticas (24h e 2h)",
+      "Recuperação de pacientes sem consulta há +6 meses",
+      "Ficha do paciente pronta com resumo",
+      "Triagem de sintomas e horários preferidos",
+      "Suporte por WhatsApp em dias úteis"
     ],
-    salesTrigger: "Por menos de 2.500 Kz por dia, a sua clínica tem um website profissional, e-mail corporativo e suporte técnico, custando uma fração do salário mínimo de um funcionário.",
-    ctaText: "Solicitar Proposta Start",
+    salesTrigger: "Complementa a sua receção: a equipa atende quem está presente, a Sofia trata do resto.",
+    ctaText: "Testar 30 dias grátis",
     ctaStyle: "start"
   },
   {
-    id: "pro",
-    name: "Secretária Digital Pro",
-    subtitle: "Ideal para clínicas em expansão, com 2 ou mais especialidades, que precisam organizar o WhatsApp e aparecer no Google.",
+    id: "secretaria-presenca",
+    name: "Secretária + Presença Digital",
+    subtitle: "A secretária inteligente no WhatsApp combinada com um website moderno e presença no topo do Google em Angola.",
     setupFee: "A partir de 300.000 Kz",
     monthlyFee: "120.000 Kz",
-    contract: "6 a 12 meses",
-    icon: BarChart3,
+    contract: "Sem fidelização",
+    icon: Globe,
     badge: "MAIS POPULAR",
+    freeTrialBadge: "30 dias grátis",
     isPopular: true,
-    featuresPrefix: "Tudo do plano Secretária Digital Start, MAIS:",
+    featuresPrefix: "Tudo do plano Secretária, MAIS:",
     features: [
-      "Páginas dedicadas por Especialidade",
-      "SEO Local estruturado",
-      "Otimização completa do Google Business",
-      "Formulários Inteligentes de Pedido de Consulta",
-      "WhatsApp integrado com filtros de triagem",
-      "Relatórios Mensais de Desempenho",
-      "Atualizações de conteúdo incluídas",
-      "Suporte técnico prioritário"
+      "Website profissional de alto desempenho",
+      "SEO Local e posicionamento no Google Maps",
+      "Otimização completa da ficha no Google Business",
+      "Páginas dedicadas por especialidade médica",
+      "Relatórios mensais de contactos e confirmações",
+      "Ligação segura HTTPS e contas de e-mail corporativas",
+      "Atualizações contínuas de segurança e conteúdo"
     ],
-    salesTrigger: "Uma secretária humana custa, no mínimo, 150.000 Kz/mês (sem contar INSS/IRT). A Secretária Digital Pro custa menos que isso, trabalha 24 horas por dia, 7 dias por semana, não falta, e ainda otimiza o seu Google para atrair pacientes novos todos os meses.",
-    ctaText: "Solicitar Proposta Pro",
+    salesTrigger: "A sua receção atende presencialmente, a Sofia confirma as consultas no WhatsApp e o website gera pacientes novos no Google.",
+    ctaText: "Testar 30 dias grátis",
     ctaStyle: "pro"
   },
   {
-    id: "elite",
-    name: "Secretária Digital Elite",
-    subtitle: "Ideal para clínicas de referência, hospitais privados ou grupos médicos que querem automação total com IA e relatórios de alta gestão.",
+    id: "clinica-completa",
+    name: "Clínica Completa",
+    subtitle: "Para clínicas consolidadas, centros médicos ou várias unidades que exigem automação personalizada e gestão prioritária.",
     setupFee: "A partir de 600.000 Kz",
     monthlyFee: "250.000 Kz",
     contract: "12 meses",
     icon: Crown,
-    badge: "Premium 👑",
+    badge: "Solução Total",
     isPopular: false,
-    featuresPrefix: "Tudo do plano Secretária Digital Pro, MAIS:",
+    featuresPrefix: "Tudo do plano Secretária + Presença, MAIS:",
     features: [
-      "Atendimento inicial inteligente com IA (WhatsApp)",
-      "Automação completa do fluxo de pedidos",
-      "Sistemas avançados de captação de pacientes",
-      "Consultoria de posicionamento digital",
-      "Relatórios de métricas e conversões em tempo real",
-      "Backups diários e redundantes",
-      "Segurança cibernética corporativa",
-      "Suporte técnico 24/7 com canal VIP de emergência"
+      "Várias especialidades médicas ou múltiplas unidades",
+      "Fluxos de triagem e encaminhamento personalizados",
+      "Relatórios avançados de conversão e comparativos",
+      "Acompanhamento consultivo de posicionamento digital",
+      "Backups redundantes e proteção corporativa",
+      "Suporte prioritário por WhatsApp em dias úteis"
     ],
-    salesTrigger: "Transforme o seu atendimento. Enquanto a sua equipa dorme, a nossa IA qualifica o paciente, agenda a consulta e entrega a ficha pronta no seu CRM. É como ter uma equipa de receção completa a custo de estagiário, com tecnologia de multinacional.",
-    ctaText: "Solicitar Proposta Elite",
+    salesTrigger: "Infraestrutura digital completa para clínicas de alta procura com acompanhamento dedicado e fluxos à medida.",
+    ctaText: "Solicitar Proposta Completa",
     ctaStyle: "elite"
   }
 ];
@@ -151,7 +146,11 @@ const Plans: React.FC<PlansProps> = ({
   };
 
   const whatsappDuvidasLink = `${contactLink}?text=${encodeURIComponent(
-    "Olá! Estive a ver os Planos de Solução Digital na vossa página e gostaria de tirar algumas dúvidas para escolher o melhor plano para a minha clínica."
+    "Olá! Estive a ver os planos na vossa página e gostaria de tirar algumas dúvidas para escolher a melhor opção para a minha clínica."
+  )}`;
+
+  const whatsappWebsiteOnlyLink = `${contactLink}?text=${encodeURIComponent(
+    "Olá! Gostaria de pedir uma proposta apenas para o desenvolvimento de website da minha clínica."
   )}`;
 
   return (
@@ -162,27 +161,16 @@ const Plans: React.FC<PlansProps> = ({
           <div className="inline-flex items-center gap-2 mb-3">
             <span className="text-xs font-bold uppercase tracking-widest text-blue-700 bg-blue-100/90 border border-blue-200 px-3.5 py-1.5 rounded-full inline-flex items-center gap-1.5 shadow-sm">
               <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-              Tabela de Investimento Transparente
+              Planos e Investimento
             </span>
           </div>
 
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 mt-2 mb-4 tracking-tight">
-            Planos de Solução Digital
+            Escolha o plano certo para a sua clínica
           </h2>
 
-          {/* Promotional Notice Highlight Banner */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 shadow-sm mb-4">
-            <span className="flex h-2.5 w-2.5 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
-            </span>
-            <span className="text-xs sm:text-sm font-semibold">
-              ⚡ <strong>Tabela Promocional:</strong> Estes preços são promocionais, válidos por <strong>90 dias</strong>.
-            </span>
-          </div>
-
           <p className="text-base sm:text-lg text-gray-600 leading-relaxed max-w-2xl mx-auto">
-            Soluções completas com suporte técnico permanente em Angola, servidores de alto tráfego e retorno mensurável em captação de pacientes.
+            Comece com a secretária no WhatsApp para eliminar faltas ou adicione o website profissional para ser encontrado no Google.
           </p>
         </div>
 
@@ -207,21 +195,31 @@ const Plans: React.FC<PlansProps> = ({
                 }`}
                 variants={cardVariants}
               >
-                {/* Badge Top Right */}
+                {/* Badges Top Right */}
                 {isPro ? (
-                  <div className="absolute -top-4 right-6 sm:right-8 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-slate-950 text-[11px] font-black uppercase tracking-wider py-1.5 px-4 rounded-full flex items-center gap-1.5 shadow-lg border border-amber-200">
-                    <Sparkles className="w-3.5 h-3.5 text-slate-950 fill-slate-950" />
-                    <span>{plan.badge}</span>
-                    <span className="text-xs">⭐</span>
+                  <div className="absolute -top-4 right-6 sm:right-8 flex items-center gap-2">
+                    <span className="bg-emerald-500 text-slate-950 text-[11px] font-black uppercase tracking-wider py-1.5 px-3 rounded-full shadow-md flex items-center gap-1">
+                      <Sparkles className="w-3 h-3 text-slate-950" />
+                      30 dias grátis
+                    </span>
+                    <span className="bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-slate-950 text-[11px] font-black uppercase tracking-wider py-1.5 px-3 rounded-full shadow-md">
+                      {plan.badge}
+                    </span>
                   </div>
                 ) : (
-                  <span className={`absolute top-6 right-6 text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full ${
-                    plan.id === 'elite' 
-                      ? 'bg-amber-100 text-amber-900 border border-amber-300' 
-                      : 'bg-gray-100 text-gray-600 border border-gray-200'
-                  }`}>
-                    {plan.badge}
-                  </span>
+                  <div className="absolute top-6 right-6 flex items-center gap-2">
+                    {plan.freeTrialBadge && (
+                      <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-sm flex items-center gap-1">
+                        <Sparkles className="w-3 h-3 text-emerald-600" />
+                        {plan.freeTrialBadge}
+                      </span>
+                    )}
+                    {plan.id === 'clinica-completa' && (
+                      <span className="text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
+                        {plan.badge}
+                      </span>
+                    )}
+                  </div>
                 )}
 
                 {/* Plan Header & Subtitle */}
@@ -230,9 +228,9 @@ const Plans: React.FC<PlansProps> = ({
                     <div className={`p-2.5 rounded-2xl ${
                       isPro 
                         ? "bg-blue-600 text-white shadow-md shadow-blue-500/30" 
-                        : plan.id === 'elite'
+                        : plan.id === 'clinica-completa'
                           ? "bg-amber-50 text-amber-700 border border-amber-200"
-                          : "bg-blue-50 text-blue-600 border border-blue-100"
+                          : "bg-emerald-50 text-emerald-600 border border-emerald-100"
                     }`}>
                       <IconComp className="w-6 h-6" />
                     </div>
@@ -255,17 +253,17 @@ const Plans: React.FC<PlansProps> = ({
                       ? "bg-slate-800/90 border-slate-700/80" 
                       : "bg-gray-50/90 border-gray-200/70"
                   }`}>
-                    {/* Setup Fee (Above Monthly) */}
+                    {/* Setup Fee */}
                     <div className="flex items-center justify-between mb-1.5">
                       <span className={`text-xs font-medium ${isPro ? "text-slate-400" : "text-gray-500"}`}>
-                        Setup Único:
+                        Setup inicial:
                       </span>
                       <span className={`text-xs font-semibold ${isPro ? "text-blue-300" : "text-slate-700"}`}>
                         {plan.setupFee}
                       </span>
                     </div>
 
-                    {/* Monthly Fee (Biggest & Boldest) */}
+                    {/* Monthly Fee */}
                     <div className="flex flex-wrap items-baseline justify-between gap-1.5 my-1">
                       <div className="flex items-baseline gap-1.5">
                         <span className={`text-3xl sm:text-4xl font-extrabold tracking-tight ${
@@ -279,24 +277,31 @@ const Plans: React.FC<PlansProps> = ({
                           /mês
                         </span>
                       </div>
-                      <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                        isPro 
-                          ? "bg-amber-400/20 text-amber-300 border border-amber-400/30" 
-                          : "bg-amber-100 text-amber-800 border border-amber-200"
-                      }`}>
-                        Promocional (90 dias)
-                      </span>
+                      
+                      {plan.freeTrialBadge ? (
+                        <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                          isPro 
+                            ? "bg-emerald-500/20 text-emerald-300 border border-emerald-400/30" 
+                            : "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                        }`}>
+                          30 dias grátis
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
+                          Personalizado
+                        </span>
+                      )}
                     </div>
 
-                    {/* Minimum Contract (Discreet) */}
+                    {/* Minimum Contract */}
                     <div className="flex items-center justify-between pt-2 mt-2 border-t border-dashed border-gray-300/30">
                       <span className={`text-[11px] ${isPro ? "text-slate-400" : "text-gray-500"}`}>
-                        Período de Compromisso:
+                        Compromisso:
                       </span>
                       <span className={`text-[11px] font-medium px-2 py-0.5 rounded ${
                         isPro ? "bg-slate-700 text-slate-300" : "bg-gray-200/80 text-gray-700"
                       }`}>
-                        Contrato: {plan.contract}
+                        {plan.contract}
                       </span>
                     </div>
                   </div>
@@ -334,18 +339,18 @@ const Plans: React.FC<PlansProps> = ({
                     ))}
                   </ul>
 
-                  {/* Gatilho de Venda (Highlighted Box with Lightbulb) */}
+                  {/* Sales Trigger Box */}
                   <div className={`p-4 rounded-2xl mb-6 border transition-all ${
                     isPro 
                       ? "bg-blue-950/80 border-blue-500/50 text-blue-100 shadow-inner" 
-                      : plan.id === 'elite'
+                      : plan.id === 'clinica-completa'
                         ? "bg-amber-50/90 border-amber-300 text-amber-950"
-                        : "bg-amber-50/90 border-amber-200 text-amber-900"
+                        : "bg-emerald-50/80 border-emerald-200 text-emerald-950"
                   }`}>
                     <div className="flex items-start gap-2.5">
                       <div className="p-1 rounded-md flex-shrink-0 mt-0.5">
                         <Lightbulb className={`w-4 h-4 ${
-                          isPro ? "text-amber-400" : "text-amber-600"
+                          isPro ? "text-amber-400" : "text-emerald-600"
                         }`} />
                       </div>
                       <p className="text-xs italic leading-relaxed font-normal">
@@ -365,7 +370,7 @@ const Plans: React.FC<PlansProps> = ({
                       className="w-full py-3 px-4 rounded-xl font-bold transition-all duration-300 text-center tracking-wide text-xs bg-emerald-500 hover:bg-emerald-600 text-white shadow-md flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01]"
                     >
                       <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-                      <span>Testar Secretária 24/7 (Demonstração)</span>
+                      <span>Ver demonstração da Sofia</span>
                     </button>
                   )}
 
@@ -377,7 +382,7 @@ const Plans: React.FC<PlansProps> = ({
                         ? "bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white shadow-xl shadow-blue-500/30 hover:scale-[1.02] border border-blue-400/50"
                         : plan.ctaStyle === 'elite'
                           ? "bg-white hover:bg-amber-50 text-slate-900 border-2 border-slate-900 hover:border-amber-600 hover:text-amber-950 shadow-sm hover:scale-[1.02]"
-                          : "bg-white hover:bg-blue-50 text-blue-700 border-2 border-blue-600 shadow-sm hover:scale-[1.02]"
+                          : "bg-white hover:bg-emerald-50 text-emerald-700 border-2 border-emerald-600 shadow-sm hover:scale-[1.02]"
                     }`}
                   >
                     <span>{plan.ctaText}</span>
@@ -389,6 +394,22 @@ const Plans: React.FC<PlansProps> = ({
           })}
         </motion.div>
 
+        {/* Discreet Website-Only Notice */}
+        <div className="mt-8 text-center">
+          <p className="text-sm text-gray-600">
+            Só precisa de website?{' '}
+            <a
+              href={whatsappWebsiteOnlyLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-800 font-bold hover:underline inline-flex items-center gap-1 ml-1"
+            >
+              Pedir proposta
+              <ArrowRight className="w-3.5 h-3.5" />
+            </a>
+          </p>
+        </div>
+
         {/* Payment & Invoicing Guarantees Box */}
         <div className="mt-12 max-w-4xl mx-auto bg-white rounded-2xl border border-gray-200/90 p-5 sm:p-6 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
           <div className="flex items-center gap-3.5">
@@ -397,10 +418,10 @@ const Plans: React.FC<PlansProps> = ({
             </div>
             <div>
               <p className="text-xs sm:text-sm font-semibold text-gray-900">
-                💳 Facilitamos o pagamento: Aceitamos Transferência Bancária, Multicaixa Express e emitimos fatura oficial (NIF: 5417437034)
+                💳 Facilitamos o pagamento: Transferência Bancária, Multicaixa Express e fatura oficial (NIF: 5417437034)
               </p>
               <p className="text-xs text-gray-500 mt-0.5">
-                Processo formalizado, sem burocracia excessiva e com comprovativo fiscal imediato.
+                Processo formalizado através da Mario Cazombo e Filhos, Lda.
               </p>
             </div>
           </div>
@@ -412,7 +433,7 @@ const Plans: React.FC<PlansProps> = ({
             className="whitespace-nowrap inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100/80 px-4 py-2.5 rounded-xl border border-emerald-200 transition-colors flex-shrink-0"
           >
             <MessageSquare className="w-4 h-4" />
-            <span>Dúvidas sobre qual plano escolher? Fale connosco no WhatsApp</span>
+            <span>Dúvidas sobre os planos? Fale no WhatsApp</span>
           </a>
         </div>
 
@@ -431,10 +452,10 @@ const Plans: React.FC<PlansProps> = ({
                 <span className="text-xs text-slate-400">Acesso para Diretores</span>
               </div>
               <h4 className="text-lg sm:text-xl font-bold text-white tracking-tight">
-                Deseja ver a Secretária Digital a funcionar antes de contratar?
+                Deseja ver a Sofia a atender antes de testar?
               </h4>
               <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl">
-                Interaja com o chat inteligente com visual WhatsApp Business e veja os dados da triagem a preencher a ficha médica ao vivo em tempo real.
+                Interaja com o chat inteligente com visual WhatsApp Business e veja os dados da triagem a preencher a ficha médica em tempo real.
               </p>
             </div>
           </div>
@@ -445,7 +466,7 @@ const Plans: React.FC<PlansProps> = ({
             className="whitespace-nowrap px-6 py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-2xl text-xs sm:text-sm shadow-xl transition-all flex items-center justify-center gap-2 hover:scale-105 flex-shrink-0 cursor-pointer w-full md:w-auto"
           >
             <Sparkles className="w-4 h-4 text-amber-300" />
-            <span>Testar Secretária 24/7</span>
+            <span>Ver demonstração da Sofia</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
@@ -453,10 +474,7 @@ const Plans: React.FC<PlansProps> = ({
         {/* Regulatory & Legal Notes */}
         <div className="mt-8 text-center text-xs text-gray-500 max-w-2xl mx-auto space-y-1.5">
           <p>
-            * <strong>Condição Promocional:</strong> Todos os preços indicados nesta tabela são promocionais, válidos por 90 dias para novas contratações. Valores sujeitos a IVA conforme a legislação angolana em vigor. Os preços de setup podem variar consoante a complexidade do projeto.
-          </p>
-          <p>
-            Todas as nossas soluções são acompanhadas por contrato legal em Angola de prestação de serviços tecnológicos emitido por <strong>Mario Cazombo e Filhos, Lda</strong>.
+            Todas as nossas soluções são acompanhadas por contrato legal em Angola de prestação de serviços tecnológicos e emissão de fatura comercial por <strong>Mario Cazombo e Filhos, Lda</strong>.
           </p>
         </div>
       </div>

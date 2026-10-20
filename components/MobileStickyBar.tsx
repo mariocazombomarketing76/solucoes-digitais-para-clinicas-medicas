@@ -14,35 +14,30 @@ const MobileStickyBar: React.FC<MobileStickyBarProps> = ({ contactLink, onOpenDe
     }
   };
 
-  return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-gray-200 p-2 shadow-2xl safe-area-bottom">
-      <div className="flex items-center gap-1.5 max-w-md mx-auto">
-        <button
-          type="button"
-          onClick={() => onOpenDemo ? onOpenDemo() : null}
-          className="py-2.5 px-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl font-bold text-[11px] flex items-center justify-center gap-1 shadow-sm transition-all"
-        >
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
-          <span className="truncate">Testar Secretária 24/7</span>
-        </button>
+  const whatsappTestMsg = "Olá! Quero testar a Secretária Digital 15 dias grátis na minha clínica.";
+  const whatsappTestUrl = `https://wa.me/message/5LQTAOWAHBXLG1?text=${encodeURIComponent(whatsappTestMsg)}`;
 
+  return (
+    <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-gray-200 p-2.5 shadow-2xl safe-area-bottom">
+      <div className="flex items-center gap-2 max-w-md mx-auto">
         <button
           type="button"
-          onClick={scrollToDiagnostic}
-          className="flex-1 py-2.5 px-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1 shadow-sm transition-all"
+          data-action="open-sofia"
+          onClick={() => onOpenDemo ? onOpenDemo() : null}
+          className="flex-1 py-3 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all"
         >
-          <Sparkles className="w-3.5 h-3.5 flex-shrink-0 text-blue-200" />
-          <span className="truncate">Diagnóstico IA</span>
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
+          <span className="truncate">Ver demonstração</span>
         </button>
 
         <a
-          href={contactLink}
+          href={whatsappTestUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-1 py-2.5 px-2.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1 shadow-sm transition-all"
+          className="flex-1 py-3 px-3 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20 transition-all text-center"
         >
-          <MessageSquare className="w-3.5 h-3.5 flex-shrink-0" />
-          <span className="truncate">WhatsApp</span>
+          <MessageSquare className="w-4 h-4 flex-shrink-0" />
+          <span className="truncate">Testar 15 dias grátis</span>
         </a>
       </div>
     </div>

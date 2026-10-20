@@ -1,12 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FileText, ArrowRight } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 
 interface FinalCTAProps {
   contactLink: string;
 }
 
-const FinalCTA: React.FC<FinalCTAProps> = ({ contactLink }) => {
+const FinalCTA: React.FC<FinalCTAProps> = () => {
   const scrollToDiagnostic = () => {
     const element = document.getElementById('diagnostico');
     if (element) {
@@ -15,7 +15,7 @@ const FinalCTA: React.FC<FinalCTAProps> = ({ contactLink }) => {
   };
 
   return (
-    <section className="bg-gradient-to-r from-blue-700 to-indigo-800 text-white overflow-hidden border-t border-blue-800">
+    <section className="bg-gradient-to-r from-blue-700 via-indigo-800 to-slate-900 text-white overflow-hidden border-t border-blue-800">
       <div className="container mx-auto px-6 py-20 md:py-28 text-center relative">
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.08),transparent)] pointer-events-none"></div>
         
@@ -26,7 +26,7 @@ const FinalCTA: React.FC<FinalCTAProps> = ({ contactLink }) => {
           viewport={{ once: true, amount: 0.5 }}
           transition={{ duration: 0.6 }}
         >
-          Está a perder pacientes por falta de presença digital?
+          Nenhum paciente perdido. Teste a Secretária Digital 30 dias grátis.
         </motion.h2>
 
         <motion.p 
@@ -36,7 +36,7 @@ const FinalCTA: React.FC<FinalCTAProps> = ({ contactLink }) => {
           viewport={{ once: true, amount: 0.5 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          Solicite gratuitamente uma análise da sua clínica e descubra oportunidades para melhorar a experiência dos pacientes e aumentar pedidos de consulta.
+          Atenda no WhatsApp 24 horas, confirme consultas e recupere pacientes antigos. Sem cartão de crédito. No fim, mostramos-lhe os números e decide.
         </motion.p>
 
         <motion.div
@@ -48,20 +48,12 @@ const FinalCTA: React.FC<FinalCTAProps> = ({ contactLink }) => {
         >
           <motion.button
             onClick={scrollToDiagnostic}
-            className="inline-flex items-center justify-center w-full sm:w-auto px-10 py-5 bg-emerald-500 hover:bg-emerald-600 text-white text-lg md:text-xl font-bold rounded-2xl shadow-2xl shadow-emerald-500/20 transition-all duration-300 gap-3"
+            className="inline-flex items-center justify-center w-full sm:w-auto px-10 py-5 bg-emerald-500 hover:bg-emerald-600 text-white text-lg md:text-xl font-bold rounded-2xl shadow-2xl shadow-emerald-500/25 transition-all duration-300 gap-3 cursor-pointer"
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
-            animate={{
-              boxShadow: ["0 10px 30px -10px rgba(16,185,129,0.3)", "0 10px 30px 10px rgba(16,185,129,0.5)", "0 10px 30px -10px rgba(16,185,129,0.3)"]
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
           >
-            <FileText className="w-6 h-6 flex-shrink-0" />
-            <span className="leading-tight">Solicitar Diagnóstico Gratuito</span>
+            <Sparkles className="w-6 h-6 flex-shrink-0 text-amber-300" />
+            <span className="leading-tight">Quero testar 30 dias grátis</span>
             <ArrowRight className="w-5 h-5 flex-shrink-0" />
           </motion.button>
         </motion.div>
@@ -73,7 +65,7 @@ const FinalCTA: React.FC<FinalCTAProps> = ({ contactLink }) => {
           viewport={{ once: true, amount: 0.5 }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
-          Empresa registada em Angola • Resposta garantida em até 24h úteis
+          Vagas limitadas a [3] clínicas este mês • Empresa registada em Angola • Resposta em até 24h úteis
         </motion.p>
       </div>
     </section>

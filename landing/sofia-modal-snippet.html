@@ -908,20 +908,26 @@
       }
     }
 
-    // 5. MÉDICO
-    var mDoc = t.match(/(Dra?\.\s+[A-ZÁÀÂÃÉÈÊÍÓÔÕÚÇ][a-záàâãéèêíóôõúç]+(?:\s+[A-ZÁÀÂÃÉÈÊÍÓÔÕÚÇ][a-záàâãéèêíóôõúç]+)?)/i);
-    if (mDoc && mDoc[1]) {
-      fichaAoVivo.doctor = mDoc[1].trim();
+    // Normaliza espaços finos / quebras / não quebráveis
+    var tNorm = t.replace(/[\u00A0\u1680\u2000-\u200B\u202F\u205F\u3000\uFEFF]/g, " ");
+
+    // 5. MÉDICO (Reconhece Dr., Dra., Doutor(a) e nomes compostos)
+    var mDoc = tNorm.match(/(?:Dra?\.?|Doutor(?:a)?)\s+([A-ZÁÀÂÃÉÈÊÍÓÔÕÚÇ][a-záàâãéèêíóôõúç]+(?:\s+(?:de|da|do|dos|das\s+)?[A-ZÁÀÂÃÉÈÊÍÓÔÕÚÇ][a-záàâãéèêíóôõúç]+)*)/i);
+    if (mDoc && mDoc[0]) {
+      fichaAoVivo.doctor = mDoc[0].trim();
       alterado = true;
     }
 
-    // 6. HORÁRIO / DATA
-    var mHora = t.match(/(?:segunda|terça|quarta|quinta|sexta|sábado|domingo)(?:-feira)?(?:\s+(?:às\s+)?\d{1,2}(?::|h)\d{0,2})?/i);
+    // 6. HORÁRIO / DATA (Datas por extenso como '25 de outubro', dias da semana ou horários)
+    var mHora = tNorm.match(/(?:\d{1,2}(?:º)?\s+de\s+(?:janeiro|fevereiro|março|marco|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)(?:\s+(?:de\s+)?\d{4})?)/i);
     if (!mHora) {
-      mHora = t.match(/(?:amanhã|hoje|depois de amanhã)(?:\s+(?:às\s+)?\d{1,2}(?::|h)\d{0,2})?/i);
+      mHora = tNorm.match(/(?:segunda|terça|quarta|quinta|sexta|sábado|domingo)(?:-feira)?(?:\s+(?:às\s+)?\d{1,2}(?::|h)\d{0,2})?/i);
     }
     if (!mHora) {
-      mHora = t.match(/\b\d{1,2}[:h]\d{2}(?:\s*(?:–|-|às)\s*\d{1,2}[:h]\d{2})?\b/i);
+      mHora = tNorm.match(/(?:amanhã|hoje|depois de amanhã)(?:\s+(?:às\s+)?\d{1,2}(?::|h)\d{0,2})?/i);
+    }
+    if (!mHora) {
+      mHora = tNorm.match(/\b\d{1,2}[:h]\d{2}(?:\s*(?:–|-|às)\s*\d{1,2}[:h]\d{2})?\b/i);
     }
     if (mHora && mHora[0]) {
       fichaAoVivo.appointment_slot = mHora[0].trim();
@@ -954,6 +960,52 @@
     }
   }
 
+  // Mescla dados compilados estruturados vindos do backend / Sofia literal
+  function mesclarFichaDoServidor(pData) {
+    if (!pData || typeof pData !== "object") return;
+    var alterado = false;
+
+    if (pData.nomePaciente && pData.nomePaciente !== "—" && pData.nomePaciente !== "Identificando no chat...") {
+      fichaAoVivo.patient_name = pData.nomePaciente;
+      alterado = true;
+    }
+    if (pData.especialidade && pData.especialidade !== "Identificando...") {
+      fichaAoVivo.specialty = pData.especialidade;
+      alterado = true;
+    }
+    if (pData.medicoPretendido && pData.medicoPretendido !== "Equipa Médica" && pData.medicoPretendido !== "Pendente") {
+      fichaAoVivo.doctor = pData.medicoPretendido;
+      alterado = true;
+    }
+    if (pData.dataSugerida) {
+      fichaAoVivo.appointment_slot = pData.dataSugerida + (pData.horarioSugerido ? " às " + pData.horarioSugerido : "");
+      alterado = true;
+    } else if (pData.horarioSugerido) {
+      fichaAoVivo.appointment_slot = pData.horarioSugerido;
+      alterado = true;
+    }
+    if (pData.telefone) {
+      fichaAoVivo.phone = pData.telefone;
+      alterado = true;
+    }
+    if (pData.tipoAtendimento && pData.tipoAtendimento !== "A definir") {
+      fichaAoVivo.lead_type = pData.tipoAtendimento + (pData.seguroNome ? " (" + pData.seguroNome + ")" : "");
+      alterado = true;
+    }
+    if (pData.sintomasOuMotivo || pData.proximoPasso) {
+      var notasFinal = (pData.sintomasOuMotivo || "");
+      if (pData.proximoPasso) {
+        notasFinal += (notasFinal ? " | " : "") + "Próximo passo: " + pData.proximoPasso;
+      }
+      fichaAoVivo.notes = notasFinal;
+      alterado = true;
+    }
+
+    if (alterado) {
+      renderizarFichaLocal();
+    }
+  }
+
   function renderizarFichaLocal() {
     var campos = ["patient_name", "phone", "email", "specialty", "doctor", "appointment_slot", "lead_type", "notes"];
     campos.forEach(function (campo) {
@@ -970,6 +1022,96 @@
     });
   }
 
+  // ---- FORMATAÇÃO WHATSAPP / MARKDOWN DA RESPOSTA LITERAL ----
+  function formatarMarkdownWhatsApp(texto) {
+    if (!texto) return "";
+    var html = String(texto)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      // Negrito: **texto** ou *texto*
+      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+      .replace(/(^|[^\*])\*([^\*\n\r]+)\*([^\*]|$)/g, "$1<strong>$2</strong>$3")
+      // Itálico: _texto_
+      .replace(/(^|[^_])_([^_\n\r]+)_([^_]|$)/g, "$1<em>$2</em>$3")
+      // Riscar: ~texto~
+      .replace(/~([^~\n\r]+)~/g, "<del>$1</del>")
+      // Links
+      .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" style="color: #0284c7; text-decoration: underline;">$1</a>')
+      // Quebras de linha
+      .replace(/\r\n|\n|\r/g, "<br>");
+    return html;
+  }
+
+  // Extração fiel e literal da resposta do n8n (suporta string, { output }, array, { text }, etc.)
+  function extrairLiteralRespostaN8N(data) {
+    if (!data) return "(sem resposta)";
+    if (typeof data === "string") {
+      var strTrim = data.trim();
+      if ((strTrim.startsWith("{") && strTrim.endsWith("}")) || (strTrim.startsWith("[") && strTrim.endsWith("]"))) {
+        try {
+          var parsedStr = JSON.parse(strTrim);
+          var inner = extrairLiteralRespostaN8N(parsedStr);
+          if (inner && inner !== "(sem resposta)") return inner;
+        } catch (e) {}
+      }
+      return strTrim;
+    }
+
+    var item = data;
+    if (Array.isArray(data)) {
+      if (data.length === 0) return "(sem resposta)";
+      item = data[0];
+    }
+
+    if (typeof item === "string") return item.trim();
+
+    if (item && typeof item === "object") {
+      if (item.json && typeof item.json === "object") {
+        item = item.json;
+      }
+
+      var campos = [
+        item.output,
+        item.text,
+        item.response,
+        item.message,
+        item.resposta,
+        item.reply,
+        item.content,
+        item.result,
+        item.data && item.data.output,
+        item.data && item.data.text,
+        item.data && item.data.response,
+        item.data && item.data.message,
+        item.data && item.data.resposta
+      ];
+
+      for (var i = 0; i < campos.length; i++) {
+        var v = campos[i];
+        if (typeof v === "string" && v.trim()) {
+          var vTrim = v.trim();
+          if ((vTrim.startsWith("{") && vTrim.endsWith("}")) || (vTrim.startsWith("[") && vTrim.endsWith("]"))) {
+            try {
+              var parsedNested = JSON.parse(vTrim);
+              var nestedInner = extrairLiteralRespostaN8N(parsedNested);
+              if (nestedInner && nestedInner !== "(sem resposta)") return nestedInner;
+            } catch (e) {}
+          }
+          return vTrim;
+        }
+        if (v && typeof v === "object") {
+          if (typeof v.text === "string" && v.text.trim()) return v.text.trim();
+          if (typeof v.content === "string" && v.content.trim()) return v.content.trim();
+          if (typeof v.output === "string" && v.output.trim()) return v.output.trim();
+          if (typeof v.message === "string" && v.message.trim()) return v.message.trim();
+        }
+      }
+    }
+
+    return typeof data === "object" ? JSON.stringify(data) : String(data);
+  }
+
   // ---- Enviar mensagem ----
   function enviar() {
     var texto = input.value.trim();
@@ -981,25 +1123,70 @@
 
     var typing = addTyping();
 
-    fetch(URL_CHAT, {
+    // 1. Tentar prioritariamente o proxy backend seguro (resolve produção e teste no n8n)
+    fetch("/api/sofia-chat", {
       method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
-        "ngrok-skip-browser-warning": "true"
-      },
-      body: JSON.stringify({ action: "sendMessage", chatInput: texto, sessionId: sessionId })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "sendMessage",
+        chatInput: texto,
+        message: texto,
+        sessionId: sessionId,
+        currentPatientData: fichaAoVivo
+      })
     })
-      .then(function (r) { return r.json(); })
+      .then(function (r) {
+        if (!r.ok) throw new Error("Proxy offline");
+        return r.json();
+      })
       .then(function (data) {
         typing.remove();
-        var resposta = data.output || data.text || data.response || "(sem resposta)";
+        var resposta = extrairLiteralRespostaN8N(data);
         addMsg("bot", resposta);
+        if (data.patientData) {
+          mesclarFichaDoServidor(data.patientData);
+        }
         extrairDadosAutomaticamente(resposta, "bot"); // Análise em tempo real da resposta da Sofia
         atualizarFicha(); // Se o n8n tiver dados na tabela, mescla
       })
       .catch(function () {
-        typing.remove();
-        addMsg("bot", "⚠️ Ocorreu um erro de ligação. Tente novamente dentro de alguns segundos.");
+        // 2. Fallback direto ao webhook ngrok (com auto detecção de /webhook-test/)
+        var fallbackUrl = URL_CHAT;
+        return fetch(fallbackUrl, {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true"
+          },
+          body: JSON.stringify({ action: "sendMessage", chatInput: texto, sessionId: sessionId })
+        })
+          .then(function (r) {
+            if (r.status === 404 && fallbackUrl.indexOf("/webhook/") !== -1) {
+              return fetch(fallbackUrl.replace("/webhook/", "/webhook-test/"), {
+                method: "POST",
+                headers: { 
+                  "Content-Type": "application/json",
+                  "ngrok-skip-browser-warning": "true"
+                },
+                body: JSON.stringify({ action: "sendMessage", chatInput: texto, sessionId: sessionId })
+              }).then(function (rTest) { return rTest.json(); });
+            }
+            return r.json();
+          })
+          .then(function (data) {
+            typing.remove();
+            var resposta = extrairLiteralRespostaN8N(data);
+            addMsg("bot", resposta);
+            if (data && (data.dadosPaciente || data.patientData)) {
+              mesclarFichaDoServidor(data.dadosPaciente || data.patientData);
+            }
+            extrairDadosAutomaticamente(resposta, "bot");
+            atualizarFicha();
+          })
+          .catch(function () {
+            typing.remove();
+            addMsg("bot", "⚠️ Ocorreu um erro de ligação com a Sofia. Tente novamente dentro de alguns segundos.");
+          });
       })
       .finally(function () {
         sendBtn.disabled = false;
@@ -1021,9 +1208,10 @@
     var div = document.createElement("div");
     div.className = "sofia-msg " + tipo;
     
-    // Texto
+    // Texto com formatação WhatsApp / Markdown
     var p = document.createElement("span");
-    p.textContent = texto;
+    p.className = "sofia-msg-text";
+    p.innerHTML = formatarMarkdownWhatsApp(texto);
     div.appendChild(p);
 
     // Meta (hora + checks azuis)

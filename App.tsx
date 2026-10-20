@@ -5,6 +5,7 @@ import MobileStickyBar from './components/MobileStickyBar';
 import Hero from './components/Hero';
 import TargetAudience from './components/TargetAudience';
 import Problems from './components/Problems';
+import Results from './components/Results';
 import Solution from './components/Solution';
 import WhyChooseUs from './components/WhyChooseUs';
 import WhyItWorks from './components/WhyItWorks';
@@ -20,23 +21,46 @@ import { MessageSquare } from 'lucide-react';
 
 const App: React.FC = () => {
   const contactLink = "https://wa.me/message/5LQTAOWAHBXLG1"; // WhatsApp Business Official Link
+  const whatsappTestMsg = "Olá! Quero testar a Secretária Digital 15 dias grátis na minha clínica.";
+  const whatsappTestUrl = `https://wa.me/message/5LQTAOWAHBXLG1?text=${encodeURIComponent(whatsappTestMsg)}`;
   const [modal, setModal] = useState<'privacy' | 'terms' | null>(null);
-  const [selectedPlan, setSelectedPlan] = useState<string>("Secretária Digital Pro");
+  const [selectedPlan, setSelectedPlan] = useState<string>("Secretária + Presença Digital");
+
+  const handleOpenDemo = () => {
+    if (typeof (window as any).abrirModalSofia === 'function') {
+      (window as any).abrirModalSofia();
+      return;
+    }
+    const btn = document.querySelector('[data-action="open-sofia"]') as HTMLElement;
+    if (btn) {
+      btn.click();
+      return;
+    }
+    const overlay = document.getElementById("sofia-overlay");
+    if (overlay) {
+      overlay.classList.add("sofia-open");
+      const input = document.getElementById("sofia-input") as HTMLInputElement;
+      if (input) input.focus();
+    }
+  };
 
   return (
     <div className="bg-gray-50 text-gray-800 font-sans antialiased scroll-smooth relative pb-16 md:pb-0">
       {/* Sticky Header Navigation */}
-      <Navbar contactLink={contactLink} />
+      <Navbar contactLink={contactLink} onOpenDemo={handleOpenDemo} />
 
       <main>
         {/* 1. Hero Section */}
-        <Hero contactLink={contactLink} />
+        <Hero contactLink={contactLink} onOpenDemo={handleOpenDemo} />
 
         {/* 2. Target Audience Specialty Filter */}
         <TargetAudience />
 
         {/* 3. Pain Points & Challenges */}
         <Problems />
+
+        {/* 3.1 Results & Impact of Digital Secretary */}
+        <Results />
 
         {/* 4. Complete System Solution */}
         <Solution />
@@ -56,13 +80,15 @@ const App: React.FC = () => {
         {/* 8. Interactive Diagnostic Form */}
         <DiagnosticForm 
           selectedPlan={selectedPlan} 
+          onOpenDemo={handleOpenDemo}
+          onPrivacyClick={() => setModal('privacy')}
         />
 
         {/* 9. About the Company & Director */}
         <Authority />
 
         {/* 10. FAQ Friction Reducer */}
-        <FAQ />
+        <FAQ contactLink={contactLink} />
 
         {/* 11. Closing Persuasion Section */}
         <FinalCTA contactLink={contactLink} />
@@ -76,21 +102,22 @@ const App: React.FC = () => {
 
       {/* Floating WhatsApp Button for Desktop/Tablet */}
       <a
-        href={contactLink}
+        href={whatsappTestUrl}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="Falar no WhatsApp"
+        aria-label="Testar Secretária Digital 15 dias grátis"
         className="hidden md:flex fixed bottom-6 right-6 z-40 bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 items-center justify-center group"
       >
         <MessageSquare className="w-7 h-7" />
         <span className="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-500 ease-in-out font-bold text-sm ml-0 group-hover:ml-2">
-          Falar no WhatsApp
+          Testar 15 dias grátis
         </span>
       </a>
 
       {/* Mobile Bottom Fixed Action Bar */}
       <MobileStickyBar 
-        contactLink={contactLink} 
+        contactLink={whatsappTestUrl}
+        onOpenDemo={handleOpenDemo}
       />
 
       {/* Modals */}

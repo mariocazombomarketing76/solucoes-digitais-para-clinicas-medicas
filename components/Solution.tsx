@@ -1,21 +1,12 @@
 import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { 
-  Globe, 
-  Server, 
-  Lock, 
-  Mail, 
-  MapPin, 
-  Search, 
   MessageSquare, 
-  ClipboardList, 
-  Calendar, 
-  Database, 
-  ShieldCheck, 
-  LifeBuoy, 
+  CalendarCheck2, 
+  RotateCcw, 
+  Globe, 
+  Search, 
   BarChart2, 
-  RefreshCw, 
-  Cpu, 
   Sparkles,
   ArrowRight,
   Activity
@@ -26,29 +17,49 @@ interface SolutionProps {
 }
 
 const systemFeatures = [
-  { title: "Website Premium", desc: "Design exclusivo e focado em conversão, otimizado para prender a atenção do paciente e gerar marcações.", icon: Globe, color: "text-blue-600 bg-blue-50" },
-  { title: "Hospedagem", desc: "Servidores rápidos com baixíssima latência para garantir carregamento instantâneo em Luanda e no resto de Angola.", icon: Server, color: "text-indigo-600 bg-indigo-50" },
-  { title: "SSL de Segurança", desc: "Protocolo HTTPS ativo com criptografia de ponta a ponta para proteger dados e dar credibilidade ao navegador.", icon: Lock, color: "text-emerald-600 bg-emerald-50" },
-  { title: "Email Profissional", desc: "Contas de e-mail corporativas com o nome da sua clínica (ex: contacto@suaclinica.com) para comunicações formais.", icon: Mail, color: "text-sky-600 bg-sky-50" },
-  { title: "SEO Local", desc: "Otimização técnica para fazer a sua clínica aparecer no topo das pesquisas geográficas do Google Angola.", icon: MapPin, color: "text-rose-600 bg-rose-50" },
-  { title: "Google Business", desc: "Configuração profissional e posicionamento da ficha no mapa do Google para gerar chamadas diretas.", icon: Search, color: "text-amber-600 bg-amber-50" },
-  { title: "WhatsApp Integrado", desc: "Ligações e botões flutuantes inteligentes para direcionar os visitantes ao atendimento correto sem fricção.", icon: MessageSquare, color: "text-emerald-600 bg-emerald-50" },
-  { title: "Formulários Inteligentes", desc: "Campos validados de triagem prévia para qualificar o paciente antes mesmo do primeiro contacto humano.", icon: ClipboardList, color: "text-purple-600 bg-purple-50" },
-  { title: "Pedidos de Consulta", desc: "Sistemas simples de agendamento online que permitem ao paciente escolher horários de forma digital.", icon: Calendar, color: "text-teal-600 bg-teal-50" },
-  { title: "Backups Automatizados", desc: "Cópias de segurança regulares para garantir que o seu website e histórico de dados nunca se percam.", icon: Database, color: "text-blue-600 bg-blue-50" },
-  { title: "Segurança Blindada", desc: "Proteção avançada contra tentativas de invasão e spam nos formulários de contacto.", icon: ShieldCheck, color: "text-green-600 bg-green-50" },
-  { title: "Suporte Técnico", desc: "Suporte técnico contínuo em Angola para ajustes, resolução de problemas e assessoria completa.", icon: LifeBuoy, color: "text-violet-600 bg-violet-50" },
-  { title: "Relatórios Mensais", desc: "Métricas transparentes de visitas, cliques no WhatsApp e preenchimento de diagnósticos para acompanhar o ROI.", icon: BarChart2, color: "text-yellow-600 bg-yellow-50" },
-  { title: "Atualizações", desc: "Manutenção técnica constante com atualizações de segurança e conteúdo sempre que a clínica necessitar.", icon: RefreshCw, color: "text-pink-600 bg-pink-50" },
-  { title: "Automação", desc: "Fluxos inteligentes de encaminhamento que otimizam o tempo da sua receção ou equipa comercial.", icon: Cpu, color: "text-cyan-600 bg-cyan-50" },
-  { title: "Inteligência Artificial", desc: "Configuração de IA aplicada ao atendimento para respostas e qualificações imediatas fora do horário comercial.", icon: Sparkles, color: "text-purple-600 bg-purple-50" }
+  { 
+    title: "Secretária no WhatsApp", 
+    desc: "Atendimento imediato para responder a dúvidas frequentes, recolher dados de identificação e encaminhar as marcações com prontidão.", 
+    icon: MessageSquare, 
+    color: "text-emerald-600 bg-emerald-50 border-emerald-100" 
+  },
+  { 
+    title: "Lembretes e confirmações", 
+    desc: "Lembrete automático 24h e 2h antes da consulta com pedido de confirmação. Reduz as faltas e liberta horários atempadamente.", 
+    icon: CalendarCheck2, 
+    color: "text-blue-600 bg-blue-50 border-blue-100" 
+  },
+  { 
+    title: "Recuperação de pacientes", 
+    desc: "Mensagens cuidadas a pacientes sem consulta há 6 meses ou mais, apenas a quem já é paciente e com opção simples de parar.", 
+    icon: RotateCcw, 
+    color: "text-purple-600 bg-purple-50 border-purple-100" 
+  },
+  { 
+    title: "Website profissional", 
+    desc: "Páginas modernas, institucionais e ultra-rápidas para telemóveis com ligação segura HTTPS e apresentação de especialidades.", 
+    icon: Globe, 
+    color: "text-sky-600 bg-sky-50 border-sky-100" 
+  },
+  { 
+    title: "Google e SEO local", 
+    desc: "Otimização no Google Maps e pesquisas locais para a sua clínica aparecer a quem procura consultas na sua cidade ou bairro.", 
+    icon: Search, 
+    color: "text-amber-600 bg-amber-50 border-amber-100" 
+  },
+  { 
+    title: "Relatórios mensais", 
+    desc: "Métricas claras de mensagens recebidas, consultas confirmadas e pacientes reativados para acompanhar o retorno do investimento.", 
+    icon: BarChart2, 
+    color: "text-rose-600 bg-rose-50 border-rose-100" 
+  }
 ];
 
 const containerVariants = {
   hidden: {},
   visible: {
     transition: {
-      staggerChildren: 0.05
+      staggerChildren: 0.08
     }
   }
 };
@@ -69,7 +80,7 @@ const Solution: React.FC<SolutionProps> = ({ onOpenDemo }) => {
   return (
     <section id="solucoes" ref={ref} className="py-16 md:py-24 bg-gray-50 overflow-hidden border-b border-gray-100">
       {/* SEO Tag */}
-      <h2 className="sr-only">Websites para Clínicas em Angola</h2>
+      <h2 className="sr-only">Secretária Digital e Presença Web para Clínicas</h2>
 
       <div className="container mx-auto px-6">
         <motion.div 
@@ -78,19 +89,19 @@ const Solution: React.FC<SolutionProps> = ({ onOpenDemo }) => {
           animate={{ opacity: isInView ? 1 : 0, y: isInView ? 0 : 30 }}
           transition={{ duration: 0.8 }}
         >
-          <span className="text-xs font-bold uppercase tracking-widest text-blue-600 bg-blue-100 px-3 py-1 rounded-full">
-            Sistema Clínicas Digitais™
+          <span className="text-xs font-bold uppercase tracking-widest text-blue-600 bg-blue-100 px-3.5 py-1 rounded-full">
+            Solução Completa
           </span>
           <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mt-4 mb-3 font-display">
-            Muito mais do que um website
+            Tudo o que a sua clínica precisa para não perder pacientes
           </h3>
           <p className="text-lg text-gray-600">
-            Uma solução digital completa para clínicas privadas.
+            A secretária no WhatsApp que atende e confirma, complementada por uma presença digital com autoridade médica.
           </p>
         </motion.div>
 
         <motion.div 
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto"
           variants={containerVariants}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
@@ -100,20 +111,20 @@ const Solution: React.FC<SolutionProps> = ({ onOpenDemo }) => {
             return (
               <motion.div 
                 key={index} 
-                className="bg-white p-6 rounded-2xl border border-gray-150 hover:border-blue-200 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between"
+                className="bg-white p-7 rounded-2xl border border-gray-200/80 hover:border-blue-300 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between group"
                 variants={itemVariants}
                 whileHover={{ y: -4 }}
               >
                 <div>
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${feat.color}`}>
-                    <IconComponent className="w-5 h-5" />
+                  <div className={`w-12 h-12 rounded-xl border flex items-center justify-center mb-5 ${feat.color}`}>
+                    <IconComponent className="w-6 h-6" />
                   </div>
-                  <h4 className="text-lg font-bold text-gray-900 mb-2 leading-tight">{feat.title}</h4>
-                  <p className="text-xs text-gray-600 leading-relaxed">{feat.desc}</p>
-                </div>
-                <div className="mt-4 pt-3 border-t border-gray-50 flex items-center justify-between text-[10px] text-gray-400 font-mono">
-                  <span>CLINICASDIGITAIS</span>
-                  <span>v2.6</span>
+                  <h4 className="text-xl font-bold text-gray-900 mb-2.5 leading-snug group-hover:text-blue-600 transition-colors">
+                    {feat.title}
+                  </h4>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    {feat.desc}
+                  </p>
                 </div>
               </motion.div>
             );
@@ -134,7 +145,7 @@ const Solution: React.FC<SolutionProps> = ({ onOpenDemo }) => {
                 Quer ver a Secretária Digital a atender um paciente agora?
               </h4>
               <p className="text-xs sm:text-sm text-gray-600">
-                Abra o simulador e teste o agendamento em tempo real com o painel de CRM lado a lado.
+                Abra o simulador e teste o atendimento com a ficha do paciente gerada em tempo real.
               </p>
             </div>
           </div>
@@ -145,7 +156,7 @@ const Solution: React.FC<SolutionProps> = ({ onOpenDemo }) => {
             className="whitespace-nowrap px-5 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs sm:text-sm shadow-md transition-all flex items-center gap-2 hover:scale-105 flex-shrink-0 cursor-pointer"
           >
             <Sparkles className="w-4 h-4 text-amber-300" />
-            <span>Testar Secretária 24/7</span>
+            <span>Ver demonstração da Sofia</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
