@@ -145,6 +145,23 @@ const Plans: React.FC<PlansProps> = ({
     }
   };
 
+  const handleDemoClick = () => {
+    if (onOpenDemo) {
+      onOpenDemo();
+      return;
+    }
+    if (typeof (window as any).abrirModalSofia === 'function') {
+      (window as any).abrirModalSofia();
+      return;
+    }
+    const overlay = document.getElementById("sofia-overlay");
+    if (overlay) {
+      overlay.classList.add("sofia-open");
+      const input = document.getElementById("sofia-input") as HTMLInputElement;
+      if (input) input.focus();
+    }
+  };
+
   const whatsappDuvidasLink = `${contactLink}?text=${encodeURIComponent(
     "Olá! Estive a ver os planos na vossa página e gostaria de tirar algumas dúvidas para escolher a melhor opção para a minha clínica."
   )}`;
@@ -366,7 +383,8 @@ const Plans: React.FC<PlansProps> = ({
                   {isPro && (
                     <button
                       type="button"
-                      onClick={() => onOpenDemo ? onOpenDemo() : null}
+                      data-action="open-sofia"
+                      onClick={handleDemoClick}
                       className="w-full py-3 px-4 rounded-xl font-bold transition-all duration-300 text-center tracking-wide text-xs bg-emerald-500 hover:bg-emerald-600 text-white shadow-md flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01]"
                     >
                       <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
@@ -462,7 +480,8 @@ const Plans: React.FC<PlansProps> = ({
 
           <button
             type="button"
-            onClick={() => onOpenDemo ? onOpenDemo() : null}
+            data-action="open-sofia"
+            onClick={handleDemoClick}
             className="whitespace-nowrap px-6 py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-2xl text-xs sm:text-sm shadow-xl transition-all flex items-center justify-center gap-2 hover:scale-105 flex-shrink-0 cursor-pointer w-full md:w-auto"
           >
             <Sparkles className="w-4 h-4 text-amber-300" />

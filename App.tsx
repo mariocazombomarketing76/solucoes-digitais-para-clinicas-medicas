@@ -63,7 +63,7 @@ const App: React.FC = () => {
         <Results />
 
         {/* 4. Complete System Solution */}
-        <Solution />
+        <Solution onOpenDemo={handleOpenDemo} />
 
         {/* 5. Institutional Trust Badges */}
         <WhyChooseUs />
@@ -75,6 +75,7 @@ const App: React.FC = () => {
         <Plans 
           onSelectPlan={(plan) => setSelectedPlan(plan)} 
           contactLink={contactLink}
+          onOpenDemo={handleOpenDemo}
         />
 
         {/* 8. Interactive Diagnostic Form */}

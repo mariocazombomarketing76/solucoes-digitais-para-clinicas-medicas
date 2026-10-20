@@ -907,12 +907,16 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan, onOpenDem
                     {onOpenDemo && (
                       <button
                         type="button"
-                        onClick={() => onOpenDemo({
-                          nome: formData.nome,
-                          clinica: formData.clinica,
-                          telefone: formData.telefone,
-                          email: formData.email
-                        })}
+                        data-action="open-sofia"
+                        onClick={() => {
+                          try {
+                            (onOpenDemo as any)();
+                          } catch (e) {
+                            if (typeof (window as any).abrirModalSofia === 'function') {
+                              (window as any).abrirModalSofia();
+                            }
+                          }
+                        }}
                         className="w-full sm:w-auto px-6 py-4 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold rounded-2xl transition-all text-sm flex items-center justify-center gap-2"
                       >
                         <Sparkles className="w-4 h-4 text-emerald-600" />

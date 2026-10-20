@@ -152,7 +152,23 @@ const Solution: React.FC<SolutionProps> = ({ onOpenDemo }) => {
 
           <button
             type="button"
-            onClick={() => onOpenDemo ? onOpenDemo() : null}
+            data-action="open-sofia"
+            onClick={() => {
+              if (onOpenDemo) {
+                onOpenDemo();
+                return;
+              }
+              if (typeof (window as any).abrirModalSofia === 'function') {
+                (window as any).abrirModalSofia();
+                return;
+              }
+              const overlay = document.getElementById("sofia-overlay");
+              if (overlay) {
+                overlay.classList.add("sofia-open");
+                const input = document.getElementById("sofia-input") as HTMLInputElement;
+                if (input) input.focus();
+              }
+            }}
             className="whitespace-nowrap px-5 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs sm:text-sm shadow-md transition-all flex items-center gap-2 hover:scale-105 flex-shrink-0 cursor-pointer"
           >
             <Sparkles className="w-4 h-4 text-amber-300" />

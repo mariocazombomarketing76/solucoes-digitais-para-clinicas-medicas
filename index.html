@@ -866,7 +866,13 @@
     var el = e.target;
     for (var i = 0; i < 4 && el; i++) {
       var txt = (el.textContent || "").trim().toLowerCase();
-      if (txt === TEXTO_BOTAO || txt.indexOf("testar secret") !== -1 || (el.getAttribute && el.getAttribute("data-action") === "open-sofia")) {
+      if (
+        txt === TEXTO_BOTAO || 
+        txt.indexOf("testar secret") !== -1 || 
+        txt.indexOf("ver demonstra") !== -1 || 
+        txt.indexOf("demonstração") !== -1 || 
+        (el.getAttribute && el.getAttribute("data-action") === "open-sofia")
+      ) {
         e.preventDefault();
         abrirModal();
         return;
