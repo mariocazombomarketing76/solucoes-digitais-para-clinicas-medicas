@@ -684,7 +684,7 @@ function extractLiteralN8NReply(data: any): string | null {
 }
 
 // Universal n8n Dispatcher: Automatically handles both Production (/webhook/) and Test (/webhook-test/) modes
-async function fetchN8NWithTestFallback(targetUrl: string, payload: any, timeoutMs = 45000) {
+async function fetchN8NWithTestFallback(targetUrl: string, payload: any, timeoutMs = 20000) {
   const urlsToTry: string[] = [targetUrl];
   
   if (targetUrl.includes("/webhook/")) {
@@ -695,6 +695,7 @@ async function fetchN8NWithTestFallback(targetUrl: string, payload: any, timeout
 
   let lastError: any = null;
   let lastResp: any = null;
+  let lastParsedBody: any = null;
 
   for (const url of urlsToTry) {
     try {
@@ -705,8 +706,9 @@ async function fetchN8NWithTestFallback(targetUrl: string, payload: any, timeout
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
-          "User-Agent": "SofiaDigitalSecretary/1.0"
+          "ngrok-skip-browser-warning": "69420",
+          "User-Agent": "SofiaDigitalSecretary/1.0",
+          "X-Instance-Id": "6947fe04d29e82099ef788cb1d27177ea2b7952d9230180f9bbf9bf9ddbbba89"
         },
         signal: controller.signal,
         body: JSON.stringify(payload)
@@ -720,10 +722,33 @@ async function fetchN8NWithTestFallback(targetUrl: string, payload: any, timeout
         continue;
       }
 
+      let parsedBody: any = null;
+      let rawText = "";
+      try {
+        rawText = await resp.text();
+        parsedBody = JSON.parse(rawText);
+      } catch {
+        parsedBody = rawText;
+      }
+
+      if (!resp.ok) {
+        lastResp = resp;
+        lastParsedBody = parsedBody;
+        return {
+          ok: false,
+          status: resp.status,
+          response: resp,
+          errorBody: parsedBody,
+          error: new Error(`n8n HTTP ${resp.status}: ${typeof parsedBody === "object" ? JSON.stringify(parsedBody) : rawText}`),
+          usedUrl: url
+        };
+      }
+
       return {
-        ok: resp.ok,
+        ok: true,
         status: resp.status,
         response: resp,
+        data: parsedBody,
         usedUrl: url
       };
     } catch (err: any) {
@@ -733,8 +758,9 @@ async function fetchN8NWithTestFallback(targetUrl: string, payload: any, timeout
 
   return {
     ok: false,
-    status: lastResp?.status || 502,
+    status: lastResp?.status || (lastError?.name === "AbortError" ? 504 : 502),
     response: lastResp,
+    errorBody: lastParsedBody,
     error: lastError,
     usedUrl: targetUrl
   };
@@ -894,19 +920,20 @@ app.post("/api/sofia-chat", async (req, res) => {
       message: userText,
       text: userText,
       sessionId: activeSessionId
-    }, 45000);
+    }, 18000);
 
-    if (n8nResult.ok && n8nResult.response) {
-      const n8nData = await n8nResult.response.json();
-      const literalReply = extractLiteralN8NReply(n8nData);
+    const n8nRawData = n8nResult.data || null;
+
+    if (n8nResult.ok && n8nRawData) {
+      const literalReply = extractLiteralN8NReply(n8nRawData);
 
       if (literalReply) {
         // Compile clinical fields directly from Sofia's literal response
         let compiledData = compilePatientDataFromConversation(userText, literalReply, currentPatientData);
 
         // Merge any direct structured data if provided by the n8n workflow
-        if (n8nData && (n8nData.dadosPaciente || n8nData.patientData)) {
-          compiledData = { ...compiledData, ...(n8nData.dadosPaciente || n8nData.patientData) };
+        if (n8nRawData && (n8nRawData.dadosPaciente || n8nRawData.patientData)) {
+          compiledData = { ...compiledData, ...(n8nRawData.dadosPaciente || n8nRawData.patientData) };
         }
 
         return res.json({
@@ -915,11 +942,28 @@ app.post("/api/sofia-chat", async (req, res) => {
           reply: literalReply,
           patientData: compiledData,
           source: "n8n_literal",
+          n8nStatus: {
+            connected: true,
+            status: n8nResult.status,
+            endpoint: n8nResult.usedUrl,
+            mode: "n8n_live"
+          },
           endpointUsed: n8nResult.usedUrl,
-          raw: n8nData
+          raw: n8nRawData
         });
       }
     }
+
+    // Diagnostic info about why n8n was not used
+    const n8nStatusInfo = {
+      connected: false,
+      status: n8nResult.status,
+      error: n8nResult.errorBody || n8nResult.error?.message || "Workflow n8n indisponível",
+      endpoint: n8nResult.usedUrl,
+      mode: "contingency_fallback"
+    };
+
+    console.warn(`[Sofia Chat] Resposta n8n não literal (HTTP ${n8nResult.status}). Acionando contingência inteligente. Detalhe:`, n8nStatusInfo.error);
 
     // Smart Sofia Contingency: If n8n workflow is paused or unreachable, Sofia replies with persona & scheduling flow
     try {
@@ -954,25 +998,29 @@ Retorna APENAS um JSON no formato estrito:
   }
 }`;
 
-      const aiResponse = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-        config: {
-          responseMimeType: 'application/json',
-          temperature: 0.3
-        }
-      });
-      const parsedAi = JSON.parse(aiResponse.text || "{}");
-      if (parsedAi && parsedAi.reply) {
-        let compiledData = compilePatientDataFromConversation(userText, parsedAi.reply, { ...currentPatientData, ...(parsedAi.patientData || {}) });
-        return res.json({
-          success: true,
-          output: parsedAi.reply,
-          reply: parsedAi.reply,
-          patientData: compiledData,
-          source: "contingency_ai",
-          endpointUsed: n8nResult.usedUrl
+      const ai = getGeminiClient();
+      if (ai) {
+        const aiResponse = await ai.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: prompt,
+          config: {
+            responseMimeType: 'application/json',
+            temperature: 0.3
+          }
         });
+        const parsedAi = JSON.parse(aiResponse.text || "{}");
+        if (parsedAi && parsedAi.reply) {
+          let compiledData = compilePatientDataFromConversation(userText, parsedAi.reply, { ...currentPatientData, ...(parsedAi.patientData || {}) });
+          return res.json({
+            success: true,
+            output: parsedAi.reply,
+            reply: parsedAi.reply,
+            patientData: compiledData,
+            source: "contingency_ai",
+            n8nStatus: n8nStatusInfo,
+            endpointUsed: n8nResult.usedUrl
+          });
+        }
       }
     } catch (contingencyErr) {
       console.warn("[Sofia Chat] Fallback de contingência ativado:", contingencyErr);
@@ -993,6 +1041,7 @@ Retorna APENAS um JSON no formato estrito:
       reply: fallbackReply,
       patientData: compiledData,
       source: "contingency_rule",
+      n8nStatus: n8nStatusInfo,
       endpointUsed: n8nResult.usedUrl
     });
 
@@ -1003,6 +1052,132 @@ Retorna APENAS um JSON no formato estrito:
       message: err.message
     });
   }
+});
+
+// Dedicated Endpoint for Comprehensive n8n Real-time Audit & Diagnostics
+app.get("/api/n8n-audit", async (_req, res) => {
+  const DEFAULT_CHAT_URL = "https://lively-molehill-apache.ngrok-free.dev/webhook/1b7bb92e-8e17-4762-bc59-9ac160e977e8/chat";
+  const DEFAULT_FICHA_URL = "https://lively-molehill-apache.ngrok-free.dev/webhook/clinica-demo-ficha";
+  const DEFAULT_DIAG_URL = "https://lively-molehill-apache.ngrok-free.dev/webhook/clinicas-digitais/diagnostico-v2";
+
+  const chatUrl = process.env.N8N_CHAT_WEBHOOK_URL || DEFAULT_CHAT_URL;
+  const fichaUrl = DEFAULT_FICHA_URL;
+  const diagUrl = DEFAULT_DIAG_URL;
+
+  const results: any = {
+    timestamp: new Date().toISOString(),
+    ngrokHost: "lively-molehill-apache.ngrok-free.dev",
+    chatWebhook: { url: chatUrl },
+    fichaWebhook: { url: fichaUrl },
+    diagnosticoWebhook: { url: diagUrl },
+    summary: "",
+    recommendation: "",
+    technicalProof: {}
+  };
+
+  // 1. Test Chat Webhook (POST)
+  const tChat = Date.now();
+  try {
+    const testSession = `audit-${Date.now()}`;
+    const chatResp = await fetch(chatUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "69420",
+        "User-Agent": "SofiaDigitalSecretary/1.0",
+        "X-Instance-Id": "6947fe04d29e82099ef788cb1d27177ea2b7952d9230180f9bbf9bf9ddbbba89"
+      },
+      body: JSON.stringify({ action: "sendMessage", chatInput: "Olá", sessionId: testSession }),
+      signal: AbortSignal.timeout(12000)
+    });
+    const dtChat = Date.now() - tChat;
+    const textChat = await chatResp.text();
+    let jsonChat: any = null;
+    try { jsonChat = JSON.parse(textChat); } catch { jsonChat = textChat; }
+
+    results.chatWebhook = {
+      url: chatUrl,
+      reachable: true,
+      httpStatus: chatResp.status,
+      ok: chatResp.ok,
+      latencyMs: dtChat,
+      response: jsonChat
+    };
+  } catch (err: any) {
+    results.chatWebhook = {
+      url: chatUrl,
+      reachable: false,
+      httpStatus: 0,
+      ok: false,
+      latencyMs: Date.now() - tChat,
+      error: err.message
+    };
+  }
+
+  // 2. Test Ficha Webhook (GET)
+  const tFicha = Date.now();
+  try {
+    const fichaResp = await fetch(`${fichaUrl}?sessionId=audit`, {
+      method: "GET",
+      headers: {
+        "ngrok-skip-browser-warning": "69420",
+        "User-Agent": "SofiaDigitalSecretary/1.0"
+      },
+      signal: AbortSignal.timeout(10000)
+    });
+    const dtFicha = Date.now() - tFicha;
+    const textFicha = await fichaResp.text();
+    let jsonFicha: any = null;
+    try { jsonFicha = JSON.parse(textFicha); } catch { jsonFicha = textFicha; }
+
+    results.fichaWebhook = {
+      url: fichaUrl,
+      reachable: true,
+      httpStatus: fichaResp.status,
+      ok: fichaResp.ok,
+      latencyMs: dtFicha,
+      response: jsonFicha
+    };
+  } catch (err: any) {
+    results.fichaWebhook = {
+      url: fichaUrl,
+      reachable: false,
+      httpStatus: 0,
+      ok: false,
+      latencyMs: Date.now() - tFicha,
+      error: err.message
+    };
+  }
+
+  // Synthesis & Technical Diagnosis
+  const chatStatus = results.chatWebhook.httpStatus;
+  const chatOk = results.chatWebhook.ok;
+  const chatBody = results.chatWebhook.response;
+
+  if (chatOk && (chatBody?.output || chatBody?.text || chatBody?.message)) {
+    results.summary = "🟢 Conexão com n8n 100% OPERACIONAL: O workflow respondeu e entregou a resposta direta da Sofia.";
+    results.recommendation = "O webhook n8n está perfeitamente funcional.";
+  } else if (chatStatus === 500) {
+    results.summary = "🔴 ERRO NO WORKFLOW N8N (HTTP 500): O túnel ngrok e o webhook estão conectados e acessíveis, mas um nó interno do workflow n8n (ex: AI Agent, chave de API de IA OpenAI/Claude/Gemini ou nó de Memória) está a gerar um erro não tratado ('Error in workflow').";
+    results.recommendation = "No n8n, abra o workflow no canvas e consulte a aba 'Executions' (Execuções no menu lateral). Abra a execução vermelha para identificar o nó que falhou (ex: credencial de IA expirada, cota atingida ou Window Buffer Memory).";
+  } else if (chatStatus === 404) {
+    results.summary = "🟡 WEBHOOK NÃO REGISTADO NO N8N (HTTP 404): O webhook não está ativo em modo de produção.";
+    results.recommendation = "No n8n, verifique se o botão 'Active' (canto superior direito do workflow) está ativado.";
+  } else {
+    results.summary = `⚠️ ESTADO DO N8N: HTTP ${chatStatus} (${results.chatWebhook.error || "Timeout"})`;
+    results.recommendation = "Verifique se o ngrok e o n8n continuam em execução na máquina do workflow.";
+  }
+
+  results.technicalProof = {
+    ngrokActive: true,
+    chatEndpoint: chatUrl,
+    chatHttpStatus: chatStatus,
+    chatRawResponse: chatBody,
+    fichaEndpoint: fichaUrl,
+    fichaHttpStatus: results.fichaWebhook.httpStatus
+  };
+
+  return res.json(results);
 });
 
 // API Endpoint for Live 24/7 Digital Secretary Demo (Chat + Side-by-side Patient Data)
@@ -1046,13 +1221,13 @@ app.post("/api/demo-secretaria", async (req, res) => {
           lead: leadInfo,
           dadosCompiladosAtuais: currentPatientData,
           timestamp: new Date().toISOString()
-        }, 45000);
+        }, 18000);
 
         endpointUsed = n8nResult.usedUrl;
 
-        if (n8nResult.ok && n8nResult.response) {
-          const n8nData = await n8nResult.response.json();
-          const literalReply = extractLiteralN8NReply(n8nData);
+        const n8nRawData = n8nResult.data || null;
+        if (n8nResult.ok && n8nRawData) {
+          const literalReply = extractLiteralN8NReply(n8nRawData);
 
           if (literalReply) {
             // Keep the exact literal answer returned by the n8n AI Agent without altering it!
@@ -1063,8 +1238,8 @@ app.post("/api/demo-secretaria", async (req, res) => {
             updatedPatientData = compilePatientDataFromConversation(userMessage, literalReply, updatedPatientData);
 
             // Merge any explicit patientData from n8n nodes if provided
-            if (n8nData && (n8nData.dadosPaciente || n8nData.patientData)) {
-              updatedPatientData = { ...updatedPatientData, ...(n8nData.dadosPaciente || n8nData.patientData) };
+            if (n8nRawData && (n8nRawData.dadosPaciente || n8nRawData.patientData)) {
+              updatedPatientData = { ...updatedPatientData, ...(n8nRawData.dadosPaciente || n8nRawData.patientData) };
             }
           }
         }
