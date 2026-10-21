@@ -18,6 +18,7 @@ import Footer from './components/Footer';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfUse from './components/TermsOfUse';
 import { MessageSquare } from 'lucide-react';
+import WhatsAppLogo from './components/WhatsAppLogo';
 
 const App: React.FC = () => {
   const contactLink = "https://wa.me/message/5LQTAOWAHBXLG1"; // WhatsApp Business Official Link
@@ -109,7 +110,7 @@ const App: React.FC = () => {
         aria-label="Testar Secretária Digital 15 dias grátis"
         className="hidden md:flex fixed bottom-6 right-6 z-40 bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 items-center justify-center group"
       >
-        <MessageSquare className="w-7 h-7" />
+        <WhatsAppLogo className="w-7 h-7" />
         <span className="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-500 ease-in-out font-bold text-sm ml-0 group-hover:ml-2">
           Testar 15 dias grátis
         </span>

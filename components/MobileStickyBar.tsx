@@ -1,5 +1,6 @@
 import React from 'react';
-import { Sparkles, MessageSquare } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
+import WhatsAppLogo from './WhatsAppLogo';
 
 interface MobileStickyBarProps {
   contactLink: string;
@@ -36,7 +37,7 @@ const MobileStickyBar: React.FC<MobileStickyBarProps> = ({ contactLink, onOpenDe
           rel="noopener noreferrer"
           className="flex-1 py-3 px-3 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20 transition-all text-center"
         >
-          <MessageSquare className="w-4 h-4 flex-shrink-0" />
+          <WhatsAppLogo className="w-4 h-4 flex-shrink-0" />
           <span className="truncate">Testar 15 dias grátis</span>
         </a>
       </div>

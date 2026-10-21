@@ -22,6 +22,7 @@ import {
   ShieldCheck,
   MessageSquare
 } from 'lucide-react';
+import WhatsAppLogo from './WhatsAppLogo';
 
 const specialtiesList = [
   "Clínica Geral",
@@ -782,8 +783,8 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan, onOpenDem
                       rel="noopener noreferrer"
                       className="w-full sm:w-auto px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3 text-base"
                     >
-                      <MessageSquare className="w-5 h-5" />
-                      Falar agora no WhatsApp
+                      <WhatsAppLogo className="w-5 h-5 flex-shrink-0" />
+                      <span>Falar agora no WhatsApp</span>
                       <ArrowRight className="w-5 h-5" />
                     </a>
                     <button
@@ -899,7 +900,7 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan, onOpenDem
                       rel="noopener noreferrer"
                       className="w-full sm:w-auto px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-base flex items-center justify-center gap-3 active:scale-95"
                     >
-                      <MessageSquare className="w-5 h-5" />
+                      <WhatsAppLogo className="w-5 h-5 flex-shrink-0" />
                       <span>Falar já no WhatsApp</span>
                       <ArrowRight className="w-5 h-5" />
                     </a>

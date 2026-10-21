@@ -607,37 +607,61 @@
   var input    = document.getElementById("sofia-input");
   var sendBtn  = document.getElementById("sofia-send");
 
-  // ---- Abrir o modal a partir de QUALQUER botão "Testar Secretária 24/7" ----
-  document.addEventListener("click", function (e) {
-    var el = e.target;
-    for (var i = 0; i < 3 && el; i++) {
-      var txt = (el.textContent || "").trim().toLowerCase();
-      if (txt === TEXTO_BOTAO) {
-        e.preventDefault();
-        abrirModal();
-        return;
-      }
-      el = el.parentElement;
-    }
-  });
-
   function abrirModal() {
+    if (!overlay) overlay = document.getElementById("sofia-overlay");
+    if (!overlay) return;
     overlay.classList.add("sofia-open");
     if (!sessionId) {
       sessionId = "sofia-" + Date.now() + "-" + Math.floor(Math.random() * 100000);
     }
-    input.focus();
+    if (messages && messages.children.length === 0) {
+      exibirEstadoInicial();
+    }
+    if (input) input.focus();
     iniciarPolling();
   }
 
-  function fecharModal() {
-    overlay.classList.remove("sofia-open");
+  function fecharModal(e) {
+    if (e) {
+      if (typeof e.stopPropagation === "function") e.stopPropagation();
+      if (typeof e.preventDefault === "function") e.preventDefault();
+      if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+    }
+    if (!overlay) overlay = document.getElementById("sofia-overlay");
+    if (overlay) overlay.classList.remove("sofia-open");
     pararPolling();
   }
 
-  closeBtn.addEventListener("click", fecharModal);
-  overlay.addEventListener("click", function (e) { if (e.target === overlay) fecharModal(); });
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape") fecharModal(); });
+  window.abrirModalSofia = abrirModal;
+  window.fecharModalSofia = fecharModal;
+
+  if (closeBtn) closeBtn.addEventListener("click", fecharModal);
+  if (overlay) overlay.addEventListener("click", function (e) { if (e.target === overlay) fecharModal(e); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && overlay && overlay.classList.contains("sofia-open")) fecharModal(e); });
+
+  // ---- Abrir o modal a partir de QUALQUER botão "Testar Secretária 24/7" ----
+  document.addEventListener("click", function (e) {
+    if (!e.target) return;
+    if (e.target.closest && (e.target.closest("#sofia-overlay") || e.target.closest("#sofia-close") || e.target.closest(".sofia-close-btn"))) {
+      return;
+    }
+    var btn = e.target.closest ? e.target.closest('button, a, [data-action="open-sofia"]') : null;
+    if (!btn) return;
+    var action = btn.getAttribute("data-action");
+    var txt = (btn.textContent || "").trim().toLowerCase();
+    if (
+      action === "open-sofia" ||
+      txt === TEXTO_BOTAO ||
+      txt === "testar secretária 24/7" ||
+      txt === "testar secretaria 24/7" ||
+      txt === "ver demonstração" ||
+      txt === "ver demonstracao" ||
+      txt.indexOf("testar secret") !== -1
+    ) {
+      e.preventDefault();
+      abrirModal();
+    }
+  });
 
   // ---- RECONHECIMENTO AVANÇADO DE NOME DO PACIENTE ----
   function extrairNomePaciente(texto, remetente, nomeAtual) {
@@ -1204,7 +1228,24 @@
     return h + ":" + m;
   }
 
+  function exibirEstadoInicial() {
+    if (!messages) return;
+    if (document.getElementById("sofia-empty-state")) return;
+    var wrapper = document.createElement("div");
+    wrapper.id = "sofia-empty-state";
+    wrapper.className = "sofia-empty-state";
+    wrapper.innerHTML = 
+      '<div class="sofia-enc-chip">🔒 As mensagens e chamadas são protegidas com a encriptação de ponta a ponta.</div>' +
+      '<div class="sofia-hint-chip">' +
+        '<div class="sofia-hint-title">Sofia está online e pronta para responder</div>' +
+        '<div class="sofia-hint-sub">Diga <strong>"Olá"</strong> ou envie uma mensagem no campo abaixo para dar início ao agendamento da sua consulta médica.</div>' +
+      '</div>';
+    messages.appendChild(wrapper);
+  }
+
   function addMsg(tipo, texto) {
+    var emptyState = document.getElementById("sofia-empty-state");
+    if (emptyState) emptyState.remove();
     var div = document.createElement("div");
     div.className = "sofia-msg " + tipo;
     

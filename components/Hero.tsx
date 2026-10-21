@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { MessageSquare, Play, ShieldCheck, Headphones, Zap, Clock, CheckCircle2, UserCheck, Calendar, Activity } from 'lucide-react';
+import WhatsAppLogo from './WhatsAppLogo';
 
 interface HeroProps {
   contactLink: string;
@@ -97,7 +98,7 @@ const Hero: React.FC<HeroProps> = ({ contactLink, onOpenDemo }) => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <MessageSquare className="w-5 h-5 flex-shrink-0" />
+                <WhatsAppLogo className="w-6 h-6 flex-shrink-0" />
                 <span>Testar 15 dias grátis</span>
               </motion.a>
 

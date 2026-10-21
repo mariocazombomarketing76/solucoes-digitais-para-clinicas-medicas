@@ -23,6 +23,7 @@ import {
   RefreshCw,
   Zap
 } from 'lucide-react';
+import WhatsAppLogo from './WhatsAppLogo';
 
 export interface LeadInfo {
   nome: string;
@@ -925,7 +926,7 @@ const DemoSecretariaModal: React.FC<DemoSecretariaModalProps> = ({
                     rel="noopener noreferrer"
                     className="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-wide hover:scale-[1.02] text-center"
                   >
-                    <Phone className="w-4 h-4" />
+                    <WhatsAppLogo className="w-4 h-4 flex-shrink-0" />
                     <span>Quero Esta Secretária na Minha Clínica</span>
                     <ArrowRight className="w-4 h-4" />
                   </a>

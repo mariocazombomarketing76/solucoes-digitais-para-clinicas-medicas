@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Activity, Menu, X, Phone, Sparkles, Layers, CheckCircle2, ChevronRight, MessageSquare } from 'lucide-react';
+import WhatsAppLogo from './WhatsAppLogo';
 
 interface NavbarProps {
   contactLink: string;
@@ -101,7 +102,7 @@ const Navbar: React.FC<NavbarProps> = ({ contactLink, onOpenDemo }) => {
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center px-4 sm:px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-md shadow-emerald-600/20 transition-all gap-1.5 active:scale-95"
           >
-            <MessageSquare className="w-4 h-4" />
+            <WhatsAppLogo className="w-4 h-4" />
             <span>Testar grátis</span>
           </a>
 
@@ -190,8 +191,8 @@ const Navbar: React.FC<NavbarProps> = ({ contactLink, onOpenDemo }) => {
                   rel="noopener noreferrer"
                   className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-center text-sm shadow-md flex items-center justify-center gap-2 active:scale-95"
                 >
-                  <MessageSquare className="w-4 h-4" />
-                  Testar grátis no WhatsApp (15 dias)
+                  <WhatsAppLogo className="w-5 h-5" />
+                  <span>Testar grátis no WhatsApp (15 dias)</span>
                 </a>
               </div>
 

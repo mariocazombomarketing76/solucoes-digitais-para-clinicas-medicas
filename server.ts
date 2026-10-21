@@ -921,16 +921,81 @@ app.post("/api/sofia-chat", async (req, res) => {
       }
     }
 
-    // If n8n was temporarily unavailable or in error, report clearly
-    const errStatus = n8nResult.status || 502;
-    console.warn(`[Sofia Chat] n8n retornou status ${errStatus}. Detalhes:`, n8nResult.error?.message || "Sem resposta do agente.");
+    // Smart Sofia Contingency: If n8n workflow is paused or unreachable, Sofia replies with persona & scheduling flow
+    try {
+      const clinicaName = "Clínica Vida+";
+      const prompt = `És a Sofia, Secretária Médica Digital 24/7 da "${clinicaName}" em Angola.
+O paciente acabou de te enviar uma mensagem: "${userText}"
 
-    return res.status(errStatus).json({
-      error: "Falha ao obter resposta literal do workflow n8n",
-      status: errStatus,
-      endpointUsed: n8nResult.usedUrl,
-      hint: "Certifique-se de que o workflow no n8n está Ativo ou que clicou em 'Execute workflow' no canvas."
+Contexto e Diretrizes:
+1. Se for uma saudação ou contacto inicial (ex: "Olá", "Bom dia", "Boa tarde", "Oi"), responde calorosamente à saudação, apresenta-te brevemente ("Sou a Sofia, secretária digital da ${clinicaName}") e pergunta cordialmente como podes ajudar ou qual especialidade médica procura.
+2. Dá início e conduz ativamente a conversa com o objetivo de realizar o agendamento da consulta médica (recolhendo nome completo do paciente, especialidade médica, sintomas/motivo da consulta, dia/horário preferido e se é particular ou seguro de saúde como ENSA, Fidelidade, etc.).
+3. Mantém tom acolhedor, profissional e prestativo com emojis moderados (estilo WhatsApp). Resposta de 2 a 3 parágrafos breves.
+
+Dados já compilados anteriormente sobre este paciente:
+${JSON.stringify(currentPatientData)}
+
+Retorna APENAS um JSON no formato estrito:
+{
+  "reply": "Texto da resposta que a Sofia envia ao paciente no WhatsApp",
+  "patientData": {
+    "nomePaciente": "NOME COMPLETO do paciente se mencionado",
+    "especialidade": "Especialidade médica identificada (ex: Cardiologia, Clínica Geral, Pediatria, etc.)",
+    "medicoPretendido": "Nome do médico se citado ou 'Equipa Médica'",
+    "sintomasOuMotivo": "Resumo dos sintomas ou razão da consulta",
+    "dataSugerida": "Data ou dia da semana sugerido",
+    "horarioSugerido": "Horário ou turno sugerido (ex: Manhã, Tarde, 14h30)",
+    "tipoAtendimento": "Particular | Seguro de Saúde | A definir",
+    "seguroNome": "Nome da seguradora (ex: ENSA, Fidelidade) ou 'Nenhum'",
+    "statusAgendamento": "Em Triagem | Horário em Confirmação | Pré-Agendado",
+    "nivelUrgencia": "Rotina | Prioritária | Atenção Médica",
+    "percentualConcluido": 30,
+    "proximoPasso": "Próximo passo para concluir o agendamento"
+  }
+}`;
+
+      const aiResponse = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt,
+        config: {
+          responseMimeType: 'application/json',
+          temperature: 0.3
+        }
+      });
+      const parsedAi = JSON.parse(aiResponse.text || "{}");
+      if (parsedAi && parsedAi.reply) {
+        let compiledData = compilePatientDataFromConversation(userText, parsedAi.reply, { ...currentPatientData, ...(parsedAi.patientData || {}) });
+        return res.json({
+          success: true,
+          output: parsedAi.reply,
+          reply: parsedAi.reply,
+          patientData: compiledData,
+          source: "contingency_ai",
+          endpointUsed: n8nResult.usedUrl
+        });
+      }
+    } catch (contingencyErr) {
+      console.warn("[Sofia Chat] Fallback de contingência ativado:", contingencyErr);
+    }
+
+    // Rule-based fallback if offline
+    const lower = userText.toLowerCase();
+    let fallbackReply = "";
+    if (lower.includes("olá") || lower.includes("ola") || lower.includes("bom dia") || lower.includes("boa tarde") || lower.includes("boa noite") || lower.includes("oi")) {
+      fallbackReply = "Olá! 👋 Sou a **Sofia**, secretária digital da **Clínica Vida+**.\n\nComo posso ajudar hoje? Pode indicar qual a especialidade médica que procura ou o seu nome completo para darmos início ao agendamento da sua consulta.";
+    } else {
+      fallbackReply = "Com certeza! Para darmos início ao agendamento da sua consulta na **Clínica Vida+**, poderia informar o seu nome completo e se prefere ser atendido no período da manhã ou da tarde?";
+    }
+    let compiledData = compilePatientDataFromConversation(userText, fallbackReply, currentPatientData);
+    return res.json({
+      success: true,
+      output: fallbackReply,
+      reply: fallbackReply,
+      patientData: compiledData,
+      source: "contingency_rule",
+      endpointUsed: n8nResult.usedUrl
     });
+
   } catch (err: any) {
     console.error("[Sofia Chat] Erro ao comunicar com n8n:", err);
     return res.status(502).json({

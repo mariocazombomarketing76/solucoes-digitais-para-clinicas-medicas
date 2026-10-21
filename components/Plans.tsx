@@ -10,6 +10,7 @@ import {
   Activity, 
   CreditCard
 } from 'lucide-react';
+import WhatsAppLogo from './WhatsAppLogo';
 
 export interface PlanItem {
   id: string;
@@ -420,9 +421,10 @@ const Plans: React.FC<PlansProps> = ({
               href={whatsappWebsiteOnlyLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 hover:text-blue-800 font-bold hover:underline inline-flex items-center gap-1 ml-1"
+              className="text-blue-600 hover:text-blue-800 font-bold hover:underline inline-flex items-center gap-1.5 ml-1"
             >
-              Pedir proposta
+              <WhatsAppLogo className="w-4 h-4" />
+              <span>Pedir proposta no WhatsApp</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </a>
           </p>
@@ -448,9 +450,9 @@ const Plans: React.FC<PlansProps> = ({
             href={whatsappDuvidasLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="whitespace-nowrap inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100/80 px-4 py-2.5 rounded-xl border border-emerald-200 transition-colors flex-shrink-0"
+            className="whitespace-nowrap inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100/80 px-4 py-2.5 rounded-xl border border-emerald-200 transition-colors flex-shrink-0 shadow-sm"
           >
-            <MessageSquare className="w-4 h-4" />
+            <WhatsAppLogo className="w-4 h-4 flex-shrink-0" />
             <span>Dúvidas sobre os planos? Fale no WhatsApp</span>
           </a>
         </div>

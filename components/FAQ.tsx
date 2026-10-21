@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { ChevronDown, HelpCircle, MessageSquare, ShieldCheck, ArrowRight } from 'lucide-react';
+import WhatsAppLogo from './WhatsAppLogo';
 
 interface FAQItem {
   id: string;
@@ -218,8 +219,9 @@ const FAQ: React.FC<FAQProps> = ({ contactLink = "https://wa.me/message/5LQTAOWA
             href={`${contactLink}?text=${encodeURIComponent("Olá! Tenho uma dúvida sobre a Secretária Digital para a minha clínica.")}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-3 rounded-xl transition-all shadow-md hover:shadow-lg text-sm flex-shrink-0"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-3 rounded-xl transition-all shadow-md hover:shadow-lg text-sm flex-shrink-0"
           >
+            <WhatsAppLogo className="w-5 h-5 flex-shrink-0" />
             <span>Perguntar no WhatsApp</span>
             <ArrowRight className="w-4 h-4" />
           </a>
