@@ -1,102 +1,86 @@
 import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { 
-  Stethoscope, 
-  MessageSquare, 
-  Building2, 
-  Zap
-} from 'lucide-react';
+import { AudioLines, CalendarClock, ShieldCheck } from 'lucide-react';
 
-const reasons = [
+const techPillars = [
   {
-    title: "Focados em clínicas",
-    description: "Não somos uma agência genérica de marketing. Desenvolvemos soluções pensadas exclusivamente para a rotina de saúde, médicos e pacientes.",
-    icon: Stethoscope,
-    color: "text-blue-600 bg-blue-50 border-blue-100"
+    title: 'Voz Neural Natural (PT-AO)',
+    description:
+      'Entoação fluida, pausas naturais e compreensão imediata com o sotaque e a simpatia de Angola e Portugal — sem soar robótico.',
+    icon: AudioLines,
+    color: 'text-blue-700 bg-blue-50 border-blue-100'
   },
   {
-    title: "Suporte em Angola por WhatsApp",
-    description: "Atendimento direto em português por WhatsApp em dias úteis, com equipa local que compreende o contexto e a realidade de Angola.",
-    icon: MessageSquare,
-    color: "text-emerald-600 bg-emerald-50 border-emerald-100"
+    title: 'Sincronização em Tempo Real com Google Calendar',
+    description:
+      'Cada marcação, remarcação ou cancelamento feito por chamada aparece instantaneamente no calendário oficial dos médicos.',
+    icon: CalendarClock,
+    color: 'text-emerald-700 bg-emerald-50 border-emerald-100'
   },
   {
-    title: "Empresa legalizada, com contrato e fatura",
-    description: "Operamos formalmente através da Mario Cazombo e Filhos, Lda (NIF: 5417437034), com garantia de contrato comercial e emissão de fatura.",
-    icon: Building2,
-    color: "text-purple-600 bg-purple-50 border-purple-100"
-  },
-  {
-    title: "Implementação rápida",
-    description: "Configuramos a Sofia, as especialidades e os horários da sua clínica em poucos dias, sem complexidade nem paragem na sua receção.",
-    icon: Zap,
-    color: "text-amber-600 bg-amber-50 border-amber-100"
+    title: 'Segurança de Dados de Saúde',
+    description:
+      'Ligações encriptadas, acesso restrito aos dados de agendamento e conformidade institucional com contrato formal em Angola.',
+    icon: ShieldCheck,
+    color: 'text-blue-700 bg-blue-50 border-blue-100'
   }
 ];
-
-const containerVariants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.1
-    }
-  }
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { 
-    opacity: 1, 
-    y: 0, 
-    transition: { duration: 0.5, ease: "easeOut" } 
-  }
-};
 
 const WhyChooseUs: React.FC = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.1 });
 
   return (
-    <section id="diferenciais" ref={ref} className="py-16 md:py-24 bg-gray-50 border-t border-gray-100 overflow-hidden">
-      <div className="container mx-auto px-6">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <span className="text-xs font-bold uppercase tracking-widest text-blue-600 bg-blue-100 px-3.5 py-1 rounded-full">
-            Diferenciais
-          </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mt-4 mb-4 font-display">
-            Porque escolher a ClinicasDigitais?
-          </h2>
-          <p className="text-lg text-gray-600">
-            Segurança jurídica, especialização em saúde e suporte próximo para a sua clínica crescer sem atritos.
-          </p>
-        </div>
-
-        <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto"
-          variants={containerVariants}
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
+    <section
+      id="tecnologia"
+      ref={ref}
+      className="py-16 md:py-24 bg-white border-b border-slate-200/80 overflow-hidden"
+    >
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        {/* Highlighted Trust & Technology Block */}
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-5xl mx-auto bg-slate-900 text-white rounded-2xl p-8 md:p-10 mb-10 border border-slate-800 shadow-lg"
         >
-          {reasons.map((reason, index) => {
-            const IconComponent = reason.icon;
+          <p className="text-xs font-semibold uppercase tracking-widest text-emerald-400 mb-3">
+            Confiança e Tecnologia
+          </p>
+          <h2 className="font-display text-2xl md:text-3xl font-bold leading-snug text-white text-balance">
+            Tecnologia de Ponta: Voz Neural Natural (PT-AO), Sincronização em Tempo Real com Google Calendar, e Segurança de Dados de Saúde.
+          </h2>
+        </motion.div>
+
+        {/* 3 Architectural Pillars */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          {techPillars.map((pillar, index) => {
+            const IconComponent = pillar.icon;
             return (
-              <motion.div 
+              <motion.div
                 key={index}
-                className="bg-white p-7 rounded-2xl shadow-sm border border-gray-200/80 hover:border-blue-300 hover:shadow-md transition-all duration-300 flex flex-col justify-between"
-                variants={itemVariants}
-                whileHover={{ y: -4 }}
+                initial={{ opacity: 0, y: 18 }}
+                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 }}
+                transition={{ duration: 0.45, delay: index * 0.1 }}
+                className="bg-slate-50/80 p-7 rounded-2xl border border-slate-200/90 flex flex-col justify-between"
               >
                 <div>
-                  <div className={`w-12 h-12 rounded-xl border flex items-center justify-center mb-5 ${reason.color}`}>
+                  <div
+                    className={`w-12 h-12 rounded-xl border flex items-center justify-center mb-5 ${pillar.color}`}
+                  >
                     <IconComponent className="w-6 h-6" />
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2.5 leading-snug">{reason.title}</h3>
-                  <p className="text-gray-600 leading-relaxed text-sm">{reason.description}</p>
+                  <h3 className="font-display text-lg font-bold text-slate-900 mb-2.5 leading-snug">
+                    {pillar.title}
+                  </h3>
+                  <p className="text-sm text-slate-600 leading-relaxed">
+                    {pillar.description}
+                  </p>
                 </div>
               </motion.div>
             );
           })}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

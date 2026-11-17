@@ -1,283 +1,370 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { MessageSquare, Play, ShieldCheck, Headphones, Zap, Clock, CheckCircle2, UserCheck, Calendar, Activity } from 'lucide-react';
-import WhatsAppLogo from './WhatsAppLogo';
+import {
+  PhoneCall,
+  Volume2,
+  Square,
+  Calendar,
+  CheckCircle2,
+  ShieldCheck,
+  Clock,
+  Mic
+} from 'lucide-react';
 
 interface HeroProps {
   contactLink: string;
   onOpenDemo?: () => void;
 }
 
-const Hero: React.FC<HeroProps> = ({ contactLink, onOpenDemo }) => {
-  const whatsappTestMsg = "Olá! Quero testar a Secretária Digital 15 dias grátis na minha clínica.";
-  const whatsappTestUrl = `https://wa.me/message/5LQTAOWAHBXLG1?text=${encodeURIComponent(whatsappTestMsg)}`;
+const WAVE_BARS = [
+  24, 48, 72, 38, 86, 62, 95, 44, 78, 56, 92, 68,
+  40, 84, 52, 90, 36, 70, 58, 82, 46, 66, 34, 50
+];
 
-  const handleOpenDemo = () => {
-    if (onOpenDemo) {
-      onOpenDemo();
-      return;
-    }
-    if (typeof (window as any).abrirModalSofia === 'function') {
-      (window as any).abrirModalSofia();
-      return;
-    }
-    const btn = document.querySelector('[data-action="open-sofia"]') as HTMLElement;
-    if (btn) {
-      btn.click();
-      return;
-    }
-    const overlay = document.getElementById("sofia-overlay");
-    if (overlay) {
-      overlay.classList.add("sofia-open");
+const SAMPLE_LINES = [
+  {
+    speaker: 'Joana (IA de Voz)',
+    role: 'joana',
+    text: 'Boa tarde, ligou para a Clínica Vida Mais em Luanda. Fala a Joana. Em que especialidade deseja marcar a sua consulta?'
+  },
+  {
+    speaker: 'Paciente',
+    role: 'patient',
+    text: 'Boa tarde Joana, queria marcar consulta de Cardiologia para amanhã de manhã.'
+  },
+  {
+    speaker: 'Joana (IA de Voz)',
+    role: 'joana',
+    text: 'Com certeza! Tenho disponibilidade amanhã às 09h30 com o Dr. Manuel. Já confirmei no calendário e enviei o seu lembrete automático.'
+  }
+];
+
+const Hero: React.FC<HeroProps> = () => {
+  const [isPlayingSample, setIsPlayingSample] = useState(false);
+  const [activeLineIndex, setActiveLineIndex] = useState(0);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const timerRef = useRef<number | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  const scrollToDiagnostic = () => {
+    const el = document.getElementById('diagnostico');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
+  const stopSample = () => {
+    setIsPlayingSample(false);
+    setActiveLineIndex(0);
+    setElapsedSeconds(0);
+    if (timerRef.current) {
+      window.clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+  };
+
+  const playChime = () => {
+    try {
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!AudioCtx) return;
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new AudioCtx();
+      }
+      const ctx = audioCtxRef.current;
+      if (ctx.state === 'suspended') {
+        ctx.resume();
+      }
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(523.25, now);
+      osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.14);
+      gain.gain.setValueAtTime(0.06, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.3);
+    } catch {
+      // AudioContext unavailable or blocked
+    }
+  };
+
+  const speakSequence = () => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const voices = window.speechSynthesis.getVoices();
+    const ptVoice =
+      voices.find((v) => v.lang.toLowerCase().startsWith('pt-pt')) ||
+      voices.find((v) => v.lang.toLowerCase().startsWith('pt')) ||
+      null;
+
+    SAMPLE_LINES.forEach((line, idx) => {
+      const utterance = new SpeechSynthesisUtterance(line.text);
+      if (ptVoice) utterance.voice = ptVoice;
+      utterance.lang = 'pt-PT';
+      utterance.rate = line.role === 'joana' ? 1.02 : 0.96;
+      utterance.pitch = line.role === 'joana' ? 1.08 : 0.9;
+      utterance.onstart = () => {
+        setActiveLineIndex(idx);
+      };
+      if (idx === SAMPLE_LINES.length - 1) {
+        utterance.onend = () => {
+          stopSample();
+        };
+      }
+      window.speechSynthesis.speak(utterance);
+    });
+  };
+
+  const handleToggleVoiceSample = () => {
+    if (isPlayingSample) {
+      stopSample();
+      return;
+    }
+
+    playChime();
+    setIsPlayingSample(true);
+    setActiveLineIndex(0);
+    setElapsedSeconds(1);
+
+    speakSequence();
+
+    // Backup timer so visual waveform & dialogue stay synchronized even if speechSynthesis voices aren't installed
+    timerRef.current = window.setInterval(() => {
+      setElapsedSeconds((prev) => {
+        const next = prev + 1;
+        if (next === 7) setActiveLineIndex(1);
+        if (next === 12) setActiveLineIndex(2);
+        if (next >= 20) {
+          stopSample();
+          return 0;
+        }
+        return next;
+      });
+    }, 1000);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) window.clearInterval(timerRef.current);
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  const formatTimer = (sec: number) => {
+    const s = String(sec).padStart(2, '0');
+    return `00:${s}`;
+  };
+
   return (
-    <section className="bg-white overflow-hidden border-b border-gray-100">
-      <div className="container mx-auto px-4 sm:px-6 pt-8 md:pt-12 pb-14 md:pb-20">
-        <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-14">
-          
-          {/* Main content side */}
+    <section className="bg-white border-b border-slate-200/80 overflow-hidden">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-10 md:pt-16 pb-14 md:pb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 items-stretch gap-10 lg:gap-12">
+          {/* Left Column: Value Proposition & CTAs */}
           <motion.div
-            className="lg:w-7/12 text-center lg:text-left"
-            initial="hidden"
-            animate="visible"
-            variants={{
-              visible: { transition: { staggerChildren: 0.12 } },
-              hidden: {},
-            }}
+            className="lg:col-span-7 flex flex-col justify-center text-center lg:text-left"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
           >
-            {/* Etiqueta: Secretária Digital para Clínicas */}
-            <motion.div 
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-emerald-50 text-emerald-800 rounded-full text-xs font-bold uppercase tracking-wider mb-5 border border-emerald-200 shadow-sm"
-              variants={{
-                hidden: { opacity: 0, y: 15 },
-                visible: { opacity: 1, y: 0 }
-              }}
-            >
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Secretária Digital para Clínicas</span>
-            </motion.div>
+            {/* Clean Unboxed Kicker (Zero-Pill Discipline) */}
+            <div className="flex items-center justify-center lg:justify-start gap-2 text-xs sm:text-sm font-semibold text-blue-700 tracking-wide mb-4">
+              <span>Recepcionista Virtual de Voz com IA</span>
+              <span aria-hidden="true" className="text-slate-300">·</span>
+              <span className="text-emerald-700">Sotaque Natural PT-AO</span>
+            </div>
 
-            {/* H1 */}
-            <motion.h1
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold text-gray-900 leading-[1.15] mb-5 font-display tracking-tight"
-              variants={{
-                hidden: { opacity: 0, y: 15 },
-                visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-              }}
-            >
-              Nenhum paciente perdido. A sua clínica atende no WhatsApp 24 horas.
-            </motion.h1>
+            {/* H1 Headline */}
+            <h1 className="font-display text-[2.25rem] sm:text-5xl lg:text-[3.35rem] font-extrabold text-slate-900 leading-[1.1] tracking-tight mb-5 text-balance">
+              A sua Clínica nunca mais perde uma chamada.
+            </h1>
 
-            {/* Subtítulo */}
-            <motion.p
-              className="text-base sm:text-lg md:text-xl text-gray-600 mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal"
-              variants={{
-                hidden: { opacity: 0, y: 15 },
-                visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-              }}
-            >
-              A Sofia confirma consultas, reduz as faltas e chama de volta os pacientes que deixaram de vir. Sem contratar ninguém.
-            </motion.p>
+            {/* Subtitle */}
+            <p className="text-base sm:text-lg text-slate-600 leading-relaxed mb-8 max-w-2xl mx-auto lg:mx-0">
+              A Joana, a nossa recepcionista virtual de Voz com IA, atende os seus pacientes 24/7, marca consultas diretamente no seu calendário e fala com o sotaque e a simpatia de Angola. Sem faltas, sem esperas, sem custos de funcionário extra.
+            </p>
 
-            {/* Botões primário e secundário */}
-            <motion.div
-              className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 mb-8"
-              variants={{
-                hidden: { opacity: 0, y: 15 },
-                visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-              }}
-            >
-              {/* Botão primário */}
-              <motion.a
-                href={whatsappTestUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto inline-flex items-center justify-center px-7 py-4 bg-emerald-600 hover:bg-emerald-700 text-white text-base md:text-lg font-bold rounded-xl shadow-lg shadow-emerald-600/20 transition-all duration-300 gap-2.5 active:scale-95 text-center"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <WhatsAppLogo className="w-6 h-6 flex-shrink-0" />
-                <span>Testar 15 dias grátis</span>
-              </motion.a>
-
-              {/* Botão secundário */}
-              <motion.button
+            {/* Primary & Voice Sample Actions */}
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 mb-8">
+              <button
                 type="button"
-                data-action="open-sofia"
-                onClick={handleOpenDemo}
-                className="w-full sm:w-auto inline-flex items-center justify-center px-7 py-4 bg-slate-900 hover:bg-slate-800 text-white text-base md:text-lg font-bold rounded-xl shadow-md transition-all duration-300 gap-2.5 active:scale-95 cursor-pointer text-center"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                onClick={scrollToDiagnostic}
+                className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm sm:text-base font-bold rounded-xl shadow-md shadow-emerald-600/20 transition-all duration-150 gap-2.5 whitespace-nowrap shrink-0 cursor-pointer"
               >
-                <Play className="w-4 h-4 flex-shrink-0 fill-current text-emerald-400" />
-                <span>Ver demonstração</span>
-              </motion.button>
-            </motion.div>
+                <PhoneCall className="w-5 h-5 shrink-0" />
+                <span>Agendar Demonstração de Voz Gratuita</span>
+              </button>
 
-            {/* Pílulas de confiança: Empresa angolana legalizada · Suporte em português por WhatsApp · Configuração em poucos dias */}
-            <motion.div
-              className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-5 border-t border-gray-150 max-w-2xl mx-auto lg:mx-0 text-left"
-              variants={{
-                hidden: { opacity: 0 },
-                visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
-              }}
-            >
-              <div className="flex items-center gap-2.5 bg-slate-50/80 px-3 py-2.5 rounded-xl border border-gray-200/80">
-                <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                <span className="text-xs font-semibold text-gray-800 leading-tight">
-                  Empresa angolana legalizada
-                </span>
-              </div>
+              <button
+                type="button"
+                onClick={handleToggleVoiceSample}
+                aria-pressed={isPlayingSample}
+                className={`w-full sm:w-auto inline-flex items-center justify-center px-5 py-3.5 rounded-xl text-sm sm:text-base font-semibold border transition-all duration-150 gap-2 whitespace-nowrap shrink-0 cursor-pointer ${
+                  isPlayingSample
+                    ? 'bg-slate-900 text-white border-slate-900 shadow-md'
+                    : 'bg-white text-slate-800 border-slate-300 hover:border-blue-600 hover:text-blue-700'
+                }`}
+              >
+                {isPlayingSample ? (
+                  <>
+                    <Square className="w-4 h-4 fill-current text-emerald-400 shrink-0" />
+                    <span>Parar Amostra da Joana</span>
+                  </>
+                ) : (
+                  <>
+                    <Volume2 className="w-5 h-5 text-blue-700 shrink-0" />
+                    <span>Ouvir Amostra da Joana</span>
+                  </>
+                )}
+              </button>
+            </div>
 
-              <div className="flex items-center gap-2.5 bg-slate-50/80 px-3 py-2.5 rounded-xl border border-gray-200/80">
-                <Headphones className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                <span className="text-xs font-semibold text-gray-800 leading-tight">
-                  Suporte em português por WhatsApp
-                </span>
+            {/* Clean Typographic Proof Strip */}
+            <div className="pt-5 border-t border-slate-200/80 flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2.5 text-xs sm:text-sm text-slate-600 font-medium">
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-blue-700 shrink-0" />
+                <span>Atendimento Telefónico 24/7</span>
               </div>
-
-              <div className="flex items-center gap-2.5 bg-slate-50/80 px-3 py-2.5 rounded-xl border border-gray-200/80">
-                <Zap className="w-4 h-4 text-amber-500 flex-shrink-0" />
-                <span className="text-xs font-semibold text-gray-800 leading-tight">
-                  Configuração em poucos dias
-                </span>
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>Integração Google Calendar</span>
               </div>
-            </motion.div>
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-blue-700 shrink-0" />
+                <span>Voz Neural PT-AO</span>
+              </div>
+            </div>
           </motion.div>
 
-          {/* Lado direito do topo: pré-visualização da demo (conversa + ficha) */}
-          <div className="lg:w-5/12 w-full flex flex-col items-center justify-center">
-            <motion.div
-              className="relative w-full max-w-md bg-gradient-to-b from-slate-900 to-slate-950 p-3.5 sm:p-4 rounded-3xl border border-slate-800 shadow-2xl"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.2 }}
-            >
-              {/* Título acima da demonstração */}
-              <div className="text-center mb-2.5">
-                <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center justify-center gap-1.5">
-                  <Play className="w-3.5 h-3.5" />
-                  Veja a Sofia a atender um paciente
-                </span>
-              </div>
-
-              {/* WhatsApp Interface Mockup Header */}
-              <div className="bg-[#075E54] text-white px-3.5 py-2.5 rounded-2xl flex items-center justify-between mb-3 shadow-sm">
-                <div className="flex items-center gap-2.5">
-                  <div className="relative w-9 h-9 rounded-full bg-emerald-500 flex items-center justify-center font-bold text-white text-sm border-2 border-white/30">
-                    S
-                    <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 border border-white" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <p className="font-bold text-sm leading-none">Sofia · Secretária Digital</p>
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300 fill-emerald-500" />
+          {/* Right Column: Live Voice Call Console & Audio Waveform */}
+          <motion.div
+            className="lg:col-span-5 flex flex-col"
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <div className="h-full bg-slate-900 text-white rounded-2xl border border-slate-800 shadow-xl p-6 flex flex-col justify-between">
+              {/* Call Top Metadata */}
+              <div>
+                <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-300 shrink-0">
+                      <Mic className="w-5 h-5" />
                     </div>
-                    <p className="text-[11px] text-emerald-100/90 leading-tight mt-0.5">Online 24 horas • Atendimento da Clínica</p>
+                    <div>
+                      <p className="font-display font-bold text-sm text-white leading-tight">
+                        Joana · Recepcionista de Voz
+                      </p>
+                      <p className="text-xs text-slate-400 mt-0.5">
+                        {isPlayingSample ? 'Chamada em reprodução' : 'Simulação de atendimento real'}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <span className="text-[10px] font-semibold bg-emerald-700/80 px-2 py-0.5 rounded-full text-emerald-100">
-                  Ao Vivo
-                </span>
-              </div>
-
-              {/* Chat Simulation Area */}
-              <div className="bg-[#0b141a] rounded-2xl p-3 space-y-2.5 text-xs mb-3 border border-slate-800/80">
-                {/* Aviso visível junto ao chat */}
-                <div className="bg-amber-950/70 border border-amber-500/40 text-amber-200 text-[11px] px-2.5 py-1.5 rounded-lg text-center font-medium leading-snug">
-                  Demonstração com dados fictícios. Não escreva dados de saúde reais.
-                </div>
-
-                {/* Paciente Msg */}
-                <div className="flex justify-end">
-                  <div className="bg-[#005c4b] text-emerald-50 rounded-2xl rounded-tr-xs px-3.5 py-2 max-w-[85%] shadow-sm">
-                    <p className="leading-snug">Boa tarde! Queria marcar consulta de Clínica Geral para amanhã à tarde.</p>
-                    <p className="text-[9px] text-emerald-300/80 text-right mt-1">14:32 ✓✓</p>
-                  </div>
-                </div>
-
-                {/* Sofia Msg */}
-                <div className="flex justify-start">
-                  <div className="bg-[#202c33] text-slate-100 rounded-2xl rounded-tl-xs px-3.5 py-2 max-w-[88%] shadow-sm border border-slate-700/40">
-                    <p className="leading-snug">
-                      Olá! Temos vaga amanhã às <strong>15h30</strong> com a <strong>Dra. Rosa</strong>. Qual é o seu nome completo para pré-agendar?
-                    </p>
-                    <p className="text-[9px] text-slate-400 text-right mt-1">14:32</p>
-                  </div>
-                </div>
-
-                {/* Paciente Msg 2 */}
-                <div className="flex justify-end">
-                  <div className="bg-[#005c4b] text-emerald-50 rounded-2xl rounded-tr-xs px-3.5 py-1.5 max-w-[85%] shadow-sm">
-                    <p className="leading-snug font-medium">Moisés Domingos.</p>
-                    <p className="text-[9px] text-emerald-300/80 text-right mt-0.5">14:33 ✓✓</p>
-                  </div>
-                </div>
-
-                {/* Sofia Confirmation */}
-                <div className="flex justify-start">
-                  <div className="bg-[#202c33] text-slate-100 rounded-2xl rounded-tl-xs px-3.5 py-2 max-w-[90%] shadow-sm border border-slate-700/40">
-                    <p className="leading-snug">
-                      Perfeito, Moisés! Consulta registada para amanhã às 15h30. Já ativei o lembrete automático 24h e 2h antes.
-                    </p>
-                    <p className="text-[9px] text-emerald-400 text-right mt-1 font-semibold">Lembrete agendado ✓</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Ficha do Paciente (CRM) Synchronized Box */}
-              <div className="bg-white rounded-2xl p-3.5 shadow-md border border-gray-100 text-left">
-                <div className="flex items-center justify-between pb-2 mb-2.5 border-b border-gray-100">
-                  <div className="flex items-center gap-1.5">
-                    <Activity className="w-3.5 h-3.5 text-emerald-600" />
-                    <span className="text-[11px] font-bold text-gray-800 uppercase tracking-wide">
-                      Ficha do Paciente (Triagem Automática)
-                    </span>
-                  </div>
-                  <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    Confirmada
+                  <span className="font-mono text-xs tabular-nums text-emerald-400 font-medium">
+                    {isPlayingSample ? formatTimer(elapsedSeconds) : '00:20'}
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-[11px]">
-                  <div className="bg-slate-50 p-2 rounded-lg border border-gray-150">
-                    <span className="text-[9px] uppercase font-bold text-gray-400 block">Paciente</span>
-                    <span className="font-bold text-gray-900 truncate block">Moisés Domingos</span>
+                {/* Audio Waveform Visualizer */}
+                <div className="my-5 bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-5">
+                  <div className="flex items-center justify-between text-[11px] text-slate-400 mb-3">
+                    <span>Canal de Voz Neural (PT-AO)</span>
+                    <button
+                      type="button"
+                      onClick={handleToggleVoiceSample}
+                      className="text-emerald-400 hover:text-emerald-300 font-semibold cursor-pointer"
+                    >
+                      {isPlayingSample ? 'Pausar áudio' : 'Reproduzir chamada'}
+                    </button>
                   </div>
-                  <div className="bg-slate-50 p-2 rounded-lg border border-gray-150">
-                    <span className="text-[9px] uppercase font-bold text-gray-400 block">Especialidade</span>
-                    <span className="font-semibold text-gray-900 truncate block">Clínica Geral</span>
+
+                  <div
+                    className="h-16 flex items-center justify-between gap-1"
+                    aria-label="Ondas sonoras da voz da Joana"
+                  >
+                    {WAVE_BARS.map((heightPct, i) => (
+                      <motion.div
+                        key={i}
+                        className={`flex-1 rounded-full origin-center ${
+                          isPlayingSample
+                            ? i % 3 === 0
+                              ? 'bg-emerald-400'
+                              : 'bg-blue-400'
+                            : 'bg-blue-500/50'
+                        }`}
+                        style={{ height: `${heightPct}%` }}
+                        animate={
+                          isPlayingSample
+                            ? {
+                                scaleY: [0.35, 1.05, 0.45, 0.9, 0.35],
+                                opacity: [0.7, 1, 0.75, 1, 0.7]
+                              }
+                            : {
+                                scaleY: [0.65, 0.85, 0.65],
+                                opacity: 0.55
+                              }
+                        }
+                        transition={{
+                          duration: isPlayingSample ? 0.8 + (i % 5) * 0.14 : 2.6,
+                          repeat: Infinity,
+                          delay: i * 0.05,
+                          ease: 'easeInOut'
+                        }}
+                      />
+                    ))}
                   </div>
-                  <div className="bg-slate-50 p-2 rounded-lg border border-gray-150">
-                    <span className="text-[9px] uppercase font-bold text-gray-400 block">Médico</span>
-                    <span className="font-semibold text-gray-900 truncate block">Dra. Rosa</span>
-                  </div>
-                  <div className="bg-slate-50 p-2 rounded-lg border border-gray-150">
-                    <span className="text-[9px] uppercase font-bold text-gray-400 block">Data / Hora</span>
-                    <span className="font-semibold text-emerald-700 truncate block">Amanhã • 15:30</span>
-                  </div>
+                </div>
+
+                {/* Synchronized Call Transcript */}
+                <div className="space-y-2.5 text-xs">
+                  {SAMPLE_LINES.map((line, idx) => {
+                    const isActive = isPlayingSample && activeLineIndex === idx;
+                    return (
+                      <div
+                        key={idx}
+                        className={`p-3 rounded-xl border transition-colors duration-200 ${
+                          isActive
+                            ? 'bg-slate-800 border-emerald-500/60 text-white'
+                            : line.role === 'joana'
+                              ? 'bg-slate-800/50 border-slate-800 text-slate-200'
+                              : 'bg-slate-900 border-slate-800/80 text-slate-300'
+                        }`}
+                      >
+                        <span
+                          className={`block text-[11px] font-semibold mb-1 ${
+                            line.role === 'joana' ? 'text-emerald-400' : 'text-blue-300'
+                          }`}
+                        >
+                          {line.speaker}
+                        </span>
+                        <p className="leading-relaxed">"{line.text}"</p>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* Trigger button to open full interactive demo */}
-              <div className="mt-3">
-                <button
-                  type="button"
-                  data-action="open-sofia"
-                  onClick={handleOpenDemo}
-                  className="w-full py-2.5 px-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs rounded-xl shadow transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
-                >
-                  <Play className="w-3.5 h-3.5 fill-current" />
-                  <span>Testar conversa ao vivo com a Sofia</span>
-                </button>
+              {/* Google Calendar Sync Confirmation Footer */}
+              <div className="mt-5 pt-4 border-t border-slate-800 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 text-emerald-400 font-medium">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>Marcado no Google Calendar</span>
+                </div>
+                <span className="font-mono tabular-nums text-slate-400">
+                  Amanhã · 09:30
+                </span>
               </div>
-
-            </motion.div>
-          </div>
-
+            </div>
+          </motion.div>
         </div>
       </div>
     </section>

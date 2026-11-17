@@ -3,13 +3,10 @@ import { AnimatePresence } from 'framer-motion';
 import Navbar from './components/Navbar';
 import MobileStickyBar from './components/MobileStickyBar';
 import Hero from './components/Hero';
-import TargetAudience from './components/TargetAudience';
 import Problems from './components/Problems';
-import Results from './components/Results';
-import Solution from './components/Solution';
-import WhyChooseUs from './components/WhyChooseUs';
 import WhyItWorks from './components/WhyItWorks';
 import Plans from './components/Plans';
+import WhyChooseUs from './components/WhyChooseUs';
 import DiagnosticForm from './components/DiagnosticForm';
 import Authority from './components/Authority';
 import FAQ from './components/FAQ';
@@ -17,112 +14,94 @@ import FinalCTA from './components/FinalCTA';
 import Footer from './components/Footer';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfUse from './components/TermsOfUse';
-import { MessageSquare } from 'lucide-react';
 import WhatsAppLogo from './components/WhatsAppLogo';
 
 const App: React.FC = () => {
-  const contactLink = "https://wa.me/message/5LQTAOWAHBXLG1"; // WhatsApp Business Official Link
-  const whatsappTestMsg = "Olá! Quero testar a Secretária Digital 15 dias grátis na minha clínica.";
-  const whatsappTestUrl = `https://wa.me/message/5LQTAOWAHBXLG1?text=${encodeURIComponent(whatsappTestMsg)}`;
+  const contactLink = 'https://wa.me/message/5LQTAOWAHBXLG1';
+  const whatsappDemoMsg =
+    'Olá! Gostaria de agendar uma demonstração de voz gratuita da Joana para a minha clínica.';
+  const whatsappDemoUrl = `https://wa.me/message/5LQTAOWAHBXLG1?text=${encodeURIComponent(
+    whatsappDemoMsg
+  )}`;
   const [modal, setModal] = useState<'privacy' | 'terms' | null>(null);
-  const [selectedPlan, setSelectedPlan] = useState<string>("Secretária + Presença Digital");
+  const [selectedPlan, setSelectedPlan] = useState<string>('Plano CLÍNICA');
 
   const handleOpenDemo = () => {
-    if (typeof (window as any).abrirModalSofia === 'function') {
-      (window as any).abrirModalSofia();
-      return;
-    }
-    const btn = document.querySelector('[data-action="open-sofia"]') as HTMLElement;
-    if (btn) {
-      btn.click();
-      return;
-    }
-    const overlay = document.getElementById("sofia-overlay");
-    if (overlay) {
-      overlay.classList.add("sofia-open");
-      const input = document.getElementById("sofia-input") as HTMLInputElement;
-      if (input) input.focus();
+    const el = document.getElementById('diagnostico');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
   return (
-    <div className="bg-gray-50 text-gray-800 font-sans antialiased scroll-smooth relative pb-16 md:pb-0">
-      {/* Sticky Header Navigation */}
+    <div className="bg-white text-slate-800 font-sans antialiased scroll-smooth relative pb-16 md:pb-0">
+      {/* Top Navigation */}
       <Navbar contactLink={contactLink} onOpenDemo={handleOpenDemo} />
 
       <main>
-        {/* 1. Hero Section */}
+        {/* 1. Hero Section: Recepcionista Virtual de Voz com IA (Joana) */}
         <Hero contactLink={contactLink} onOpenDemo={handleOpenDemo} />
 
-        {/* 2. Target Audience Specialty Filter */}
-        <TargetAudience />
-
-        {/* 3. Pain Points & Challenges */}
+        {/* 2. O Problema vs A Nossa Solução de Voz */}
         <Problems />
 
-        {/* 3.1 Results & Impact of Digital Secretary */}
-        <Results />
-
-        {/* 4. Complete System Solution */}
-        <Solution onOpenDemo={handleOpenDemo} />
-
-        {/* 5. Institutional Trust Badges */}
-        <WhyChooseUs />
-
-        {/* 6. Professional 7-Step Timeline */}
+        {/* 3. Como Funciona (3 Passos) */}
         <WhyItWorks />
 
-        {/* 7. Value Plans Selection */}
-        <Plans 
-          onSelectPlan={(plan) => setSelectedPlan(plan)} 
+        {/* 4. Preços em Kwanza (Starter, Clínica, Enterprise) */}
+        <Plans
+          onSelectPlan={(plan) => setSelectedPlan(plan)}
           contactLink={contactLink}
           onOpenDemo={handleOpenDemo}
         />
 
-        {/* 8. Interactive Diagnostic Form */}
-        <DiagnosticForm 
-          selectedPlan={selectedPlan} 
+        {/* 5. Secção de Confiança e Tecnologia */}
+        <WhyChooseUs />
+
+        {/* 6. Agendar Demonstração de Voz Gratuita */}
+        <DiagnosticForm
+          selectedPlan={selectedPlan}
           onOpenDemo={handleOpenDemo}
           onPrivacyClick={() => setModal('privacy')}
         />
 
-        {/* 9. About the Company & Director */}
+        {/* 7. Sobre a Clínicas Digitais */}
         <Authority />
 
-        {/* 10. FAQ Friction Reducer */}
+        {/* 8. Perguntas Frequentes */}
         <FAQ contactLink={contactLink} />
 
-        {/* 11. Closing Persuasion Section */}
+        {/* 9. CTA Final */}
         <FinalCTA contactLink={contactLink} />
       </main>
-      
+
       {/* Footer */}
-      <Footer 
+      <Footer
         onPrivacyClick={() => setModal('privacy')}
         onTermsClick={() => setModal('terms')}
       />
 
-      {/* Floating WhatsApp Button for Desktop/Tablet */}
+      {/* Floating WhatsApp Direct Support Button for Desktop */}
       <a
-        href={whatsappTestUrl}
+        href={whatsappDemoUrl}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="Testar Secretária Digital 15 dias grátis"
-        className="hidden md:flex fixed bottom-6 right-6 z-40 bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 items-center justify-center group"
+        aria-label="Agendar Demonstração de Voz Gratuita pelo WhatsApp"
+        className="hidden md:flex fixed bottom-6 right-6 z-40 bg-emerald-600 hover:bg-emerald-700 text-white p-3.5 rounded-full shadow-lg transition-all duration-200 hover:scale-105 items-center justify-center group"
       >
-        <WhatsAppLogo className="w-7 h-7" />
-        <span className="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-500 ease-in-out font-bold text-sm ml-0 group-hover:ml-2">
-          Testar 15 dias grátis
+        <WhatsAppLogo className="w-6 h-6" />
+        <span className="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-300 font-semibold text-sm ml-0 group-hover:ml-2">
+          Falar com Consultor
         </span>
       </a>
 
-      {/* Mobile Bottom Fixed Action Bar */}
-      <MobileStickyBar 
-        contactLink={whatsappTestUrl}
+      {/* Mobile Bottom Fixed Action Bar (< 15% viewport height) */}
+      <MobileStickyBar
+        contactLink={whatsappDemoUrl}
         onOpenDemo={handleOpenDemo}
       />
 
-      {/* Modals */}
+      {/* Legal Modals */}
       <AnimatePresence>
         {modal === 'privacy' && <PrivacyPolicy onClose={() => setModal(null)} />}
         {modal === 'terms' && <TermsOfUse onClose={() => setModal(null)} />}

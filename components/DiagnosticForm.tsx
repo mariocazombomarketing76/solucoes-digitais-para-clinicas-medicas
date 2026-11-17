@@ -118,7 +118,7 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan, onOpenDem
     email: '',
     cidade: citiesList[0],
     website: '',
-    plano: selectedPlan || "Secretária + Presença Digital",
+    plano: selectedPlan || "Plano CLÍNICA",
     consultasFaltam: '',
     comoMarcaConsultas: '',
     n8nWebhookUrl: DEFAULT_N8N_WEBHOOK
@@ -140,12 +140,12 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan, onOpenDem
   }, [selectedPlan]);
 
   const scanMilestones = [
-    "A registar o pedido de teste de 30 dias grátis para a sua clínica...",
+    "A registar o pedido de demonstração de voz gratuita...",
     `A verificar parâmetros operacionais para "${formData.clinica || 'Clínica'}" em ${formData.cidade}...`,
-    `A estruturar o fluxo de atendimento da Sofia para ${formData.especialidade}...`,
-    "A mapear plano de redução de faltas e recuperação de pacientes...",
-    "A gerar estimativa de pacientes e relatório personalizado...",
-    "A finalizar o registo. Entraremos em contacto por WhatsApp em até 24h úteis!"
+    `A estruturar o atendimento de voz da Joana para ${formData.especialidade}...`,
+    "A mapear sincronização com Google Calendar e lembretes 24h/2h...",
+    "A gerar estimativa de redução de faltas para a sua clínica...",
+    "A finalizar o agendamento. Entraremos em contacto por WhatsApp!"
   ];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -370,15 +370,16 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan, onOpenDem
 
   // WhatsApp link with prefilled message
   const getWhatsAppConfirmationLink = () => {
-    const text = `Olá! Acabei de pedir o teste de 30 dias grátis da Secretária Digital no site.\n\n` +
+    const text = `Olá! Acabei de agendar a Demonstração de Voz Gratuita da Joana no site.\n\n` +
       `*Dados da Minha Clínica*:\n` +
       `- Clínica: ${formData.clinica}\n` +
       `- Responsável: ${formData.nome}\n` +
+      `- Plano de interesse: ${formData.plano}\n` +
       `- Telefone/WhatsApp: ${formData.telefone}\n` +
       `- Especialidade: ${formData.especialidade} (${formData.cidade})\n` +
       (formData.consultasFaltam ? `- Faltas estimadas/semana: ${formData.consultasFaltam}\n` : '') +
       (formData.comoMarcaConsultas ? `- Marcação atual: ${formData.comoMarcaConsultas}\n` : '') +
-      `\nGostaria de agilizar o início da configuração dos 30 dias de teste!`;
+      `\nGostaria de realizar a chamada de demonstração com a Joana!`;
     return `https://wa.me/message/5LQTAOWAHBXLG1?text=${encodeURIComponent(text)}`;
   };
 
@@ -398,28 +399,29 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan, onOpenDem
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.18),transparent_70%)] pointer-events-none" />
 
             <div className="relative z-10 flex flex-col items-center">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/20 backdrop-blur-md text-white text-xs font-bold uppercase tracking-wider mb-3 border border-white/30">
-                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                Vagas limitadas a [3] clínicas este mês
-              </div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-emerald-100 mb-2">
+                Demonstração Personalizada para a Sua Clínica
+              </p>
 
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-3">
-                Teste 30 dias grátis
+              <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-3">
+                Agendar Demonstração de Voz Gratuita
               </h2>
 
               <p className="text-emerald-50 text-base sm:text-lg max-w-2xl font-medium leading-relaxed mb-4">
-                Teste 30 dias grátis. Vagas limitadas a [3] clínicas este mês. Sem cartão. No fim, mostramos-lhe os números e decide.
+                Teste a Joana ao vivo com o nome e as especialidades da sua clínica e veja a integração em tempo real com o Google Calendar.
               </p>
 
-              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm font-semibold text-white/90">
-                <span className="inline-flex items-center gap-1.5 bg-black/15 px-3 py-1 rounded-full">
-                  <Check className="w-4 h-4 text-amber-300" /> Sem cartão de crédito
+              <div className="flex flex-wrap items-center justify-center gap-4 text-xs sm:text-sm font-medium text-white/95">
+                <span className="inline-flex items-center gap-1.5">
+                  <Check className="w-4 h-4 text-emerald-200" /> Voz Neural PT-AO
                 </span>
-                <span className="inline-flex items-center gap-1.5 bg-black/15 px-3 py-1 rounded-full">
-                  <Check className="w-4 h-4 text-amber-300" /> Sem compromisso
+                <span aria-hidden="true" className="text-white/40">·</span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Check className="w-4 h-4 text-emerald-200" /> Google Calendar ao Vivo
                 </span>
-                <span className="inline-flex items-center gap-1.5 bg-black/15 px-3 py-1 rounded-full">
-                  <Check className="w-4 h-4 text-amber-300" /> Configuração incluída
+                <span aria-hidden="true" className="text-white/40">·</span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Check className="w-4 h-4 text-emerald-200" /> Sem compromisso
                 </span>
               </div>
             </div>
@@ -440,7 +442,7 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan, onOpenDem
                     Preencha os dados da sua clínica
                   </h3>
                   <p className="text-sm sm:text-base text-gray-600 mt-2">
-                    Inicie o seu período de 30 dias sem custos. Entraremos em contacto pelo WhatsApp para alinhar horários e especialidades.
+                    Plano selecionado: <strong className="text-blue-700">{formData.plano}</strong>. Entraremos em contacto para a demonstração interativa de voz.
                   </p>
                 </div>
 
@@ -685,16 +687,16 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan, onOpenDem
                   <div className="pt-4">
                     <button
                       type="submit"
-                      className="w-full py-4 sm:py-4.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-xl shadow-emerald-600/25 hover:shadow-2xl hover:shadow-emerald-600/35 transition-all duration-300 text-center text-base sm:text-lg flex items-center justify-center gap-3 active:scale-[0.99] cursor-pointer"
+                      className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/20 transition-all duration-150 text-center text-base sm:text-lg flex items-center justify-center gap-2.5 cursor-pointer"
                     >
-                      <Sparkles className="w-5 h-5 text-amber-300" />
-                      <span>Quero testar 30 dias grátis</span>
+                      <Phone className="w-5 h-5" />
+                      <span>Agendar Demonstração de Voz Gratuita</span>
                       <ArrowRight className="w-5 h-5" />
                     </button>
                     
                     <p className="text-center text-xs text-gray-500 mt-3 flex items-center justify-center gap-2">
                       <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                      <span>Sem cartão de crédito • Configuração sem interromper a sua receção</span>
+                      <span>Demonstração personalizada · Sem compromisso</span>
                     </p>
                   </div>
 
@@ -716,9 +718,9 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan, onOpenDem
                   <Sparkles className="w-8 h-8 text-emerald-400 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-pulse" />
                 </div>
                 
-                <h3 className="text-2xl font-bold mb-2 font-display">A registar o teste para {formData.clinica}</h3>
+                <h3 className="text-2xl font-bold mb-2 font-display">A preparar demonstração para {formData.clinica}</h3>
                 <p className="text-slate-400 text-sm max-w-md mb-8">
-                  Estamos a preparar a Sofia para a sua especialidade de {formData.especialidade} em {formData.cidade}.
+                  Estamos a configurar a simulação da Joana para a especialidade de {formData.especialidade} em {formData.cidade}.
                 </p>
 
                 <div className="w-full max-w-md bg-slate-800 h-2.5 rounded-full overflow-hidden mb-6">
@@ -814,16 +816,16 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan, onOpenDem
                     <CheckCircle className="w-10 h-10 text-white" />
                   </div>
 
-                  <span className="inline-block bg-white/20 text-emerald-100 text-xs py-1 px-3.5 rounded-full font-bold mb-3 border border-white/20">
-                    Teste de 30 dias grátis ativado
-                  </span>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-emerald-200 mb-2">
+                    Demonstração de Voz Agendada
+                  </p>
 
                   <h3 className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-display tracking-tight text-white mb-3">
                     Recebemos o seu pedido.
                   </h3>
 
                   <p className="text-emerald-50 text-base sm:text-lg max-w-xl mx-auto font-medium leading-relaxed">
-                    Recebemos o seu pedido. Entramos em contacto por WhatsApp em até 24 horas úteis.
+                    Entramos em contacto por WhatsApp em até 24 horas úteis para a chamada de demonstração com a Joana.
                   </p>
                 </div>
 
@@ -879,51 +881,39 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan, onOpenDem
                     <ul className="space-y-2.5 text-sm text-blue-950">
                       <li className="flex items-start gap-2.5">
                         <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                        <span>A nossa equipa em Angola entra em contacto por WhatsApp pelo número indicado.</span>
+                        <span>A nossa equipa em Angola entra em contacto pelo WhatsApp indicado.</span>
                       </li>
                       <li className="flex items-start gap-2.5">
                         <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                        <span>Configuramos a Sofia com as suas especialidades, horários e mensagens de confirmação em poucos dias.</span>
+                        <span>Preparamos uma chamada de demonstração real com a Joana configurada para as especialidades e horários da sua clínica.</span>
                       </li>
                       <li className="flex items-start gap-2.5">
                         <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                        <span>Testa durante 30 dias na prática. No final, apresentamos os relatórios de faltas evitadas e decide se quer continuar.</span>
+                        <span>Mostramos ao vivo a marcação automática no Google Calendar e os lembretes por voz e WhatsApp.</span>
                       </li>
                     </ul>
                   </div>
 
-                  {/* Acelerar pelo WhatsApp ou Ver Demonstração */}
+                  {/* Acelerar pelo WhatsApp */}
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
                     <a
                       href={getWhatsAppConfirmationLink()}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full sm:w-auto px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-base flex items-center justify-center gap-3 active:scale-95"
+                      className="w-full sm:w-auto px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg transition-all duration-150 text-base flex items-center justify-center gap-3"
                     >
                       <WhatsAppLogo className="w-5 h-5 flex-shrink-0" />
                       <span>Falar já no WhatsApp</span>
                       <ArrowRight className="w-5 h-5" />
                     </a>
 
-                    {onOpenDemo && (
-                      <button
-                        type="button"
-                        data-action="open-sofia"
-                        onClick={() => {
-                          try {
-                            (onOpenDemo as any)();
-                          } catch (e) {
-                            if (typeof (window as any).abrirModalSofia === 'function') {
-                              (window as any).abrirModalSofia();
-                            }
-                          }
-                        }}
-                        className="w-full sm:w-auto px-6 py-4 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold rounded-2xl transition-all text-sm flex items-center justify-center gap-2"
-                      >
-                        <Sparkles className="w-4 h-4 text-emerald-600" />
-                        <span>Ver demonstração da Sofia</span>
-                      </button>
-                    )}
+                    <button
+                      type="button"
+                      onClick={() => setStatus('idle')}
+                      className="w-full sm:w-auto px-6 py-4 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold rounded-xl transition-all text-sm cursor-pointer"
+                    >
+                      Fazer novo pedido
+                    </button>
                   </div>
 
                 </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, PhoneCall } from 'lucide-react';
 
 interface FinalCTAProps {
   contactLink: string;
@@ -15,58 +15,41 @@ const FinalCTA: React.FC<FinalCTAProps> = () => {
   };
 
   return (
-    <section className="bg-gradient-to-r from-blue-700 via-indigo-800 to-slate-900 text-white overflow-hidden border-t border-blue-800">
-      <div className="container mx-auto px-6 py-20 md:py-28 text-center relative">
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.08),transparent)] pointer-events-none"></div>
-        
-        <motion.h2 
-          className="text-3xl md:text-5xl font-extrabold mb-6 font-display tracking-tight max-w-3xl mx-auto leading-tight"
-          initial={{ opacity: 0, y: 20 }}
+    <section className="bg-slate-900 text-white overflow-hidden border-t border-slate-800">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-16 md:py-24 text-center">
+        <motion.h2
+          className="font-display text-3xl md:text-4xl font-bold mb-5 tracking-tight text-balance"
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.5 }}
-          transition={{ duration: 0.6 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.5 }}
         >
-          Nenhum paciente perdido. Teste a Secretária Digital 30 dias grátis.
+          A sua Clínica nunca mais perde uma chamada.
         </motion.h2>
 
-        <motion.p 
-          className="text-lg md:text-xl text-blue-100 max-w-3xl mx-auto mb-10 leading-relaxed"
-          initial={{ opacity: 0, y: 20 }}
+        <motion.p
+          className="text-base md:text-lg text-slate-300 max-w-2xl mx-auto mb-9 leading-relaxed"
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.5 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
         >
-          Atenda no WhatsApp 24 horas, confirme consultas e recupere pacientes antigos. Sem cartão de crédito. No fim, mostramos-lhe os números e decide.
+          Experimente uma chamada real com a Joana configurada para as especialidades da sua clínica e veja as consultas entrarem automaticamente no seu calendário.
         </motion.p>
 
-        <motion.div
-          className="flex justify-center"
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true, amount: 0.5 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
+        <button
+          type="button"
+          onClick={scrollToDiagnostic}
+          className="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white text-base md:text-lg font-bold rounded-xl shadow-lg transition-colors duration-150 gap-2.5 cursor-pointer"
         >
-          <motion.button
-            onClick={scrollToDiagnostic}
-            className="inline-flex items-center justify-center w-full sm:w-auto px-10 py-5 bg-emerald-500 hover:bg-emerald-600 text-white text-lg md:text-xl font-bold rounded-2xl shadow-2xl shadow-emerald-500/25 transition-all duration-300 gap-3 cursor-pointer"
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            <Sparkles className="w-6 h-6 flex-shrink-0 text-amber-300" />
-            <span className="leading-tight">Quero testar 30 dias grátis</span>
-            <ArrowRight className="w-5 h-5 flex-shrink-0" />
-          </motion.button>
-        </motion.div>
+          <PhoneCall className="w-5 h-5 shrink-0" />
+          <span>Agendar Demonstração de Voz Gratuita</span>
+          <ArrowRight className="w-5 h-5 shrink-0" />
+        </button>
 
-        <motion.p 
-          className="mt-6 text-xs md:text-sm text-blue-200 uppercase tracking-wider font-semibold"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, amount: 0.5 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-        >
-          Vagas limitadas a [3] clínicas este mês • Empresa registada em Angola • Resposta em até 24h úteis
-        </motion.p>
+        <p className="mt-6 text-xs text-slate-400">
+          Voz Neural Natural (PT-AO) · Sincronização Google Calendar · Luanda, Angola
+        </p>
       </div>
     </section>
   );
