@@ -6,23 +6,23 @@ const techPillars = [
   {
     title: 'Voz Neural Natural (PT-AO)',
     description:
-      'Entoação fluida, pausas naturais e compreensão imediata com o sotaque e a simpatia de Angola e Portugal — sem soar robótico.',
+      'Entoação fluida, pausas naturais e compreensão imediata com o sotaque e a simpatia de Angola — sem soar robótico.',
     icon: AudioLines,
-    color: 'text-blue-700 bg-blue-50 border-blue-100'
+    color: 'text-[#0056b3] bg-[#eff6ff] border-[#bfdbfe]'
   },
   {
     title: 'Sincronização em Tempo Real com Google Calendar',
     description:
       'Cada marcação, remarcação ou cancelamento feito por chamada aparece instantaneamente no calendário oficial dos médicos.',
     icon: CalendarClock,
-    color: 'text-emerald-700 bg-emerald-50 border-emerald-100'
+    color: 'text-[#28a745] bg-[#ecfdf5] border-[#bbf7d0]'
   },
   {
     title: 'Segurança de Dados de Saúde',
     description:
       'Ligações encriptadas, acesso restrito aos dados de agendamento e conformidade institucional com contrato formal em Angola.',
     icon: ShieldCheck,
-    color: 'text-blue-700 bg-blue-50 border-blue-100'
+    color: 'text-[#0056b3] bg-[#eff6ff] border-[#bfdbfe]'
   }
 ];
 
@@ -42,9 +42,9 @@ const WhyChooseUs: React.FC = () => {
           initial={{ opacity: 0, y: 18 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 }}
           transition={{ duration: 0.5 }}
-          className="max-w-5xl mx-auto bg-slate-900 text-white rounded-2xl p-8 md:p-10 mb-10 border border-slate-800 shadow-lg"
+          className="max-w-5xl mx-auto bg-[#0056b3] text-white rounded-2xl p-8 md:p-10 mb-10 border border-[#004494] shadow-lg"
         >
-          <p className="text-xs font-semibold uppercase tracking-widest text-emerald-400 mb-3">
+          <p className="text-xs font-semibold uppercase tracking-widest text-blue-200 mb-3">
             Confiança e Tecnologia
           </p>
           <h2 className="font-display text-2xl md:text-3xl font-bold leading-snug text-white text-balance">
@@ -62,7 +62,7 @@ const WhyChooseUs: React.FC = () => {
                 initial={{ opacity: 0, y: 18 }}
                 animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 }}
                 transition={{ duration: 0.45, delay: index * 0.1 }}
-                className="bg-slate-50/80 p-7 rounded-2xl border border-slate-200/90 flex flex-col justify-between"
+                className="bg-[#f8fafc] p-7 rounded-2xl border border-slate-200/90 flex flex-col justify-between"
               >
                 <div>
                   <div

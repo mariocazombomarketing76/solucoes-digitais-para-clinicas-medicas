@@ -35,7 +35,7 @@ const WhyItWorks: React.FC = () => {
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-14 max-w-2xl mx-auto">
-          <p className="text-xs font-semibold uppercase tracking-widest text-blue-700 mb-3">
+          <p className="text-xs font-semibold uppercase tracking-widest text-[#0056b3] mb-3">
             Como Funciona
           </p>
           <h2 className="font-display text-3xl md:text-4xl font-bold text-slate-900 tracking-tight text-balance">
@@ -55,11 +55,11 @@ const WhyItWorks: React.FC = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                 transition={{ duration: 0.45, delay: index * 0.1 }}
-                className="bg-slate-50/80 p-7 rounded-2xl border border-slate-200/90 flex flex-col justify-between"
+                className="bg-[#f8fafc] p-7 rounded-2xl border border-slate-200/90 flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between mb-6">
-                    <div className="w-12 h-12 rounded-xl bg-blue-700 text-white flex items-center justify-center shadow-sm">
+                    <div className="w-12 h-12 rounded-xl bg-[#0056b3] text-white flex items-center justify-center shadow-sm">
                       <IconComponent className="w-6 h-6" />
                     </div>
                     <span className="font-mono text-xs font-semibold text-slate-500 tabular-nums">

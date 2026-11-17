@@ -25,17 +25,17 @@ const MobileStickyBar: React.FC<MobileStickyBarProps> = ({ contactLink, onOpenDe
         <button
           type="button"
           onClick={handleScheduleClick}
-          className="flex-1 py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-colors cursor-pointer whitespace-nowrap"
+          className="flex-1 py-2.5 px-3 bg-[#28a745] hover:bg-[#218838] text-white rounded-lg font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-colors cursor-pointer whitespace-nowrap"
         >
           <PhoneCall className="w-3.5 h-3.5 shrink-0" />
-          <span className="truncate">Agendar Demo de Voz</span>
+          <span className="truncate">Agendar Demonstração Gratuita</span>
         </button>
 
         <a
           href={contactLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="py-2.5 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap shrink-0"
+          className="py-2.5 px-3 bg-[#0056b3] hover:bg-[#004494] text-white rounded-lg font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap shrink-0"
         >
           <WhatsAppLogo className="w-3.5 h-3.5 shrink-0" />
           <span>WhatsApp</span>

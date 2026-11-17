@@ -306,30 +306,30 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan, onOpenDem
           relatorioAI: {
             score: 4.8,
             nivel: "Preparado para Ativação",
-            resumoExecutivo: `Pedido de teste de 30 dias grátis registado para ${formData.clinica} em ${formData.cidade}. A Sofia será configurada para a especialidade de ${formData.especialidade}.`,
+            resumoExecutivo: `Pedido de demonstração gratuita da Joana registado para ${formData.clinica} em ${formData.cidade}. A Joana será configurada para a especialidade de ${formData.especialidade}.`,
             topRecomendacoes: [
-              `Ativar Sofia no WhatsApp para responder imediatamente a pedidos de consulta de ${formData.especialidade}`,
-              `Implementar lembretes automáticos 24h e 2h antes para reduzir faltas`,
-              `Lançar campanha de reativação para pacientes sem consulta há mais de 6 meses`
+              `Ativar a Joana na linha telefónica atual para responder imediatamente a chamadas de ${formData.especialidade}`,
+              `Implementar lembretes automáticos por voz e WhatsApp 24h e 2h antes para eliminar no-shows`,
+              `Ativar follow-up 24h pós-consulta para medir a satisfação e fidelizar pacientes`
             ],
             pontosFortes: [
               `Localização estratégica em ${formData.cidade}`,
-              `Procura crescente de pacientes por marcações rápidas no WhatsApp`,
-              `Oportunidade imediata de libertar a equipa da receção do atendimento repetitivo`
+              `Procura crescente de pacientes por atendimento telefónico imediato sem espera`,
+              `Oportunidade imediata de libertar a equipa da receção sem mudar o número da clínica`
             ],
             gargalos: [
               formData.consultasFaltam ? `Perda estimada com consultas desmarcadas ou faltas semanais (${formData.consultasFaltam}).` : "Horários vagos por faltas de pacientes sem aviso prévio.",
-              formData.comoMarcaConsultas ? `Canal atual (${formData.comoMarcaConsultas}) com risco de sobrecarga ou demora de resposta.` : "Mensagens fora de horas que acabam por marcar noutra clínica.",
-              "Pacientes antigos que não são contactados há vários meses."
+              formData.comoMarcaConsultas ? `Canal atual (${formData.comoMarcaConsultas}) com risco de sobrecarga ou chamadas não atendidas.` : "Chamadas fora de horas que acabam por marcar noutra clínica.",
+              "Pacientes sem acompanhamento pós-consulta após 24 horas."
             ],
             insightsRealTime: [
-              `Pacientes em ${formData.cidade} dão prioridade a clínicas que confirmam de imediato pelo WhatsApp.`,
-              "Lembretes com pedido de confirmação reduzem faltas em média em mais de metade."
+              `Pacientes em ${formData.cidade} escolhem clínicas que atendem de imediato na primeira chamada.`,
+              "Lembretes automáticos 24h e 2h antes reduzem drasticamente as faltas."
             ],
             planoBeneficios: [
-              "Sofia no WhatsApp 24 horas por dia com respostas cordiais e em português de Angola.",
-              "Ficha do paciente pronta para a sua receção com especialidade e horário desejado.",
-              "Sem fidelização e sem cartão de crédito durante os 30 dias de teste."
+              "Joana ao telefone 24/7 com sotaque e simpatia natural de Angola (PT-AO).",
+              "Sincronização automática em tempo real no Google Calendar da clínica.",
+              "Sem necessidade de trocar de número: encaminhamento automático da linha atual."
             ],
             potencialCaptacao: "Recuperação de 4 a 12 consultas/mês",
             ctaWhatsApp: null
@@ -393,21 +393,21 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan, onOpenDem
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ duration: 0.5 }}
-            className="mb-8 bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-700 text-white rounded-3xl p-6 sm:p-8 shadow-xl shadow-emerald-900/10 border border-emerald-500/30 text-center relative overflow-hidden"
+            className="mb-8 bg-[#0056b3] text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-[#004494] text-center relative overflow-hidden"
           >
             {/* Background pattern */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.18),transparent_70%)] pointer-events-none" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.16),transparent_70%)] pointer-events-none" />
 
             <div className="relative z-10 flex flex-col items-center">
-              <p className="text-xs font-semibold uppercase tracking-widest text-emerald-100 mb-2">
+              <p className="text-xs font-semibold uppercase tracking-widest text-blue-100 mb-2">
                 Demonstração Personalizada para a Sua Clínica
               </p>
 
               <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-3">
-                Agendar Demonstração de Voz Gratuita
+                Agendar Demonstração Gratuita
               </h2>
 
-              <p className="text-emerald-50 text-base sm:text-lg max-w-2xl font-medium leading-relaxed mb-4">
+              <p className="text-blue-50 text-base sm:text-lg max-w-2xl font-medium leading-relaxed mb-4">
                 Teste a Joana ao vivo com o nome e as especialidades da sua clínica e veja a integração em tempo real com o Google Calendar.
               </p>
 
@@ -687,10 +687,10 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan, onOpenDem
                   <div className="pt-4">
                     <button
                       type="submit"
-                      className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/20 transition-all duration-150 text-center text-base sm:text-lg flex items-center justify-center gap-2.5 cursor-pointer"
+                      className="w-full py-4 bg-[#28a745] hover:bg-[#218838] text-white font-bold rounded-xl shadow-lg shadow-[#28a745]/20 transition-all duration-150 text-center text-base sm:text-lg flex items-center justify-center gap-2.5 cursor-pointer"
                     >
                       <Phone className="w-5 h-5" />
-                      <span>Agendar Demonstração de Voz Gratuita</span>
+                      <span>Agendar Demonstração Gratuita</span>
                       <ArrowRight className="w-5 h-5" />
                     </button>
                     

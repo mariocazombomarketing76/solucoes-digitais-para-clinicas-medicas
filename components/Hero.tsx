@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import {
   PhoneCall,
-  Volume2,
-  Square,
+  Play,
+  Pause,
   Calendar,
   CheckCircle2,
   ShieldCheck,
@@ -25,7 +25,7 @@ const SAMPLE_LINES = [
   {
     speaker: 'Joana (IA de Voz)',
     role: 'joana',
-    text: 'Boa tarde, ligou para a Clínica Vida Mais em Luanda. Fala a Joana. Em que especialidade deseja marcar a sua consulta?'
+    text: 'Boa tarde, ligou para a Clínica em Luanda. Fala a Joana. Em que especialidade deseja marcar a sua consulta?'
   },
   {
     speaker: 'Paciente',
@@ -35,7 +35,7 @@ const SAMPLE_LINES = [
   {
     speaker: 'Joana (IA de Voz)',
     role: 'joana',
-    text: 'Com certeza! Tenho disponibilidade amanhã às 09h30 com o Dr. Manuel. Já confirmei no calendário e enviei o seu lembrete automático.'
+    text: 'Com certeza! Tenho disponibilidade amanhã às 09h30 com o Dr. Manuel. Já confirmei no calendário e enviei o lembrete.'
   }
 ];
 
@@ -43,8 +43,8 @@ const Hero: React.FC<HeroProps> = () => {
   const [isPlayingSample, setIsPlayingSample] = useState(false);
   const [activeLineIndex, setActiveLineIndex] = useState(0);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
-  const timerRef = useRef<number | null>(null);
-  const audioCtxRef = useRef<AudioContext | null>(null);
+  const [durationSeconds, setDurationSeconds] = useState(15);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const scrollToDiagnostic = () => {
     const el = document.getElementById('diagnostico');
@@ -53,115 +53,71 @@ const Hero: React.FC<HeroProps> = () => {
     }
   };
 
-  const stopSample = () => {
-    setIsPlayingSample(false);
-    setActiveLineIndex(0);
-    setElapsedSeconds(0);
-    if (timerRef.current) {
-      window.clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-    }
-  };
+  const handleToggleVoiceSample = async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
 
-  const playChime = () => {
+    if (!audio.paused) {
+      audio.pause();
+      return;
+    }
+
     try {
-      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      if (!AudioCtx) return;
-      if (!audioCtxRef.current) {
-        audioCtxRef.current = new AudioCtx();
+      if (audio.currentTime >= audio.duration - 0.1) {
+        audio.currentTime = 0;
       }
-      const ctx = audioCtxRef.current;
-      if (ctx.state === 'suspended') {
-        ctx.resume();
-      }
-      const now = ctx.currentTime;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(523.25, now);
-      osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.14);
-      gain.gain.setValueAtTime(0.06, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.3);
+      await audio.play();
     } catch {
-      // AudioContext unavailable or blocked
+      setIsPlayingSample(false);
     }
-  };
-
-  const speakSequence = () => {
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
-      return;
-    }
-    window.speechSynthesis.cancel();
-    const voices = window.speechSynthesis.getVoices();
-    const ptVoice =
-      voices.find((v) => v.lang.toLowerCase().startsWith('pt-pt')) ||
-      voices.find((v) => v.lang.toLowerCase().startsWith('pt')) ||
-      null;
-
-    SAMPLE_LINES.forEach((line, idx) => {
-      const utterance = new SpeechSynthesisUtterance(line.text);
-      if (ptVoice) utterance.voice = ptVoice;
-      utterance.lang = 'pt-PT';
-      utterance.rate = line.role === 'joana' ? 1.02 : 0.96;
-      utterance.pitch = line.role === 'joana' ? 1.08 : 0.9;
-      utterance.onstart = () => {
-        setActiveLineIndex(idx);
-      };
-      if (idx === SAMPLE_LINES.length - 1) {
-        utterance.onend = () => {
-          stopSample();
-        };
-      }
-      window.speechSynthesis.speak(utterance);
-    });
-  };
-
-  const handleToggleVoiceSample = () => {
-    if (isPlayingSample) {
-      stopSample();
-      return;
-    }
-
-    playChime();
-    setIsPlayingSample(true);
-    setActiveLineIndex(0);
-    setElapsedSeconds(1);
-
-    speakSequence();
-
-    // Backup timer so visual waveform & dialogue stay synchronized even if speechSynthesis voices aren't installed
-    timerRef.current = window.setInterval(() => {
-      setElapsedSeconds((prev) => {
-        const next = prev + 1;
-        if (next === 7) setActiveLineIndex(1);
-        if (next === 12) setActiveLineIndex(2);
-        if (next >= 20) {
-          stopSample();
-          return 0;
-        }
-        return next;
-      });
-    }, 1000);
   };
 
   useEffect(() => {
-    return () => {
-      if (timerRef.current) window.clearInterval(timerRef.current);
-      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const onPlay = () => setIsPlayingSample(true);
+    const onPause = () => setIsPlayingSample(false);
+    const onEnded = () => {
+      setIsPlayingSample(false);
+      setActiveLineIndex(0);
+      setElapsedSeconds(0);
+    };
+    const onLoadedMetadata = () => {
+      if (audio.duration && Number.isFinite(audio.duration)) {
+        setDurationSeconds(Math.round(audio.duration));
       }
+    };
+    const onTimeUpdate = () => {
+      const t = audio.currentTime;
+      setElapsedSeconds(Math.floor(t));
+      if (t < 5) {
+        setActiveLineIndex(0);
+      } else if (t < 9.5) {
+        setActiveLineIndex(1);
+      } else {
+        setActiveLineIndex(2);
+      }
+    };
+
+    audio.addEventListener('play', onPlay);
+    audio.addEventListener('pause', onPause);
+    audio.addEventListener('ended', onEnded);
+    audio.addEventListener('loadedmetadata', onLoadedMetadata);
+    audio.addEventListener('timeupdate', onTimeUpdate);
+
+    return () => {
+      audio.removeEventListener('play', onPlay);
+      audio.removeEventListener('pause', onPause);
+      audio.removeEventListener('ended', onEnded);
+      audio.removeEventListener('loadedmetadata', onLoadedMetadata);
+      audio.removeEventListener('timeupdate', onTimeUpdate);
+      audio.pause();
     };
   }, []);
 
   const formatTimer = (sec: number) => {
-    const s = String(sec).padStart(2, '0');
+    const s = String(Math.max(0, sec)).padStart(2, '0');
     return `00:${s}`;
   };
 
@@ -169,18 +125,18 @@ const Hero: React.FC<HeroProps> = () => {
     <section className="bg-white border-b border-slate-200/80 overflow-hidden">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-10 md:pt-16 pb-14 md:pb-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 items-stretch gap-10 lg:gap-12">
-          {/* Left Column: Value Proposition & CTAs */}
+          {/* Left Column: Value Proposition, Audio CTA & Primary Green CTA */}
           <motion.div
             className="lg:col-span-7 flex flex-col justify-center text-center lg:text-left"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
           >
-            {/* Clean Unboxed Kicker (Zero-Pill Discipline) */}
-            <div className="flex items-center justify-center lg:justify-start gap-2 text-xs sm:text-sm font-semibold text-blue-700 tracking-wide mb-4">
+            {/* Clean Unboxed Kicker */}
+            <div className="flex items-center justify-center lg:justify-start gap-2 text-xs sm:text-sm font-semibold text-[#0056b3] tracking-wide mb-4">
               <span>Recepcionista Virtual de Voz com IA</span>
               <span aria-hidden="true" className="text-slate-300">·</span>
-              <span className="text-emerald-700">Sotaque Natural PT-AO</span>
+              <span className="text-[#28a745]">Sotaque Natural de Angola</span>
             </div>
 
             {/* H1 Headline */}
@@ -190,39 +146,39 @@ const Hero: React.FC<HeroProps> = () => {
 
             {/* Subtitle */}
             <p className="text-base sm:text-lg text-slate-600 leading-relaxed mb-8 max-w-2xl mx-auto lg:mx-0">
-              A Joana, a nossa recepcionista virtual de Voz com IA, atende os seus pacientes 24/7, marca consultas diretamente no seu calendário e fala com o sotaque e a simpatia de Angola. Sem faltas, sem esperas, sem custos de funcionário extra.
+              A Joana, a nossa recepcionista virtual de Voz com IA, atende os seus pacientes 24/7, marca consultas diretamente no seu calendário e fala com o sotaque e a simpatia de Angola.
             </p>
 
-            {/* Primary & Voice Sample Actions */}
+            {/* Primary Green CTA + Elegant Audio Sample Button */}
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 mb-8">
               <button
                 type="button"
                 onClick={scrollToDiagnostic}
-                className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm sm:text-base font-bold rounded-xl shadow-md shadow-emerald-600/20 transition-all duration-150 gap-2.5 whitespace-nowrap shrink-0 cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center px-7 py-4 bg-[#28a745] hover:bg-[#218838] text-white text-base sm:text-lg font-bold rounded-xl shadow-md shadow-[#28a745]/20 transition-all duration-150 gap-2.5 whitespace-nowrap shrink-0 cursor-pointer"
               >
                 <PhoneCall className="w-5 h-5 shrink-0" />
-                <span>Agendar Demonstração de Voz Gratuita</span>
+                <span>Agendar Demonstração Gratuita</span>
               </button>
 
               <button
                 type="button"
                 onClick={handleToggleVoiceSample}
                 aria-pressed={isPlayingSample}
-                className={`w-full sm:w-auto inline-flex items-center justify-center px-5 py-3.5 rounded-xl text-sm sm:text-base font-semibold border transition-all duration-150 gap-2 whitespace-nowrap shrink-0 cursor-pointer ${
+                className={`w-full sm:w-auto inline-flex items-center justify-center px-5 py-4 rounded-xl text-sm sm:text-base font-semibold border transition-all duration-150 gap-2.5 whitespace-nowrap shrink-0 cursor-pointer ${
                   isPlayingSample
-                    ? 'bg-slate-900 text-white border-slate-900 shadow-md'
-                    : 'bg-white text-slate-800 border-slate-300 hover:border-blue-600 hover:text-blue-700'
+                    ? 'bg-[#0056b3] text-white border-[#0056b3] shadow-md'
+                    : 'bg-[#f8fafc] text-[#0056b3] border-[#bfdbfe] hover:border-[#0056b3] hover:bg-[#eff6ff]'
                 }`}
               >
                 {isPlayingSample ? (
                   <>
-                    <Square className="w-4 h-4 fill-current text-emerald-400 shrink-0" />
-                    <span>Parar Amostra da Joana</span>
+                    <Pause className="w-4 h-4 fill-current shrink-0" />
+                    <span>Pausar amostra da Joana</span>
                   </>
                 ) : (
                   <>
-                    <Volume2 className="w-5 h-5 text-blue-700 shrink-0" />
-                    <span>Ouvir Amostra da Joana</span>
+                    <Play className="w-4 h-4 fill-current shrink-0" />
+                    <span>🔊 Ouvir amostra da Joana (15s)</span>
                   </>
                 )}
               </button>
@@ -231,21 +187,21 @@ const Hero: React.FC<HeroProps> = () => {
             {/* Clean Typographic Proof Strip */}
             <div className="pt-5 border-t border-slate-200/80 flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2.5 text-xs sm:text-sm text-slate-600 font-medium">
               <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-blue-700 shrink-0" />
-                <span>Atendimento Telefónico 24/7</span>
+                <Clock className="w-4 h-4 text-[#0056b3] shrink-0" />
+                <span>Atendimento 24/7 por Voz</span>
               </div>
               <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>Integração Google Calendar</span>
+                <Calendar className="w-4 h-4 text-[#28a745] shrink-0" />
+                <span>Sincronização Google Calendar</span>
               </div>
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-blue-700 shrink-0" />
+                <ShieldCheck className="w-4 h-4 text-[#0056b3] shrink-0" />
                 <span>Voz Neural PT-AO</span>
               </div>
             </div>
           </motion.div>
 
-          {/* Right Column: Live Voice Call Console & Audio Waveform */}
+          {/* Right Column: Live Voice Call Console & Real HTML5 Audio Player */}
           <motion.div
             className="lg:col-span-5 flex flex-col"
             initial={{ opacity: 0, y: 18 }}
@@ -253,11 +209,11 @@ const Hero: React.FC<HeroProps> = () => {
             transition={{ duration: 0.55, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
           >
             <div className="h-full bg-slate-900 text-white rounded-2xl border border-slate-800 shadow-xl p-6 flex flex-col justify-between">
-              {/* Call Top Metadata */}
               <div>
+                {/* Call Top Metadata */}
                 <div className="flex items-center justify-between pb-4 border-b border-slate-800">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-300 shrink-0">
+                    <div className="w-10 h-10 rounded-xl bg-[#0056b3]/25 border border-[#0056b3]/50 flex items-center justify-center text-blue-300 shrink-0">
                       <Mic className="w-5 h-5" />
                     </div>
                     <div>
@@ -265,30 +221,30 @@ const Hero: React.FC<HeroProps> = () => {
                         Joana · Recepcionista de Voz
                       </p>
                       <p className="text-xs text-slate-400 mt-0.5">
-                        {isPlayingSample ? 'Chamada em reprodução' : 'Simulação de atendimento real'}
+                        {isPlayingSample ? 'A reproduzir amostra de voz (15s)' : 'Amostra de atendimento telefónico'}
                       </p>
                     </div>
                   </div>
-                  <span className="font-mono text-xs tabular-nums text-emerald-400 font-medium">
-                    {isPlayingSample ? formatTimer(elapsedSeconds) : '00:20'}
+                  <span className="font-mono text-xs tabular-nums text-[#28a745] font-semibold">
+                    {formatTimer(elapsedSeconds)} / {formatTimer(durationSeconds)}
                   </span>
                 </div>
 
-                {/* Audio Waveform Visualizer */}
-                <div className="my-5 bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-5">
-                  <div className="flex items-center justify-between text-[11px] text-slate-400 mb-3">
-                    <span>Canal de Voz Neural (PT-AO)</span>
+                {/* Audio Waveform + Real HTML5 <audio> Player */}
+                <div className="my-5 bg-slate-950/85 border border-slate-800 rounded-xl px-4 py-4 space-y-4">
+                  <div className="flex items-center justify-between text-[11px] text-slate-400">
+                    <span>Áudio Neural da Joana (PT-AO)</span>
                     <button
                       type="button"
                       onClick={handleToggleVoiceSample}
                       className="text-emerald-400 hover:text-emerald-300 font-semibold cursor-pointer"
                     >
-                      {isPlayingSample ? 'Pausar áudio' : 'Reproduzir chamada'}
+                      {isPlayingSample ? 'Pausar' : 'Reproduzir'}
                     </button>
                   </div>
 
                   <div
-                    className="h-16 flex items-center justify-between gap-1"
+                    className="h-12 flex items-center justify-between gap-1"
                     aria-label="Ondas sonoras da voz da Joana"
                   >
                     {WAVE_BARS.map((heightPct, i) => (
@@ -297,9 +253,9 @@ const Hero: React.FC<HeroProps> = () => {
                         className={`flex-1 rounded-full origin-center ${
                           isPlayingSample
                             ? i % 3 === 0
-                              ? 'bg-emerald-400'
+                              ? 'bg-[#28a745]'
                               : 'bg-blue-400'
-                            : 'bg-blue-500/50'
+                            : 'bg-blue-500/45'
                         }`}
                         style={{ height: `${heightPct}%` }}
                         animate={
@@ -322,6 +278,17 @@ const Hero: React.FC<HeroProps> = () => {
                       />
                     ))}
                   </div>
+
+                  <audio
+                    ref={audioRef}
+                    controls
+                    preload="metadata"
+                    src="/amostra_joana.mp3"
+                    aria-label="Ouvir amostra da Joana (15s)"
+                    className="w-full h-9 rounded-lg"
+                  >
+                    O seu navegador não suporta a reprodução de áudio HTML5.
+                  </audio>
                 </div>
 
                 {/* Synchronized Call Transcript */}
@@ -333,7 +300,7 @@ const Hero: React.FC<HeroProps> = () => {
                         key={idx}
                         className={`p-3 rounded-xl border transition-colors duration-200 ${
                           isActive
-                            ? 'bg-slate-800 border-emerald-500/60 text-white'
+                            ? 'bg-slate-800 border-[#28a745] text-white'
                             : line.role === 'joana'
                               ? 'bg-slate-800/50 border-slate-800 text-slate-200'
                               : 'bg-slate-900 border-slate-800/80 text-slate-300'

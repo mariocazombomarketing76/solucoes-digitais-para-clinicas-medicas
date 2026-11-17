@@ -19,7 +19,7 @@ const plansData: PlanItem[] = [
   {
     id: 'starter',
     name: 'Plano STARTER',
-    subtitle: 'Ideal para consultórios individuais que querem atendimento telefónico contínuo sem falhar chamadas.',
+    subtitle: 'Consultórios individuais. Agendamento de Voz 24/7, 1 Especialidade, Lembretes.',
     monthlyFee: '49.900 Kz',
     icon: Stethoscope,
     isPopular: false,
@@ -33,7 +33,7 @@ const plansData: PlanItem[] = [
   {
     id: 'clinica',
     name: 'Plano CLÍNICA',
-    subtitle: 'A escolha completa para clínicas em crescimento reduzirem faltas e fidelizarem pacientes.',
+    subtitle: 'Multi-especialidades até 5, Follow-up pós-consulta, Gestão automática de faltas.',
     monthlyFee: '99.900 Kz',
     icon: PhoneCall,
     popularLabel: 'Mais Popular',
@@ -41,7 +41,7 @@ const plansData: PlanItem[] = [
     features: [
       'Tudo do Starter',
       'Multi-especialidades até 5',
-      'Follow-up pós-consulta com pesquisa de satisfação',
+      'Follow-up pós-consulta',
       'Gestão automática de faltas'
     ],
     ctaText: 'Agendar Demonstração Gratuita'
@@ -49,15 +49,15 @@ const plansData: PlanItem[] = [
   {
     id: 'enterprise',
     name: 'Plano ENTERPRISE',
-    subtitle: 'Para redes de clínicas com alto volume de chamadas, campanhas ativas e integração dedicada.',
+    subtitle: 'Redes de clínicas. Especialidades ilimitadas, Campanhas de marketing, API dedicada.',
     monthlyFee: '189.900 Kz',
     icon: Building2,
     isPopular: false,
     features: [
       'Especialidades ilimitadas',
-      'Campanhas de marketing por voz/SMS',
+      'Campanhas de marketing',
       'API dedicada',
-      'Gestor de Conta'
+      'Gestor de Conta dedicado'
     ],
     ctaText: 'Falar com Consultor'
   }
@@ -87,19 +87,19 @@ const Plans: React.FC<PlansProps> = ({
   };
 
   const whatsappDuvidasLink = `${contactLink}?text=${encodeURIComponent(
-    'Olá! Gostaria de agendar uma demonstração de voz da Joana e tirar dúvidas sobre os planos Starter, Clínica e Enterprise.'
+    'Olá! Gostaria de agendar uma demonstração gratuita da Joana e tirar dúvidas sobre os planos Starter, Clínica e Enterprise.'
   )}`;
 
   return (
     <section
       id="planos"
       ref={ref}
-      className="py-16 md:py-24 bg-slate-50/70 border-b border-slate-200/80 overflow-hidden"
+      className="py-16 md:py-24 bg-[#f8fafc] border-b border-slate-200/80 overflow-hidden"
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-14">
-          <p className="text-xs font-semibold uppercase tracking-widest text-blue-700 mb-3">
+          <p className="text-xs font-semibold uppercase tracking-widest text-[#0056b3] mb-3">
             Preços e Planos
           </p>
           <h2 className="font-display text-3xl md:text-4xl font-bold text-slate-900 tracking-tight text-balance">
@@ -110,7 +110,7 @@ const Plans: React.FC<PlansProps> = ({
           </p>
         </div>
 
-        {/* 3-Column Pricing Grid */}
+        {/* 3-Column Pricing Grid (Middle highlighted with #0056b3 + "Mais Popular") */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-7 items-stretch max-w-6xl mx-auto">
           {plansData.map((plan, idx) => {
             const IconComp = plan.icon;
@@ -122,26 +122,25 @@ const Plans: React.FC<PlansProps> = ({
                 initial={{ opacity: 0, y: 20 }}
                 animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                 transition={{ duration: 0.45, delay: idx * 0.1 }}
-                className={`relative rounded-2xl p-7 sm:p-8 flex flex-col justify-between transition-shadow duration-200 ${
+                className={`relative rounded-2xl p-7 sm:p-8 flex flex-col justify-between transition-all duration-200 ${
                   isPopular
-                    ? 'bg-slate-900 text-white border-2 border-blue-600 shadow-xl'
+                    ? 'bg-[#0056b3] text-white border-2 border-[#004494] shadow-2xl lg:-translate-y-2'
                     : 'bg-white text-slate-900 border border-slate-200 shadow-sm'
                 }`}
               >
                 <div>
-                  {/* Quiet Top Kicker */}
                   <div className="flex items-center justify-between mb-5">
                     <div
                       className={`w-11 h-11 rounded-xl flex items-center justify-center ${
                         isPopular
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-blue-50 text-blue-700 border border-blue-100'
+                          ? 'bg-white/15 text-white border border-white/20'
+                          : 'bg-[#eff6ff] text-[#0056b3] border border-[#bfdbfe]'
                       }`}
                     >
                       <IconComp className="w-5 h-5" />
                     </div>
                     {plan.popularLabel && (
-                      <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#28a745] text-white shadow-sm">
                         {plan.popularLabel}
                       </span>
                     )}
@@ -157,7 +156,7 @@ const Plans: React.FC<PlansProps> = ({
 
                   <p
                     className={`text-sm leading-relaxed mb-6 min-h-[44px] ${
-                      isPopular ? 'text-slate-300' : 'text-slate-600'
+                      isPopular ? 'text-blue-100' : 'text-slate-600'
                     }`}
                   >
                     {plan.subtitle}
@@ -166,7 +165,7 @@ const Plans: React.FC<PlansProps> = ({
                   {/* Price Block */}
                   <div
                     className={`py-5 border-y mb-6 ${
-                      isPopular ? 'border-slate-800' : 'border-slate-100'
+                      isPopular ? 'border-white/20' : 'border-slate-100'
                     }`}
                   >
                     <div className="flex items-baseline gap-1.5">
@@ -179,7 +178,7 @@ const Plans: React.FC<PlansProps> = ({
                       </span>
                       <span
                         className={`text-sm font-medium ${
-                          isPopular ? 'text-slate-400' : 'text-slate-500'
+                          isPopular ? 'text-blue-100' : 'text-slate-500'
                         }`}
                       >
                         /mês
@@ -193,12 +192,12 @@ const Plans: React.FC<PlansProps> = ({
                       <li key={fIdx} className="flex items-start gap-3">
                         <Check
                           className={`w-4 h-4 mt-1 shrink-0 ${
-                            isPopular ? 'text-emerald-400' : 'text-emerald-600'
+                            isPopular ? 'text-emerald-300' : 'text-[#28a745]'
                           }`}
                         />
                         <span
                           className={`text-sm leading-snug ${
-                            isPopular ? 'text-slate-200' : 'text-slate-700'
+                            isPopular ? 'text-white/95' : 'text-slate-700'
                           }`}
                         >
                           {feature}
@@ -214,8 +213,8 @@ const Plans: React.FC<PlansProps> = ({
                   onClick={() => handlePlanSelect(plan.name)}
                   className={`w-full py-3.5 px-5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-colors duration-150 cursor-pointer ${
                     isPopular
-                      ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-md'
-                      : 'bg-slate-900 hover:bg-blue-700 text-white'
+                      ? 'bg-[#28a745] hover:bg-[#218838] text-white shadow-md'
+                      : 'bg-[#0056b3] hover:bg-[#004494] text-white'
                   }`}
                 >
                   <span>{plan.ctaText}</span>
@@ -226,15 +225,15 @@ const Plans: React.FC<PlansProps> = ({
           })}
         </div>
 
-        {/* Discreet Onboarding Note */}
+        {/* Transparency Note */}
         <p className="mt-8 text-center text-sm text-slate-600 italic tabular-nums">
-          *Taxa única de configuração e onboarding: 75.000 Kz
+          *Taxa única de configuração, mapeamento de especialidades e onboarding: 75.000 Kz*
         </p>
 
         {/* Payment & Direct WhatsApp Clarification */}
         <div className="mt-10 max-w-4xl mx-auto bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
           <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-700 shrink-0">
+            <div className="w-11 h-11 rounded-xl bg-[#eff6ff] border border-[#bfdbfe] flex items-center justify-center text-[#0056b3] shrink-0">
               <CreditCard className="w-5 h-5" />
             </div>
             <div>
@@ -251,7 +250,7 @@ const Plans: React.FC<PlansProps> = ({
             href={whatsappDuvidasLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="whitespace-nowrap inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-4 py-2.5 rounded-xl border border-emerald-200 transition-colors shrink-0"
+            className="whitespace-nowrap inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-[#28a745] hover:text-white bg-[#ecfdf5] hover:bg-[#28a745] px-4 py-2.5 rounded-xl border border-[#bbf7d0] transition-colors shrink-0"
           >
             <WhatsAppLogo className="w-4 h-4 shrink-0" />
             <span>Falar no WhatsApp</span>

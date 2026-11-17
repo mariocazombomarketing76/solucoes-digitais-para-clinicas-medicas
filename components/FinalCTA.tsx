@@ -15,7 +15,7 @@ const FinalCTA: React.FC<FinalCTAProps> = () => {
   };
 
   return (
-    <section className="bg-slate-900 text-white overflow-hidden border-t border-slate-800">
+    <section className="bg-[#0056b3] text-white overflow-hidden border-t border-[#004494]">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-16 md:py-24 text-center">
         <motion.h2
           className="font-display text-3xl md:text-4xl font-bold mb-5 tracking-tight text-balance"
@@ -28,7 +28,7 @@ const FinalCTA: React.FC<FinalCTAProps> = () => {
         </motion.h2>
 
         <motion.p
-          className="text-base md:text-lg text-slate-300 max-w-2xl mx-auto mb-9 leading-relaxed"
+          className="text-base md:text-lg text-blue-100 max-w-2xl mx-auto mb-9 leading-relaxed"
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.4 }}
@@ -40,14 +40,14 @@ const FinalCTA: React.FC<FinalCTAProps> = () => {
         <button
           type="button"
           onClick={scrollToDiagnostic}
-          className="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white text-base md:text-lg font-bold rounded-xl shadow-lg transition-colors duration-150 gap-2.5 cursor-pointer"
+          className="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 bg-[#28a745] hover:bg-[#218838] text-white text-base md:text-lg font-bold rounded-xl shadow-lg transition-colors duration-150 gap-2.5 cursor-pointer"
         >
           <PhoneCall className="w-5 h-5 shrink-0" />
-          <span>Agendar Demonstração de Voz Gratuita</span>
+          <span>Agendar Demonstração Gratuita</span>
           <ArrowRight className="w-5 h-5 shrink-0" />
         </button>
 
-        <p className="mt-6 text-xs text-slate-400">
+        <p className="mt-6 text-xs text-blue-100">
           Voz Neural Natural (PT-AO) · Sincronização Google Calendar · Luanda, Angola
         </p>
       </div>

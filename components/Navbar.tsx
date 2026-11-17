@@ -43,13 +43,13 @@ const Navbar: React.FC<NavbarProps> = () => {
             e.preventDefault();
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
-          className="flex items-center gap-2.5 whitespace-nowrap shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 rounded-lg"
+          className="flex items-center gap-2.5 whitespace-nowrap shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0056b3] rounded-lg"
         >
-          <div className="w-9 h-9 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
-            <Activity className="w-5 h-5 text-blue-700" />
+          <div className="w-9 h-9 rounded-lg bg-[#eff6ff] border border-[#bfdbfe] flex items-center justify-center shrink-0">
+            <Activity className="w-5 h-5 text-[#0056b3]" />
           </div>
           <span className="font-display font-bold text-lg sm:text-xl text-slate-900 tracking-tight whitespace-nowrap shrink-0">
-            Clínicas <span className="text-blue-700">Digitais</span>
+            Clínicas <span className="text-[#0056b3]">Digitais</span>
           </span>
         </a>
 
@@ -57,40 +57,40 @@ const Navbar: React.FC<NavbarProps> = () => {
         <nav className="hidden lg:flex items-center gap-7 text-sm font-medium text-slate-600">
           <button
             type="button"
-            onClick={() => scrollToSection('solucao-voz')}
-            className="hover:text-slate-900 hover:underline underline-offset-4 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+            onClick={() => scrollToSection('ciclo-vida')}
+            className="hover:text-[#0056b3] transition-colors whitespace-nowrap shrink-0 cursor-pointer"
           >
-            Solução de Voz
+            Ciclo do Paciente
           </button>
           <button
             type="button"
             onClick={() => scrollToSection('processo')}
-            className="hover:text-slate-900 hover:underline underline-offset-4 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+            className="hover:text-[#0056b3] transition-colors whitespace-nowrap shrink-0 cursor-pointer"
           >
             Como Funciona
           </button>
           <button
             type="button"
             onClick={() => scrollToSection('planos')}
-            className="hover:text-slate-900 hover:underline underline-offset-4 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+            className="hover:text-[#0056b3] transition-colors whitespace-nowrap shrink-0 cursor-pointer"
           >
             Preços
           </button>
           <button
             type="button"
             onClick={() => scrollToSection('perguntas')}
-            className="hover:text-slate-900 hover:underline underline-offset-4 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+            className="hover:text-[#0056b3] transition-colors whitespace-nowrap shrink-0 cursor-pointer"
           >
             Perguntas
           </button>
         </nav>
 
-        {/* Zone 3: 1 Primary CTA */}
+        {/* Zone 3: 1 Primary Action CTA */}
         <div className="flex items-center gap-3 shrink-0">
           <button
             type="button"
             onClick={() => scrollToSection('diagnostico')}
-            className="inline-flex items-center justify-center px-4 py-2.5 bg-blue-700 hover:bg-blue-800 text-white text-xs sm:text-sm font-semibold rounded-lg shadow-sm transition-colors gap-2 whitespace-nowrap shrink-0 cursor-pointer"
+            className="inline-flex items-center justify-center px-4 py-2.5 bg-[#28a745] hover:bg-[#218838] text-white text-xs sm:text-sm font-bold rounded-lg shadow-sm transition-colors gap-2 whitespace-nowrap shrink-0 cursor-pointer"
           >
             <PhoneCall className="w-4 h-4 shrink-0" />
             <span>Agendar Demo</span>
@@ -101,7 +101,7 @@ const Navbar: React.FC<NavbarProps> = () => {
             type="button"
             onClick={() => setIsOpen(!isOpen)}
             aria-label={isOpen ? 'Fechar menu' : 'Abrir menu'}
-            className="lg:hidden p-2 rounded-lg text-slate-700 hover:bg-slate-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+            className="lg:hidden p-2 rounded-lg text-slate-700 hover:bg-slate-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0056b3]"
           >
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -121,10 +121,10 @@ const Navbar: React.FC<NavbarProps> = () => {
             <div className="max-w-6xl mx-auto px-4 py-4 space-y-2">
               <button
                 type="button"
-                onClick={() => scrollToSection('solucao-voz')}
+                onClick={() => scrollToSection('ciclo-vida')}
                 className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 flex items-center justify-between"
               >
-                <span>Solução de Voz</span>
+                <span>Ciclo do Paciente</span>
                 <ChevronRight className="w-4 h-4 text-slate-400" />
               </button>
 
@@ -159,10 +159,10 @@ const Navbar: React.FC<NavbarProps> = () => {
                 <button
                   type="button"
                   onClick={() => scrollToSection('diagnostico')}
-                  className="w-full py-3 bg-blue-700 hover:bg-blue-800 text-white font-semibold rounded-lg text-center text-sm flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-[#28a745] hover:bg-[#218838] text-white font-bold rounded-lg text-center text-sm flex items-center justify-center gap-2"
                 >
                   <PhoneCall className="w-4 h-4" />
-                  <span>Agendar Demonstração de Voz Gratuita</span>
+                  <span>Agendar Demonstração Gratuita</span>
                 </button>
               </div>
             </div>
