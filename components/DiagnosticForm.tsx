@@ -118,7 +118,7 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ selectedPlan, onOpenDem
     email: '',
     cidade: citiesList[0],
     website: '',
-    plano: selectedPlan || "Plano CLÍNICA",
+    plano: selectedPlan || "Plano Clínica",
     consultasFaltam: '',
     comoMarcaConsultas: '',
     n8nWebhookUrl: DEFAULT_N8N_WEBHOOK

@@ -6,8 +6,10 @@ import WhatsAppLogo from './WhatsAppLogo';
 export interface PlanItem {
   id: string;
   name: string;
+  selectLabel: string;
   subtitle: string;
   monthlyFee: string;
+  implementationFee: string;
   icon: React.ElementType;
   popularLabel?: string;
   isPopular?: boolean;
@@ -18,48 +20,56 @@ export interface PlanItem {
 const plansData: PlanItem[] = [
   {
     id: 'starter',
-    name: 'Plano STARTER',
-    subtitle: 'Consultórios individuais. Agendamento de Voz 24/7, 1 Especialidade, Lembretes.',
-    monthlyFee: '49.900 Kz',
+    name: 'Starter',
+    selectLabel: 'Plano Starter',
+    subtitle: 'Ideal para consultórios individuais e clínicas pequenas.',
+    monthlyFee: '59.900 Kz',
+    implementationFee: 'Taxa de Implementação: 50.000 Kz (pagamento único)',
     icon: Stethoscope,
     isPopular: false,
     features: [
-      'Agendamento de Voz 24/7',
-      '1 Especialidade',
-      'Lembretes automáticos'
+      'Recepcionista de Voz com IA 24/7',
+      '1 Especialidade médica configurada',
+      'Lembretes automáticos de consulta',
+      'Sincronização com Google Calendar'
     ],
-    ctaText: 'Agendar Demonstração Gratuita'
+    ctaText: 'Começar Agora'
   },
   {
     id: 'clinica',
-    name: 'Plano CLÍNICA',
-    subtitle: 'Multi-especialidades até 5, Follow-up pós-consulta, Gestão automática de faltas.',
-    monthlyFee: '99.900 Kz',
+    name: 'Clínica',
+    selectLabel: 'Plano Clínica',
+    subtitle: 'A solução completa para clínicas em crescimento.',
+    monthlyFee: '119.900 Kz',
+    implementationFee: 'Taxa de Implementação: 100.000 Kz (pagamento único)',
     icon: PhoneCall,
-    popularLabel: 'Mais Popular',
+    popularLabel: '⭐ Mais Popular',
     isPopular: true,
     features: [
-      'Tudo do Starter',
-      'Multi-especialidades até 5',
-      'Follow-up pós-consulta',
-      'Gestão automática de faltas'
+      'Tudo do plano Starter, mais:',
+      'Até 5 Especialidades médicas',
+      'Follow-up pós-consulta (Pesquisa de Satisfação/NPS)',
+      'Gestão automática de "No-Shows" (Faltas)',
+      'Suporte prioritário por WhatsApp'
     ],
-    ctaText: 'Agendar Demonstração Gratuita'
+    ctaText: 'Escolher Plano Clínica'
   },
   {
     id: 'enterprise',
-    name: 'Plano ENTERPRISE',
-    subtitle: 'Redes de clínicas. Especialidades ilimitadas, Campanhas de marketing, API dedicada.',
-    monthlyFee: '189.900 Kz',
+    name: 'Enterprise',
+    selectLabel: 'Plano Enterprise',
+    subtitle: 'Para redes de clínicas e hospitais com necessidades avançadas.',
+    monthlyFee: '249.900 Kz',
+    implementationFee: 'Taxa de Implementação: 250.000 Kz (pagamento único, sob orçamento)',
     icon: Building2,
     isPopular: false,
     features: [
       'Especialidades ilimitadas',
-      'Campanhas de marketing',
-      'API dedicada',
-      'Gestor de Conta dedicado'
+      'Campanhas de reativação de pacientes (Voz/SMS)',
+      'API dedicada para integração com software de gestão',
+      'Gestor de Conta Dedicado e SLA de suporte'
     ],
-    ctaText: 'Falar com Consultor'
+    ctaText: 'Falar com Vendas'
   }
 ];
 
@@ -106,12 +116,12 @@ const Plans: React.FC<PlansProps> = ({
             Investimento transparente para a sua clínica
           </h2>
           <p className="mt-3 text-base sm:text-lg text-slate-600 leading-relaxed">
-            Receba atendimento telefónico 24/7 por uma fração do custo de uma recepção adicional.
+            Receba atendimento telefónico 24/7 com a Joana em Angola e elimine chamadas perdidas na recepção.
           </p>
         </div>
 
-        {/* 3-Column Pricing Grid (Middle highlighted with #0056b3 + "Mais Popular") */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-7 items-stretch max-w-6xl mx-auto">
+        {/* 3-Column Pricing Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-7 items-stretch max-w-6xl mx-auto pt-3">
           {plansData.map((plan, idx) => {
             const IconComp = plan.icon;
             const isPopular = Boolean(plan.isPopular);
@@ -124,97 +134,103 @@ const Plans: React.FC<PlansProps> = ({
                 transition={{ duration: 0.45, delay: idx * 0.1 }}
                 className={`relative rounded-2xl p-7 sm:p-8 flex flex-col justify-between transition-all duration-200 ${
                   isPopular
-                    ? 'bg-[#0056b3] text-white border-2 border-[#004494] shadow-2xl lg:-translate-y-2'
-                    : 'bg-white text-slate-900 border border-slate-200 shadow-sm'
+                    ? 'bg-gradient-to-b from-[#eff6ff] via-white to-white text-slate-900 border-[2.5px] border-[#0056b3] shadow-2xl shadow-[#0056b3]/15 lg:-translate-y-2'
+                    : 'bg-white text-slate-900 border border-slate-200 shadow-sm hover:shadow-md'
                 }`}
               >
+                {/* Selo no topo do card em destaque */}
+                {plan.popularLabel && (
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                    <span className="inline-flex items-center px-4 py-1 rounded-full text-xs font-bold tracking-wide bg-[#0056b3] text-white shadow-md whitespace-nowrap">
+                      {plan.popularLabel}
+                    </span>
+                  </div>
+                )}
+
                 <div>
-                  <div className="flex items-center justify-between mb-5">
+                  {/* Icon & Title */}
+                  <div className="flex items-center gap-3.5 mb-4 mt-1">
                     <div
-                      className={`w-11 h-11 rounded-xl flex items-center justify-center ${
+                      className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
                         isPopular
-                          ? 'bg-white/15 text-white border border-white/20'
+                          ? 'bg-[#0056b3] text-white shadow-sm'
                           : 'bg-[#eff6ff] text-[#0056b3] border border-[#bfdbfe]'
                       }`}
                     >
                       <IconComp className="w-5 h-5" />
                     </div>
-                    {plan.popularLabel && (
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#28a745] text-white shadow-sm">
-                        {plan.popularLabel}
-                      </span>
-                    )}
+                    <h3 className="font-display text-2xl font-bold tracking-tight text-slate-900">
+                      {plan.name}
+                    </h3>
                   </div>
 
-                  <h3
-                    className={`font-display text-xl sm:text-2xl font-bold tracking-tight mb-2 ${
-                      isPopular ? 'text-white' : 'text-slate-900'
-                    }`}
-                  >
-                    {plan.name}
-                  </h3>
-
-                  <p
-                    className={`text-sm leading-relaxed mb-6 min-h-[44px] ${
-                      isPopular ? 'text-blue-100' : 'text-slate-600'
-                    }`}
-                  >
+                  {/* Short Description */}
+                  <p className="text-sm text-slate-600 leading-relaxed mb-6 min-h-[42px]">
                     {plan.subtitle}
                   </p>
 
-                  {/* Price Block */}
+                  {/* Monthly Price & Implementation Fee Block */}
                   <div
                     className={`py-5 border-y mb-6 ${
-                      isPopular ? 'border-white/20' : 'border-slate-100'
+                      isPopular ? 'border-[#bfdbfe]' : 'border-slate-100'
                     }`}
                   >
-                    <div className="flex items-baseline gap-1.5">
-                      <span
-                        className={`font-display text-3xl sm:text-4xl font-extrabold tracking-tight tabular-nums ${
-                          isPopular ? 'text-white' : 'text-slate-900'
-                        }`}
-                      >
+                    <div className="flex items-baseline gap-1">
+                      <span className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight tabular-nums text-slate-900">
                         {plan.monthlyFee}
                       </span>
-                      <span
-                        className={`text-sm font-medium ${
-                          isPopular ? 'text-blue-100' : 'text-slate-500'
-                        }`}
-                      >
+                      <span className="text-sm font-semibold text-slate-500">
                         /mês
                       </span>
                     </div>
+                    <p
+                      className={`mt-2 text-xs font-medium tabular-nums ${
+                        isPopular ? 'text-[#0056b3]' : 'text-slate-500'
+                      }`}
+                    >
+                      {plan.implementationFee}
+                    </p>
                   </div>
 
                   {/* Included Features */}
                   <ul className="space-y-3.5 mb-8">
-                    {plan.features.map((feature, fIdx) => (
-                      <li key={fIdx} className="flex items-start gap-3">
-                        <Check
-                          className={`w-4 h-4 mt-1 shrink-0 ${
-                            isPopular ? 'text-emerald-300' : 'text-[#28a745]'
-                          }`}
-                        />
-                        <span
-                          className={`text-sm leading-snug ${
-                            isPopular ? 'text-white/95' : 'text-slate-700'
-                          }`}
-                        >
-                          {feature}
-                        </span>
-                      </li>
-                    ))}
+                    {plan.features.map((feature, fIdx) => {
+                      const isContinuationHeading =
+                        isPopular && fIdx === 0 && feature.startsWith('Tudo do plano');
+                      return (
+                        <li key={fIdx} className="flex items-start gap-3">
+                          <span
+                            className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
+                              isPopular
+                                ? 'bg-[#ecfdf5] text-[#28a745]'
+                                : 'bg-[#eff6ff] text-[#0056b3]'
+                            }`}
+                          >
+                            <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                          </span>
+                          <span
+                            className={`text-sm leading-snug ${
+                              isContinuationHeading
+                                ? 'font-semibold text-slate-900'
+                                : 'text-slate-700'
+                            }`}
+                          >
+                            {feature}
+                          </span>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
 
                 {/* Action Button */}
                 <button
                   type="button"
-                  onClick={() => handlePlanSelect(plan.name)}
-                  className={`w-full py-3.5 px-5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-colors duration-150 cursor-pointer ${
+                  onClick={() => handlePlanSelect(plan.selectLabel)}
+                  className={`w-full py-3.5 px-5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all duration-150 cursor-pointer ${
                     isPopular
-                      ? 'bg-[#28a745] hover:bg-[#218838] text-white shadow-md'
-                      : 'bg-[#0056b3] hover:bg-[#004494] text-white'
+                      ? 'bg-[#28a745] hover:bg-[#218838] text-white shadow-lg shadow-[#28a745]/25'
+                      : 'bg-[#0056b3] hover:bg-[#004494] text-white shadow-sm'
                   }`}
                 >
                   <span>{plan.ctaText}</span>
@@ -225,9 +241,9 @@ const Plans: React.FC<PlansProps> = ({
           })}
         </div>
 
-        {/* Transparency Note */}
-        <p className="mt-8 text-center text-sm text-slate-600 italic tabular-nums">
-          *Taxa única de configuração, mapeamento de especialidades e onboarding: 75.000 Kz*
+        {/* Nota de Transparência Obrigatória */}
+        <p className="mt-9 text-center text-xs sm:text-sm text-slate-500 max-w-3xl mx-auto leading-relaxed italic">
+          *A Taxa de Implementação é um investimento único que cobre o mapeamento personalizado das suas especialidades, configuração de horários, integração de calendários e a sessão de treino da sua equipa. Garantimos um arranque a 100% desde o primeiro dia.*
         </p>
 
         {/* Payment & Direct WhatsApp Clarification */}

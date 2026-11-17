@@ -25,7 +25,7 @@ const App: React.FC = () => {
     whatsappDemoMsg
   )}`;
   const [modal, setModal] = useState<'privacy' | 'terms' | null>(null);
-  const [selectedPlan, setSelectedPlan] = useState<string>('Plano CLÍNICA');
+  const [selectedPlan, setSelectedPlan] = useState<string>('Plano Clínica');
 
   const handleOpenDemo = () => {
     const el = document.getElementById('diagnostico');
