@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import {
   PhoneCall,
   Play,
@@ -41,12 +41,31 @@ const SAMPLE_LINES = [
   }
 ];
 
+const RESTING_3D_TILT = { x: 4, y: -8 };
+
 const Hero: React.FC<HeroProps> = () => {
   const [isPlayingSample, setIsPlayingSample] = useState(false);
   const [activeLineIndex, setActiveLineIndex] = useState(0);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [durationSeconds, setDurationSeconds] = useState(15);
+  const [tilt, setTilt] = useState(RESTING_3D_TILT);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const shouldReduceMotion = useReducedMotion();
+
+  const handleCardMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (shouldReduceMotion) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const nx = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    const ny = ((e.clientY - rect.top) / rect.height) * 2 - 1;
+    setTilt({
+      x: Number((-ny * 7.5).toFixed(2)),
+      y: Number((nx * 9.5 - 2).toFixed(2))
+    });
+  };
+
+  const handleCardMouseLeave = () => {
+    setTilt(RESTING_3D_TILT);
+  };
 
   const scrollToDiagnostic = () => {
     const el = document.getElementById('diagnostico');
@@ -217,190 +236,217 @@ const Hero: React.FC<HeroProps> = () => {
             </div>
           </motion.div>
 
-          {/* Right Column: Futuristic Metallic Robotic Voice Console */}
+          {/* Right Column: 3D Volumetric Futuristic Metallic Robotic Voice Console */}
           <motion.div
-            className="lg:col-span-5 min-w-0 flex flex-col"
+            className="lg:col-span-5 min-w-0 flex flex-col [perspective:1400px] py-2 lg:pr-3"
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            onMouseMove={handleCardMouseMove}
+            onMouseLeave={handleCardMouseLeave}
           >
-            {/* Outer Machined Chrome / Anodized Titanium Bezel */}
-            <div className="h-full rounded-3xl p-[2px] bg-gradient-to-br from-slate-200 via-slate-500 to-slate-800 shadow-[0_24px_60px_-14px_rgba(0,86,179,0.42),0_0_28px_rgba(34,211,238,0.16)]">
-              <div className="relative h-full rounded-[22px] bg-gradient-to-b from-[#1e293b] via-[#0b1322] to-[#050912] text-white p-5 sm:p-6 flex flex-col justify-between overflow-hidden border-t border-white/25">
-                {/* Brushed Metal Specular Sheen & Subtle Circuit Grid */}
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-0 bg-[linear-gradient(125deg,rgba(255,255,255,0.08)_0%,transparent_38%,rgba(56,189,248,0.05)_65%,transparent_100%)]"
-                />
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute -top-20 -right-20 w-56 h-56 rounded-full bg-cyan-400/10 blur-3xl"
-                />
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute -bottom-24 -left-16 w-56 h-56 rounded-full bg-[#28a745]/10 blur-3xl"
-                />
+            {/* Interactive 3D Preserved Chassis */}
+            <motion.div
+              className="relative h-full [transform-style:preserve-3d]"
+              animate={{
+                rotateX: shouldReduceMotion ? 3 : tilt.x,
+                rotateY: shouldReduceMotion ? -6 : tilt.y
+              }}
+              transition={{ type: 'spring', stiffness: 210, damping: 24, mass: 0.9 }}
+            >
+              {/* 3D Floating Floor Cast Shadow */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-2 rounded-3xl bg-slate-950/60 blur-2xl [transform:translateZ(-36px)_translateX(18px)_translateY(26px)]"
+              />
 
-                {/* 4 Precision Machined Metallic Corner Rivets */}
-                <span aria-hidden="true" className="pointer-events-none absolute top-3 left-3 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-slate-100 via-slate-400 to-slate-700 ring-1 ring-slate-950/90 shadow-inner" />
-                <span aria-hidden="true" className="pointer-events-none absolute top-3 right-3 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-slate-100 via-slate-400 to-slate-700 ring-1 ring-slate-950/90 shadow-inner" />
-                <span aria-hidden="true" className="pointer-events-none absolute bottom-3 left-3 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-slate-100 via-slate-400 to-slate-700 ring-1 ring-slate-950/90 shadow-inner" />
-                <span aria-hidden="true" className="pointer-events-none absolute bottom-3 right-3 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-slate-100 via-slate-400 to-slate-700 ring-1 ring-slate-950/90 shadow-inner" />
+              {/* 3D Extruded Back Titanium Slab (Deep Hardware Thickness) */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 rounded-3xl bg-gradient-to-br from-slate-500 via-slate-700 to-slate-950 border-r-2 border-b-2 border-slate-950 shadow-2xl [transform:translateZ(-16px)_translateX(11px)_translateY(12px)]"
+              />
 
-                <div className="relative z-10">
-                  {/* Robotic Core Top Header */}
-                  <div className="flex items-center justify-between gap-3 pb-4 border-b border-slate-600/45">
-                    <div className="flex items-center gap-3.5 min-w-0">
-                      {/* Animated Robotic Acoustic Core Medallion */}
-                      <div className="relative w-12 h-12 rounded-2xl p-[1.5px] bg-gradient-to-br from-slate-100 via-cyan-400/80 to-slate-700 shadow-[0_0_20px_rgba(34,211,238,0.28)] shrink-0">
-                        <div className="w-full h-full rounded-[14px] bg-gradient-to-b from-slate-800 to-slate-950 flex items-center justify-center relative overflow-hidden">
-                          <motion.div
-                            aria-hidden="true"
-                            className="absolute inset-1 rounded-xl border border-dashed border-cyan-400/45"
-                            animate={isPlayingSample ? { rotate: 360 } : { rotate: 0 }}
-                            transition={
-                              isPlayingSample
-                                ? { duration: 8, repeat: Infinity, ease: 'linear' }
-                                : { duration: 0.4 }
-                            }
-                          />
-                          <Bot className={`w-5 h-5 relative z-10 transition-colors duration-200 ${isPlayingSample ? 'text-cyan-300' : 'text-blue-200'}`} />
+              {/* 3D Mid-Step Milled Steel Bevel */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 rounded-3xl bg-gradient-to-br from-slate-300 via-slate-500 to-slate-800 border-r border-b border-slate-900 [transform:translateZ(-8px)_translateX(5.5px)_translateY(6px)]"
+              />
+
+              {/* Front Machined Chrome / Anodized Titanium Bezel (z=0) */}
+              <div className="relative h-full rounded-3xl p-[2.5px] bg-gradient-to-br from-white via-slate-400 to-slate-800 border-t border-l border-white/80 shadow-[0_24px_50px_-14px_rgba(0,86,179,0.45),0_0_28px_rgba(34,211,238,0.18)] [transform-style:preserve-3d]">
+                <div className="relative h-full rounded-[21.5px] bg-gradient-to-b from-[#1e293b] via-[#0b1322] to-[#050912] text-white p-5 sm:p-6 flex flex-col justify-between [transform-style:preserve-3d]">
+                  {/* Clipped Metallic Sheen & Ambient Glow Background Layer (kept separate so preserve-3d stays active) */}
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 rounded-[21.5px] overflow-hidden"
+                  >
+                    <div className="absolute inset-0 bg-[linear-gradient(125deg,rgba(255,255,255,0.1)_0%,transparent_36%,rgba(56,189,248,0.06)_65%,transparent_100%)]" />
+                    <div className="absolute -top-20 -right-20 w-56 h-56 rounded-full bg-cyan-400/15 blur-3xl" />
+                    <div className="absolute -bottom-24 -left-16 w-56 h-56 rounded-full bg-[#28a745]/15 blur-3xl" />
+                    <div className="absolute inset-0 border-t border-white/25 rounded-[21.5px]" />
+                  </div>
+
+                  {/* 4 Precision Machined Metallic Corner Rivets (Raised on Z-axis) */}
+                  <span aria-hidden="true" className="pointer-events-none absolute top-3 left-3 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-white via-slate-400 to-slate-700 ring-1 ring-slate-950/90 shadow-md [transform:translateZ(10px)]" />
+                  <span aria-hidden="true" className="pointer-events-none absolute top-3 right-3 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-white via-slate-400 to-slate-700 ring-1 ring-slate-950/90 shadow-md [transform:translateZ(10px)]" />
+                  <span aria-hidden="true" className="pointer-events-none absolute bottom-3 left-3 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-white via-slate-400 to-slate-700 ring-1 ring-slate-950/90 shadow-md [transform:translateZ(10px)]" />
+                  <span aria-hidden="true" className="pointer-events-none absolute bottom-3 right-3 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-white via-slate-400 to-slate-700 ring-1 ring-slate-950/90 shadow-md [transform:translateZ(10px)]" />
+
+                  <div className="relative z-10 [transform-style:preserve-3d]">
+                    {/* Robotic Core Top Header (Elevated in 3D) */}
+                    <div className="flex items-center justify-between gap-3 pb-4 border-b border-slate-600/45 [transform:translateZ(20px)]">
+                      <div className="flex items-center gap-3.5 min-w-0">
+                        {/* Animated Robotic Acoustic Core Medallion (Popped Higher) */}
+                        <div className="relative w-12 h-12 rounded-2xl p-[1.5px] bg-gradient-to-br from-white via-cyan-300/85 to-slate-700 shadow-[0_10px_22px_rgba(0,0,0,0.6),0_0_20px_rgba(34,211,238,0.3)] shrink-0 [transform:translateZ(10px)]">
+                          <div className="w-full h-full rounded-[14px] bg-gradient-to-b from-slate-800 to-slate-950 flex items-center justify-center relative overflow-hidden">
+                            <motion.div
+                              aria-hidden="true"
+                              className="absolute inset-1 rounded-xl border border-dashed border-cyan-400/50"
+                              animate={isPlayingSample ? { rotate: 360 } : { rotate: 0 }}
+                              transition={
+                                isPlayingSample
+                                  ? { duration: 8, repeat: Infinity, ease: 'linear' }
+                                  : { duration: 0.4 }
+                              }
+                            />
+                            <Bot className={`w-5 h-5 relative z-10 transition-colors duration-200 ${isPlayingSample ? 'text-cyan-300' : 'text-blue-200'}`} />
+                          </div>
+                        </div>
+
+                        <div className="min-w-0 drop-shadow-[0_4px_8px_rgba(0,0,0,0.65)]">
+                          <p className="font-display font-bold text-sm sm:text-base text-white tracking-tight leading-tight truncate">
+                            Joana · Recepcionista de Voz
+                          </p>
+                          <p className="text-xs text-slate-300 mt-0.5 truncate">
+                            {isPlayingSample ? 'A reproduzir amostra de voz (15s)' : 'Amostra de atendimento telefónico'}
+                          </p>
                         </div>
                       </div>
 
-                      <div className="min-w-0">
-                        <p className="font-display font-bold text-sm sm:text-base text-white tracking-tight leading-tight truncate">
-                          Joana · Recepcionista de Voz
-                        </p>
-                        <p className="text-xs text-slate-300 mt-0.5 truncate">
-                          {isPlayingSample ? 'A reproduzir amostra de voz (15s)' : 'Amostra de atendimento telefónico'}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Machined Steel Timer Plate */}
-                    <div className="px-2.5 py-1.5 rounded-lg bg-gradient-to-b from-slate-950 to-slate-900 border border-slate-500/50 shadow-[inset_0_1px_4px_rgba(0,0,0,0.85)] shrink-0">
-                      <span className="font-mono text-xs tabular-nums text-emerald-400 font-semibold tracking-wider">
-                        {formatTimer(elapsedSeconds)} / {formatTimer(durationSeconds)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Recessed Metallic Acoustic Chamber + HTML5 <audio> Player */}
-                  <div className="my-5 rounded-2xl p-[1px] bg-gradient-to-b from-slate-500/50 via-slate-700/40 to-slate-800/80 shadow-lg">
-                    <div className="relative rounded-[15px] bg-gradient-to-b from-[#040812] via-[#091224] to-[#0c182d] px-4 py-4 space-y-4 overflow-hidden shadow-[inset_0_2px_12px_rgba(0,0,0,0.85)]">
-                      {/* Precision Acoustic Grid */}
-                      <div
-                        aria-hidden="true"
-                        className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(56,189,248,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(56,189,248,0.06)_1px,transparent_1px)] bg-[size:18px_18px]"
-                      />
-
-                      <div className="relative z-10 flex items-center justify-between text-[11px]">
-                        <span className="font-medium text-cyan-200/90 tracking-wide">
-                          Áudio Neural da Joana (PT-AO)
+                      {/* Machined Steel Timer Plate */}
+                      <div className="px-2.5 py-1.5 rounded-lg bg-gradient-to-b from-slate-950 to-slate-900 border border-slate-500/60 shadow-[0_8px_16px_rgba(0,0,0,0.55),inset_0_1px_4px_rgba(0,0,0,0.85)] shrink-0">
+                        <span className="font-mono text-xs tabular-nums text-emerald-400 font-semibold tracking-wider">
+                          {formatTimer(elapsedSeconds)} / {formatTimer(durationSeconds)}
                         </span>
-                        <button
-                          type="button"
-                          onClick={handleToggleVoiceSample}
-                          className="px-2.5 py-1 rounded-md bg-slate-800/90 hover:bg-slate-700 border border-slate-500/50 text-emerald-300 hover:text-emerald-200 font-semibold transition-colors cursor-pointer"
-                        >
-                          {isPlayingSample ? 'Pausar' : 'Reproduzir'}
-                        </button>
-                      </div>
-
-                      {/* Glowing Metallic Equalizer Bars */}
-                      <div
-                        className="relative z-10 h-14 flex items-center justify-between gap-1 px-1"
-                        aria-label="Ondas sonoras da voz da Joana"
-                      >
-                        {WAVE_BAR_HEIGHTS.map((heightClass, i) => (
-                          <motion.div
-                            key={i}
-                            className={`flex-1 rounded-full origin-center ${heightClass} ${
-                              isPlayingSample
-                                ? i % 3 === 0
-                                  ? 'bg-gradient-to-t from-emerald-600 via-[#28a745] to-emerald-300 shadow-[0_0_8px_rgba(52,211,153,0.55)]'
-                                  : 'bg-gradient-to-t from-[#0056b3] via-cyan-400 to-sky-200 shadow-[0_0_8px_rgba(56,189,248,0.5)]'
-                                : 'bg-gradient-to-t from-slate-700 via-cyan-500/45 to-blue-300/60'
-                            }`}
-                            animate={
-                              isPlayingSample
-                                ? {
-                                    scaleY: [0.35, 1.08, 0.45, 0.92, 0.35],
-                                    opacity: [0.75, 1, 0.8, 1, 0.75]
-                                  }
-                                : {
-                                    scaleY: [0.65, 0.88, 0.65],
-                                    opacity: 0.6
-                                  }
-                            }
-                            transition={{
-                              duration: isPlayingSample ? 0.8 + (i % 5) * 0.14 : 2.6,
-                              repeat: Infinity,
-                              delay: i * 0.05,
-                              ease: 'easeInOut'
-                            }}
-                          />
-                        ))}
-                      </div>
-
-                      {/* Recessed Brushed-Alloy Deck for HTML5 Audio */}
-                      <div className="relative z-10 rounded-xl bg-gradient-to-b from-slate-800/80 to-slate-950/90 border border-slate-500/45 p-1.5 shadow-inner">
-                        <audio
-                          ref={audioRef}
-                          controls
-                          preload="metadata"
-                          src="/amostra_joana.mp3"
-                          aria-label="Ouvir amostra da Joana (15s)"
-                          className="w-full h-9 rounded-lg"
-                        >
-                          O seu navegador não suporta a reprodução de áudio HTML5.
-                        </audio>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Brushed-Metal Robotic Transcript Plates */}
-                  <div className="space-y-2.5 text-xs">
-                    {SAMPLE_LINES.map((line, idx) => {
-                      const isActive = isPlayingSample && activeLineIndex === idx;
-                      return (
+                    {/* 3D Floating Metallic Acoustic Chamber + HTML5 <audio> Player */}
+                    <div className="my-5 rounded-2xl p-[1.5px] bg-gradient-to-b from-slate-300/65 via-slate-600/50 to-slate-900 shadow-[0_18px_30px_-8px_rgba(0,0,0,0.82)] [transform:translateZ(28px)]">
+                      <div className="relative rounded-[14.5px] bg-gradient-to-b from-[#040812] via-[#091224] to-[#0c182d] px-4 py-4 space-y-4 overflow-hidden shadow-[inset_0_3px_14px_rgba(0,0,0,0.9)]">
+                        {/* Precision Acoustic Grid */}
                         <div
-                          key={idx}
-                          className={`p-3 rounded-xl border border-l-2 transition-all duration-200 shadow-sm ${
-                            isActive
-                              ? 'bg-gradient-to-r from-slate-800/95 via-slate-800/85 to-emerald-950/60 border-slate-500/60 border-l-[#28a745] text-white shadow-[0_0_18px_rgba(40,167,69,0.22)]'
-                              : line.role === 'joana'
-                                ? 'bg-gradient-to-r from-slate-800/75 to-slate-900/85 border-slate-600/45 border-l-cyan-400/70 text-slate-200'
-                                : 'bg-slate-900/85 border-slate-700/55 border-l-blue-400/60 text-slate-300'
-                          }`}
+                          aria-hidden="true"
+                          className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(56,189,248,0.07)_1px,transparent_1px),linear-gradient(to_bottom,rgba(56,189,248,0.07)_1px,transparent_1px)] bg-[size:18px_18px]"
+                        />
+
+                        <div className="relative z-10 flex items-center justify-between text-[11px]">
+                          <span className="font-medium text-cyan-200/95 tracking-wide">
+                            Áudio Neural da Joana (PT-AO)
+                          </span>
+                          <button
+                            type="button"
+                            onClick={handleToggleVoiceSample}
+                            className="px-2.5 py-1 rounded-md bg-slate-800/95 hover:bg-slate-700 border border-slate-500/60 text-emerald-300 hover:text-emerald-200 font-semibold transition-colors shadow-sm cursor-pointer"
+                          >
+                            {isPlayingSample ? 'Pausar' : 'Reproduzir'}
+                          </button>
+                        </div>
+
+                        {/* Glowing Metallic Equalizer Bars */}
+                        <div
+                          className="relative z-10 h-14 flex items-center justify-between gap-1 px-1"
+                          aria-label="Ondas sonoras da voz da Joana"
                         >
-                          <span
-                            className={`block text-[11px] font-semibold tracking-wide mb-1 ${
-                              line.role === 'joana' ? 'text-cyan-300' : 'text-blue-300'
+                          {WAVE_BAR_HEIGHTS.map((heightClass, i) => (
+                            <motion.div
+                              key={i}
+                              className={`flex-1 rounded-full origin-center ${heightClass} ${
+                                isPlayingSample
+                                  ? i % 3 === 0
+                                    ? 'bg-gradient-to-t from-emerald-600 via-[#28a745] to-emerald-300 shadow-[0_0_8px_rgba(52,211,153,0.55)]'
+                                    : 'bg-gradient-to-t from-[#0056b3] via-cyan-400 to-sky-200 shadow-[0_0_8px_rgba(56,189,248,0.5)]'
+                                  : 'bg-gradient-to-t from-slate-700 via-cyan-500/45 to-blue-300/60'
+                              }`}
+                              animate={
+                                isPlayingSample
+                                  ? {
+                                      scaleY: [0.35, 1.08, 0.45, 0.92, 0.35],
+                                      opacity: [0.75, 1, 0.8, 1, 0.75]
+                                    }
+                                  : {
+                                      scaleY: [0.65, 0.88, 0.65],
+                                      opacity: 0.6
+                                    }
+                              }
+                              transition={{
+                                duration: isPlayingSample ? 0.8 + (i % 5) * 0.14 : 2.6,
+                                repeat: Infinity,
+                                delay: i * 0.05,
+                                ease: 'easeInOut'
+                              }}
+                            />
+                          ))}
+                        </div>
+
+                        {/* Recessed Brushed-Alloy Deck for HTML5 Audio */}
+                        <div className="relative z-10 rounded-xl bg-gradient-to-b from-slate-800/85 to-slate-950/95 border border-slate-500/50 p-1.5 shadow-inner">
+                          <audio
+                            ref={audioRef}
+                            controls
+                            preload="metadata"
+                            src="/amostra_joana.mp3"
+                            aria-label="Ouvir amostra da Joana (15s)"
+                            className="w-full h-9 rounded-lg"
+                          >
+                            O seu navegador não suporta a reprodução de áudio HTML5.
+                          </audio>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 3D Layered Brushed-Metal Transcript Plates */}
+                    <div className="space-y-2.5 text-xs [transform-style:preserve-3d]">
+                      {SAMPLE_LINES.map((line, idx) => {
+                        const isActive = isPlayingSample && activeLineIndex === idx;
+                        return (
+                          <div
+                            key={idx}
+                            className={`p-3 rounded-xl border border-l-2 transition-all duration-200 ${
+                              isActive
+                                ? 'bg-gradient-to-r from-slate-800/95 via-slate-800/85 to-emerald-950/60 border-slate-400/70 border-l-[#28a745] text-white shadow-[0_14px_24px_-6px_rgba(0,0,0,0.75),0_0_20px_rgba(40,167,69,0.28)] [transform:translateZ(26px)]'
+                                : line.role === 'joana'
+                                  ? 'bg-gradient-to-r from-slate-800/80 to-slate-900/90 border-slate-600/50 border-l-cyan-400/75 text-slate-200 shadow-[0_10px_18px_-6px_rgba(0,0,0,0.65)] [transform:translateZ(14px)]'
+                                  : 'bg-slate-900/90 border-slate-700/60 border-l-blue-400/65 text-slate-300 shadow-[0_10px_18px_-6px_rgba(0,0,0,0.65)] [transform:translateZ(14px)]'
                             }`}
                           >
-                            {line.speaker}
-                          </span>
-                          <p className="leading-relaxed">"{line.text}"</p>
-                        </div>
-                      );
-                    })}
+                            <span
+                              className={`block text-[11px] font-semibold tracking-wide mb-1 ${
+                                line.role === 'joana' ? 'text-cyan-300' : 'text-blue-300'
+                              }`}
+                            >
+                              {line.speaker}
+                            </span>
+                            <p className="leading-relaxed">"{line.text}"</p>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
 
-                {/* Brushed Titanium Confirmation Plate */}
-                <div className="relative z-10 mt-5 rounded-xl px-4 py-3 bg-gradient-to-r from-slate-800/90 via-slate-900/95 to-slate-800/90 border border-slate-500/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.14)] flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2 text-emerald-400 font-semibold">
-                    <CheckCircle2 className="w-4 h-4 shrink-0 drop-shadow-[0_0_6px_rgba(52,211,153,0.45)]" />
-                    <span>Marcado no Google Calendar</span>
+                  {/* 3D Floating Brushed Titanium Confirmation Plate */}
+                  <div className="relative z-10 mt-5 rounded-xl px-4 py-3 bg-gradient-to-r from-slate-800/95 via-slate-900/95 to-slate-800/95 border border-slate-400/50 shadow-[0_12px_22px_-6px_rgba(0,0,0,0.75),inset_0_1px_0_rgba(255,255,255,0.2)] flex items-center justify-between text-xs [transform:translateZ(20px)]">
+                    <div className="flex items-center gap-2 text-emerald-400 font-semibold">
+                      <CheckCircle2 className="w-4 h-4 shrink-0 drop-shadow-[0_0_6px_rgba(52,211,153,0.45)]" />
+                      <span>Marcado no Google Calendar</span>
+                    </div>
+                    <span className="font-mono tabular-nums text-slate-200 bg-slate-950/85 px-2 py-0.5 rounded border border-slate-500/50 shadow-inner">
+                      Amanhã · 09:30
+                    </span>
                   </div>
-                  <span className="font-mono tabular-nums text-slate-200 bg-slate-950/80 px-2 py-0.5 rounded border border-slate-600/50">
-                    Amanhã · 09:30
-                  </span>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
         </div>
       </div>
