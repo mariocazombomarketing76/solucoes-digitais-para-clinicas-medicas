@@ -10,6 +10,7 @@ import {
   Clock,
   Mic
 } from 'lucide-react';
+import heroReceptionistBg from '../src/assets/images/hero_receptionist_left_1795526882438.jpg';
 
 interface HeroProps {
   contactLink: string;
@@ -122,39 +123,53 @@ const Hero: React.FC<HeroProps> = () => {
   };
 
   return (
-    <section className="bg-white border-b border-slate-200/80 overflow-hidden">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-10 md:pt-16 pb-14 md:pb-20">
-        <div className="grid grid-cols-1 lg:grid-cols-12 items-stretch gap-10 lg:gap-12">
+    <section className="relative bg-slate-50 border-b border-slate-200/80 overflow-hidden">
+      {/* Blurred Clinic Receptionist Background Layer */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none select-none overflow-hidden"
+      >
+        <img
+          src={heroReceptionistBg}
+          alt=""
+          referrerPolicy="no-referrer"
+          className="w-full h-full object-cover object-[25%_25%] scale-105 blur-[2.5px] opacity-90"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-white/62 via-white/50 to-white/25" />
+      </div>
+
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 pt-10 md:pt-16 pb-14 md:pb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 items-stretch gap-8 xl:gap-12">
           {/* Left Column: Value Proposition, Audio CTA & Primary Green CTA */}
           <motion.div
-            className="lg:col-span-7 flex flex-col justify-center text-center lg:text-left"
+            className="lg:col-span-7 min-w-0 flex flex-col justify-center text-center lg:text-left"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
           >
             {/* Clean Unboxed Kicker */}
-            <div className="flex items-center justify-center lg:justify-start gap-2 text-xs sm:text-sm font-semibold text-[#0056b3] tracking-wide mb-4">
+            <div className="flex items-center justify-center lg:justify-start gap-2 text-xs sm:text-sm font-bold text-[#004494] tracking-wide mb-4 [text-shadow:0_1px_6px_rgba(255,255,255,0.95)]">
               <span>Recepcionista Virtual de Voz com IA</span>
-              <span aria-hidden="true" className="text-slate-300">·</span>
-              <span className="text-[#28a745]">Sotaque Natural de Angola</span>
+              <span aria-hidden="true" className="text-slate-500">·</span>
+              <span className="text-[#196f2c]">Sotaque Natural de Angola</span>
             </div>
 
             {/* H1 Headline */}
-            <h1 className="font-display text-[2.25rem] sm:text-5xl lg:text-[3.35rem] font-extrabold text-slate-900 leading-[1.1] tracking-tight mb-5 text-balance">
+            <h1 className="font-display text-[2.25rem] sm:text-5xl lg:text-[3.35rem] font-extrabold text-slate-950 leading-[1.1] tracking-tight mb-5 text-balance [text-shadow:0_1px_12px_rgba(255,255,255,0.95)]">
               A sua Clínica nunca mais perde uma chamada.
             </h1>
 
             {/* Subtitle */}
-            <p className="text-base sm:text-lg text-slate-600 leading-relaxed mb-8 max-w-2xl mx-auto lg:mx-0">
+            <p className="text-base sm:text-lg text-slate-900 font-medium leading-relaxed mb-8 max-w-2xl mx-auto lg:mx-0 [text-shadow:0_1px_10px_rgba(255,255,255,0.95)]">
               A Joana, a nossa recepcionista virtual de Voz com IA, atende os seus pacientes 24/7, marca consultas diretamente no seu calendário e fala com o sotaque e a simpatia de Angola.
             </p>
 
             {/* Primary Green CTA + Elegant Audio Sample Button */}
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 mb-8">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap items-center justify-center lg:justify-start gap-3 mb-8">
               <button
                 type="button"
                 onClick={scrollToDiagnostic}
-                className="w-full sm:w-auto inline-flex items-center justify-center px-7 py-4 bg-[#28a745] hover:bg-[#218838] text-white text-base sm:text-lg font-bold rounded-xl shadow-md shadow-[#28a745]/20 transition-all duration-150 gap-2.5 whitespace-nowrap shrink-0 cursor-pointer"
+                className="w-full sm:w-auto max-w-full inline-flex items-center justify-center px-5 xl:px-6 py-3.5 bg-[#28a745] hover:bg-[#218838] text-white text-sm sm:text-base font-bold rounded-xl shadow-md shadow-[#28a745]/25 transition-all duration-150 gap-2 whitespace-nowrap cursor-pointer"
               >
                 <PhoneCall className="w-5 h-5 shrink-0" />
                 <span>Agendar Demonstração Gratuita</span>
@@ -164,10 +179,10 @@ const Hero: React.FC<HeroProps> = () => {
                 type="button"
                 onClick={handleToggleVoiceSample}
                 aria-pressed={isPlayingSample}
-                className={`w-full sm:w-auto inline-flex items-center justify-center px-5 py-4 rounded-xl text-sm sm:text-base font-semibold border transition-all duration-150 gap-2.5 whitespace-nowrap shrink-0 cursor-pointer ${
+                className={`w-full sm:w-auto max-w-full inline-flex items-center justify-center px-5 py-3.5 rounded-xl text-sm sm:text-base font-semibold border transition-all duration-150 gap-2 whitespace-nowrap cursor-pointer ${
                   isPlayingSample
                     ? 'bg-[#0056b3] text-white border-[#0056b3] shadow-md'
-                    : 'bg-[#f8fafc] text-[#0056b3] border-[#bfdbfe] hover:border-[#0056b3] hover:bg-[#eff6ff]'
+                    : 'bg-white/95 backdrop-blur-sm text-[#0056b3] border-[#bfdbfe] hover:border-[#0056b3] hover:bg-[#eff6ff] shadow-sm'
                 }`}
               >
                 {isPlayingSample ? (
@@ -185,17 +200,17 @@ const Hero: React.FC<HeroProps> = () => {
             </div>
 
             {/* Clean Typographic Proof Strip */}
-            <div className="pt-5 border-t border-slate-200/80 flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2.5 text-xs sm:text-sm text-slate-600 font-medium">
+            <div className="pt-5 border-t border-white/40 flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2.5 text-xs sm:text-sm text-white font-semibold [text-shadow:0_1px_6px_rgba(15,23,42,0.9),0_0_2px_rgba(15,23,42,0.85)]">
               <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-[#0056b3] shrink-0" />
+                <Clock className="w-4 h-4 text-blue-200 shrink-0 drop-shadow-[0_1px_3px_rgba(15,23,42,0.9)]" />
                 <span>Atendimento 24/7 por Voz</span>
               </div>
               <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-[#28a745] shrink-0" />
+                <Calendar className="w-4 h-4 text-emerald-300 shrink-0 drop-shadow-[0_1px_3px_rgba(15,23,42,0.9)]" />
                 <span>Sincronização Google Calendar</span>
               </div>
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-[#0056b3] shrink-0" />
+                <ShieldCheck className="w-4 h-4 text-blue-200 shrink-0 drop-shadow-[0_1px_3px_rgba(15,23,42,0.9)]" />
                 <span>Voz Neural PT-AO</span>
               </div>
             </div>
@@ -203,7 +218,7 @@ const Hero: React.FC<HeroProps> = () => {
 
           {/* Right Column: Live Voice Call Console & Real HTML5 Audio Player */}
           <motion.div
-            className="lg:col-span-5 flex flex-col"
+            className="lg:col-span-5 min-w-0 flex flex-col"
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
