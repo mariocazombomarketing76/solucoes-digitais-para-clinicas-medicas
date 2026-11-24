@@ -151,7 +151,7 @@ const Hero: React.FC<HeroProps> = () => {
             <div className="flex items-center justify-center lg:justify-start gap-2 text-xs sm:text-sm font-bold text-[#004494] tracking-wide mb-4 [text-shadow:0_1px_6px_rgba(255,255,255,0.95)]">
               <span>Recepcionista Virtual de Voz com IA</span>
               <span aria-hidden="true" className="text-slate-500">·</span>
-              <span className="text-[#196f2c]">Sotaque Natural de Angola</span>
+              <span className="text-[#196f2c]">Sotaque Natural em Português</span>
             </div>
 
             {/* H1 Headline */}
@@ -161,7 +161,7 @@ const Hero: React.FC<HeroProps> = () => {
 
             {/* Subtitle */}
             <p className="text-base sm:text-lg text-slate-900 font-medium leading-relaxed mb-8 max-w-2xl mx-auto lg:mx-0 [text-shadow:0_1px_10px_rgba(255,255,255,0.95)]">
-              A Joana, a nossa recepcionista virtual de Voz com IA, atende os seus pacientes 24/7, marca consultas diretamente no seu calendário e fala com o sotaque e a simpatia de Angola.
+              A Joana, a nossa recepcionista virtual de Voz com IA, atende os seus pacientes 24/7, marca consultas diretamente no seu calendário e fala em português com a simpatia de Angola.
             </p>
 
             {/* Primary Green CTA + Elegant Audio Sample Button */}
