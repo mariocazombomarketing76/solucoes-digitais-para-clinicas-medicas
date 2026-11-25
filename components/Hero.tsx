@@ -5,7 +5,6 @@ import {
   Play,
   Pause,
   Calendar,
-  CheckCircle2,
   ShieldCheck,
   Clock,
   Bot
@@ -27,17 +26,17 @@ const SAMPLE_LINES = [
   {
     speaker: 'Joana (IA de Voz)',
     role: 'joana',
-    text: 'Boa tarde, ligou para a Clínica em Luanda. Fala a Joana. Em que especialidade deseja marcar a sua consulta?'
+    text: 'Boa tarde, ligou para a Clínica Saúde e Vida. Fala a Joana de Sousa. Em que especialidade deseja marcar a sua consulta?'
   },
   {
     speaker: 'Paciente',
     role: 'patient',
-    text: 'Boa tarde Joana, queria marcar consulta de Cardiologia para amanhã de manhã.'
+    text: 'Boa tarde, Joana. Queria marcar uma consulta de Cardiologia para amanhã de manhã.'
   },
   {
     speaker: 'Joana (IA de Voz)',
     role: 'joana',
-    text: 'Com certeza! Tenho disponibilidade amanhã às 09h30 com o Dr. Manuel. Já confirmei no calendário e enviei o lembrete.'
+    text: 'Com certeza! Tenho disponibilidade amanhã às 09h30. Vou confirmar já a sua marcação no calendário da clínica.'
   }
 ];
 
@@ -47,7 +46,7 @@ const Hero: React.FC<HeroProps> = () => {
   const [isPlayingSample, setIsPlayingSample] = useState(false);
   const [activeLineIndex, setActiveLineIndex] = useState(0);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
-  const [durationSeconds, setDurationSeconds] = useState(15);
+  const [durationSeconds, setDurationSeconds] = useState(30);
   const [tilt, setTilt] = useState(RESTING_3D_TILT);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const shouldReduceMotion = useReducedMotion();
@@ -97,6 +96,11 @@ const Hero: React.FC<HeroProps> = () => {
     const audio = audioRef.current;
     if (!audio) return;
 
+    const syncDuration = () => {
+      if (audio.duration && Number.isFinite(audio.duration)) {
+        setDurationSeconds(Math.round(audio.duration));
+      }
+    };
     const onPlay = () => setIsPlayingSample(true);
     const onPause = () => setIsPlayingSample(false);
     const onEnded = () => {
@@ -104,42 +108,47 @@ const Hero: React.FC<HeroProps> = () => {
       setActiveLineIndex(0);
       setElapsedSeconds(0);
     };
-    const onLoadedMetadata = () => {
-      if (audio.duration && Number.isFinite(audio.duration)) {
-        setDurationSeconds(Math.round(audio.duration));
-      }
-    };
     const onTimeUpdate = () => {
       const t = audio.currentTime;
+      const total = audio.duration && Number.isFinite(audio.duration) ? audio.duration : durationSeconds;
       setElapsedSeconds(Math.floor(t));
-      if (t < 5) {
+      const ratio = total > 0 ? t / total : 0;
+      if (ratio < 0.38) {
         setActiveLineIndex(0);
-      } else if (t < 9.5) {
+      } else if (ratio < 0.66) {
         setActiveLineIndex(1);
       } else {
         setActiveLineIndex(2);
       }
     };
 
+    if (audio.readyState >= 1) {
+      syncDuration();
+    }
+
     audio.addEventListener('play', onPlay);
     audio.addEventListener('pause', onPause);
     audio.addEventListener('ended', onEnded);
-    audio.addEventListener('loadedmetadata', onLoadedMetadata);
+    audio.addEventListener('loadedmetadata', syncDuration);
+    audio.addEventListener('durationchange', syncDuration);
     audio.addEventListener('timeupdate', onTimeUpdate);
 
     return () => {
       audio.removeEventListener('play', onPlay);
       audio.removeEventListener('pause', onPause);
       audio.removeEventListener('ended', onEnded);
-      audio.removeEventListener('loadedmetadata', onLoadedMetadata);
+      audio.removeEventListener('loadedmetadata', syncDuration);
+      audio.removeEventListener('durationchange', syncDuration);
       audio.removeEventListener('timeupdate', onTimeUpdate);
       audio.pause();
     };
   }, []);
 
   const formatTimer = (sec: number) => {
-    const s = String(Math.max(0, sec)).padStart(2, '0');
-    return `00:${s}`;
+    const safeSec = Math.max(0, Math.floor(sec));
+    const m = String(Math.floor(safeSec / 60)).padStart(2, '0');
+    const s = String(safeSec % 60).padStart(2, '0');
+    return `${m}:${s}`;
   };
 
   return (
@@ -314,11 +323,11 @@ const Hero: React.FC<HeroProps> = () => {
                         </div>
 
                         <div className="min-w-0 drop-shadow-[0_4px_8px_rgba(0,0,0,0.65)]">
-                          <p className="font-display font-bold text-sm sm:text-base text-white tracking-tight leading-tight truncate">
-                            Joana · Recepcionista de Voz
+                          <p className="font-display font-bold text-sm sm:text-[15px] text-white tracking-tight leading-snug">
+                            Joana de Sousa · Recepcionista Virtual
                           </p>
-                          <p className="text-xs text-slate-300 mt-0.5 truncate">
-                            {isPlayingSample ? 'A reproduzir amostra de voz (15s)' : 'Amostra de atendimento telefónico'}
+                          <p className="text-[11px] sm:text-xs text-slate-300 mt-0.5 leading-snug">
+                            Amostra de atendimento telefónico · Clínica Saúde e Vida
                           </p>
                         </div>
                       </div>
@@ -340,9 +349,9 @@ const Hero: React.FC<HeroProps> = () => {
                           className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(56,189,248,0.07)_1px,transparent_1px),linear-gradient(to_bottom,rgba(56,189,248,0.07)_1px,transparent_1px)] bg-[size:18px_18px]"
                         />
 
-                        <div className="relative z-10 flex items-center justify-between text-[11px]">
+                        <div className="relative z-10 flex items-center justify-between gap-2 text-[11px]">
                           <span className="font-medium text-cyan-200/95 tracking-wide">
-                            Áudio Neural da Joana (PT-AO)
+                            Áudio Neural de Joana (PT-AO)
                           </span>
                           <button
                             type="button"
@@ -406,7 +415,7 @@ const Hero: React.FC<HeroProps> = () => {
                     </div>
 
                     {/* 3D Layered Brushed-Metal Transcript Plates */}
-                    <div className="space-y-2.5 text-xs [transform-style:preserve-3d]">
+                    <div className="space-y-2.5 text-[11.5px] sm:text-xs [transform-style:preserve-3d]">
                       {SAMPLE_LINES.map((line, idx) => {
                         const isActive = isPlayingSample && activeLineIndex === idx;
                         return (
@@ -434,16 +443,10 @@ const Hero: React.FC<HeroProps> = () => {
                     </div>
                   </div>
 
-                  {/* 3D Floating Brushed Titanium Confirmation Plate */}
-                  <div className="relative z-10 mt-5 rounded-xl px-4 py-3 bg-gradient-to-r from-slate-800/95 via-slate-900/95 to-slate-800/95 border border-slate-400/50 shadow-[0_12px_22px_-6px_rgba(0,0,0,0.75),inset_0_1px_0_rgba(255,255,255,0.2)] flex items-center justify-between text-xs [transform:translateZ(20px)]">
-                    <div className="flex items-center gap-2 text-emerald-400 font-semibold">
-                      <CheckCircle2 className="w-4 h-4 shrink-0 drop-shadow-[0_0_6px_rgba(52,211,153,0.45)]" />
-                      <span>Marcado no Google Calendar</span>
-                    </div>
-                    <span className="font-mono tabular-nums text-slate-200 bg-slate-950/85 px-2 py-0.5 rounded border border-slate-500/50 shadow-inner">
-                      Amanhã · 09:30
-                    </span>
-                  </div>
+                  {/* Discrete Transparency Line */}
+                  <p className="relative z-10 mt-4 pt-3 border-t border-slate-700/45 text-center text-[10.5px] text-slate-400/90 leading-snug [transform:translateZ(12px)]">
+                    Demonstração do fluxo de marcação com IA de voz.
+                  </p>
                 </div>
               </div>
             </motion.div>
