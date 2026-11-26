@@ -292,7 +292,7 @@ const Hero: React.FC<HeroProps> = () => {
                 ) : (
                   <>
                     <Play className="w-4 h-4 fill-current shrink-0" />
-                    <span>🔊 Ouvir amostra da Joana (30s)</span>
+                    <span>🔊 Ouvir amostra da Joana (27s)</span>
                   </>
                 )}
               </button>
@@ -477,7 +477,7 @@ const Hero: React.FC<HeroProps> = () => {
                             controls
                             preload="auto"
                             src="/amostra_joana.mp3"
-                            aria-label="Ouvir amostra da Joana (30s)"
+                            aria-label="Ouvir amostra da Joana (27s)"
                             className="w-full h-9 rounded-lg relative z-20"
                           >
                             O seu navegador não suporta a reprodução de áudio HTML5.
