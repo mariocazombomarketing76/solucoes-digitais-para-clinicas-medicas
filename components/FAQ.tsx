@@ -14,7 +14,7 @@ const faqData: FAQItem[] = [
     id: 'preco',
     question: 'Quanto custa e o que inclui cada plano?',
     answer:
-      'Temos três planos em Kwanza: o Plano Starter por 59.900 Kz/mês (taxa de implementação única de 50.000 Kz — 1 especialidade, recepcionista de voz 24/7, lembretes automáticos e sincronização com Google Calendar), o Plano Clínica por 119.900 Kz/mês (taxa de implementação única de 100.000 Kz — até 5 especialidades, follow-up pós-consulta/NPS, gestão automática de faltas e suporte prioritário por WhatsApp) e o Plano Enterprise por 249.900 Kz/mês (taxa de implementação única de 250.000 Kz, sob orçamento — especialidades ilimitadas, campanhas de reativação Voz/SMS, API dedicada e gestor de conta com SLA).'
+      'Temos três planos em Kwanza: o Plano Starter por 89.900 Kz/mês (implementação única de 150.000 Kz, até 150 interações/mês, 1 especialidade, recepcionista 24/7, lembretes e sincronização com Google Calendar), o Plano Clínica por 179.900 Kz/mês (implementação única de 300.000 Kz, até 400 interações/mês, até 5 especialidades, follow-up pós-consulta, gestão de faltas e suporte prioritário) e o Plano Enterprise por 349.900 Kz/mês (implementação única de 600.000 Kz, até 1.000 interações/mês, especialidades ilimitadas, campanhas de reativação Voz/SMS, API dedicada e gestor de conta com SLA). Interações excedentes: 2.000 Kz/unidade. Contrato mínimo: 3 meses.'
   },
   {
     id: 'sotaque',

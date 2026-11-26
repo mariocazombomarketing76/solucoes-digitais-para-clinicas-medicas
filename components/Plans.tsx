@@ -23,15 +23,16 @@ const plansData: PlanItem[] = [
     name: 'Starter',
     selectLabel: 'Plano Starter',
     subtitle: 'Ideal para consultórios individuais e clínicas pequenas.',
-    monthlyFee: '59.900 Kz',
-    implementationFee: 'Taxa de Implementação: 50.000 Kz (pagamento único)',
+    monthlyFee: '89.900 Kz',
+    implementationFee: 'Taxa de Implementação: 150.000 Kz (pagamento único)',
     icon: Stethoscope,
     isPopular: false,
     features: [
-      'Recepcionista de Voz com IA 24/7',
-      '1 Especialidade médica configurada',
-      'Lembretes automáticos de consulta',
-      'Sincronização com Google Calendar'
+      'Até 150 interações/mês incluídas',
+      '1 especialidade',
+      'Recepcionista de voz 24/7',
+      'Lembretes automáticos',
+      'Sincronização Google Calendar'
     ],
     ctaText: 'Começar Agora'
   },
@@ -40,17 +41,17 @@ const plansData: PlanItem[] = [
     name: 'Clínica',
     selectLabel: 'Plano Clínica',
     subtitle: 'A solução completa para clínicas em crescimento.',
-    monthlyFee: '119.900 Kz',
-    implementationFee: 'Taxa de Implementação: 100.000 Kz (pagamento único)',
+    monthlyFee: '179.900 Kz',
+    implementationFee: 'Taxa de Implementação: 300.000 Kz (pagamento único)',
     icon: PhoneCall,
     popularLabel: '⭐ Mais Popular',
     isPopular: true,
     features: [
-      'Tudo do plano Starter, mais:',
-      'Até 5 Especialidades médicas',
-      'Follow-up pós-consulta (Pesquisa de Satisfação/NPS)',
-      'Gestão automática de "No-Shows" (Faltas)',
-      'Suporte prioritário por WhatsApp'
+      'Até 400 interações/mês incluídas',
+      'Até 5 especialidades',
+      'Follow-up pós-consulta (pesquisa de satisfação NPS)',
+      'Gestão automática de "No-Shows" (faltas)',
+      'Suporte prioritário'
     ],
     ctaText: 'Escolher Plano Clínica'
   },
@@ -59,15 +60,16 @@ const plansData: PlanItem[] = [
     name: 'Enterprise',
     selectLabel: 'Plano Enterprise',
     subtitle: 'Para redes de clínicas e hospitais com necessidades avançadas.',
-    monthlyFee: '249.900 Kz',
-    implementationFee: 'Taxa de Implementação: 250.000 Kz (pagamento único, sob orçamento)',
+    monthlyFee: '349.900 Kz',
+    implementationFee: 'Taxa de Implementação: 600.000 Kz (pagamento único, sob orçamento)',
     icon: Building2,
     isPopular: false,
     features: [
+      'Até 1.000 interações/mês incluídas',
       'Especialidades ilimitadas',
-      'Campanhas de reativação de pacientes (Voz/SMS)',
-      'API dedicada para integração com software de gestão',
-      'Gestor de Conta Dedicado e SLA de suporte'
+      'Campanhas de reativação (Voz/SMS)',
+      'API dedicada',
+      'Gestor de conta com SLA'
     ],
     ctaText: 'Falar com Vendas'
   }
@@ -175,7 +177,7 @@ const Plans: React.FC<PlansProps> = ({
                       isPopular ? 'border-[#bfdbfe]' : 'border-slate-100'
                     }`}
                   >
-                    <div className="flex items-baseline gap-1">
+                    <div className="flex flex-wrap items-baseline gap-x-1 gap-y-0.5">
                       <span className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight tabular-nums text-slate-900">
                         {plan.monthlyFee}
                       </span>
@@ -243,7 +245,7 @@ const Plans: React.FC<PlansProps> = ({
 
         {/* Nota de Transparência Obrigatória */}
         <p className="mt-9 text-center text-xs sm:text-sm text-slate-500 max-w-3xl mx-auto leading-relaxed italic">
-          *A Taxa de Implementação é um investimento único que cobre o mapeamento personalizado das suas especialidades, configuração de horários, integração de calendários e a sessão de treino da sua equipa. Garantimos um arranque a 100% desde o primeiro dia.*
+          *A Taxa de Implementação é um investimento único que cobre o mapeamento personalizado das suas especialidades, configuração de horários, integração de calendários e a sessão de treino da sua equipa. Garantimos um arranque a 100% desde o primeiro dia. Interações excedentes: 2.000 Kz/unidade. Contrato mínimo: 3 meses.
         </p>
 
         {/* Payment & Direct WhatsApp Clarification */}

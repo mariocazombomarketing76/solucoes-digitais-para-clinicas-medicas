@@ -49,6 +49,7 @@ const Hero: React.FC<HeroProps> = () => {
   const [durationSeconds, setDurationSeconds] = useState(30);
   const [tilt, setTilt] = useState(RESTING_3D_TILT);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const widgetRef = useRef<HTMLDivElement | null>(null);
   const shouldReduceMotion = useReducedMotion();
 
   const handleCardMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -82,8 +83,12 @@ const Hero: React.FC<HeroProps> = () => {
       return;
     }
 
+    if (widgetRef.current) {
+      widgetRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
     try {
-      if (audio.currentTime >= audio.duration - 0.1) {
+      if (audio.duration && Number.isFinite(audio.duration) && audio.currentTime >= audio.duration - 0.1) {
         audio.currentTime = 0;
       }
       await audio.play();
@@ -208,7 +213,7 @@ const Hero: React.FC<HeroProps> = () => {
                 type="button"
                 onClick={handleToggleVoiceSample}
                 aria-pressed={isPlayingSample}
-                className={`w-full sm:w-auto max-w-full inline-flex items-center justify-center px-5 py-3.5 rounded-xl text-sm sm:text-base font-semibold border transition-all duration-150 gap-2 whitespace-nowrap cursor-pointer ${
+                className={`w-full sm:w-auto max-w-full inline-flex items-center justify-center px-4 sm:px-5 py-3.5 rounded-xl text-sm sm:text-base font-semibold border transition-all duration-150 gap-2 whitespace-nowrap cursor-pointer ${
                   isPlayingSample
                     ? 'bg-[#0056b3] text-white border-[#0056b3] shadow-md'
                     : 'bg-white/95 backdrop-blur-sm text-[#0056b3] border-[#bfdbfe] hover:border-[#0056b3] hover:bg-[#eff6ff] shadow-sm'
@@ -222,7 +227,7 @@ const Hero: React.FC<HeroProps> = () => {
                 ) : (
                   <>
                     <Play className="w-4 h-4 fill-current shrink-0" />
-                    <span>🔊 Ouvir amostra da Joana (15s)</span>
+                    <span>🔊 Ouvir amostra da Joana (30s)</span>
                   </>
                 )}
               </button>
@@ -247,6 +252,8 @@ const Hero: React.FC<HeroProps> = () => {
 
           {/* Right Column: 3D Volumetric Futuristic Metallic Robotic Voice Console */}
           <motion.div
+            id="joana-audio-widget"
+            ref={widgetRef}
             className="lg:col-span-5 min-w-0 flex flex-col [perspective:1400px] py-2 lg:pr-3"
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
@@ -333,8 +340,8 @@ const Hero: React.FC<HeroProps> = () => {
                       </div>
 
                       {/* Machined Steel Timer Plate */}
-                      <div className="px-2.5 py-1.5 rounded-lg bg-gradient-to-b from-slate-950 to-slate-900 border border-slate-500/60 shadow-[0_8px_16px_rgba(0,0,0,0.55),inset_0_1px_4px_rgba(0,0,0,0.85)] shrink-0">
-                        <span className="font-mono text-xs tabular-nums text-emerald-400 font-semibold tracking-wider">
+                      <div className="px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-gradient-to-b from-slate-950 to-slate-900 border border-slate-500/60 shadow-[0_8px_16px_rgba(0,0,0,0.55),inset_0_1px_4px_rgba(0,0,0,0.85)] shrink-0">
+                        <span className="font-mono text-[11px] sm:text-xs tabular-nums text-emerald-400 font-semibold tracking-wider">
                           {formatTimer(elapsedSeconds)} / {formatTimer(durationSeconds)}
                         </span>
                       </div>
@@ -405,7 +412,7 @@ const Hero: React.FC<HeroProps> = () => {
                             controls
                             preload="metadata"
                             src="/amostra_joana.mp3"
-                            aria-label="Ouvir amostra da Joana (15s)"
+                            aria-label="Ouvir amostra da Joana (30s)"
                             className="w-full h-9 rounded-lg"
                           >
                             O seu navegador não suporta a reprodução de áudio HTML5.
