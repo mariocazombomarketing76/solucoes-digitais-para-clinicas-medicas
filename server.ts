@@ -1,4 +1,5 @@
 import express from "express";
+import fs from "fs";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI, Type } from "@google/genai";
@@ -424,6 +425,22 @@ Retorne JSON estrito:
   }
 });
 
+
+app.get("/amostra_joana.mp3", (req, res) => {
+  const publicAudioPath = path.join(process.cwd(), "public", "amostra_joana.mp3");
+  const distAudioPath = path.join(process.cwd(), "dist", "amostra_joana.mp3");
+  const audioPath = fs.existsSync(publicAudioPath) ? publicAudioPath : distAudioPath;
+
+  if (!fs.existsSync(audioPath)) {
+    return res.status(404).json({ error: "Ficheiro de áudio não encontrado." });
+  }
+
+  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
+  res.type("audio/mpeg");
+  return res.sendFile(audioPath);
+});
 
 app.get("/robots.txt", (req, res) => {
   res.type("text/plain");

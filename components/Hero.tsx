@@ -47,13 +47,21 @@ const Hero: React.FC<HeroProps> = () => {
   const [activeLineIndex, setActiveLineIndex] = useState(0);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [durationSeconds, setDurationSeconds] = useState(30);
+  const [audioError, setAudioError] = useState<string | null>(null);
   const [tilt, setTilt] = useState(RESTING_3D_TILT);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const widgetRef = useRef<HTMLDivElement | null>(null);
+  const durationRef = useRef(30);
+  const retriedSrcRef = useRef(false);
+  const blobUrlRef = useRef<string | null>(null);
   const shouldReduceMotion = useReducedMotion();
 
   const handleCardMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (shouldReduceMotion) return;
+    const target = e.target as HTMLElement | null;
+    if (target && target.closest('audio, button, a, input')) {
+      return;
+    }
     const rect = e.currentTarget.getBoundingClientRect();
     const nx = ((e.clientX - rect.left) / rect.width) * 2 - 1;
     const ny = ((e.clientY - rect.top) / rect.height) * 2 - 1;
@@ -74,6 +82,25 @@ const Hero: React.FC<HeroProps> = () => {
     }
   };
 
+  const playWithBlobFallback = async (audio: HTMLAudioElement) => {
+    const res = await fetch(`/amostra_joana.mp3?t=${Date.now()}`, { cache: 'no-store' });
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+    const blob = await res.blob();
+    if (!blob || blob.size === 0) {
+      throw new Error('Ficheiro de áudio vazio');
+    }
+    if (blobUrlRef.current) {
+      URL.revokeObjectURL(blobUrlRef.current);
+    }
+    const objectUrl = URL.createObjectURL(blob);
+    blobUrlRef.current = objectUrl;
+    audio.src = objectUrl;
+    audio.load();
+    await audio.play();
+  };
+
   const handleToggleVoiceSample = async () => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -83,17 +110,33 @@ const Hero: React.FC<HeroProps> = () => {
       return;
     }
 
+    setAudioError(null);
+
     if (widgetRef.current) {
       widgetRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     try {
-      if (audio.duration && Number.isFinite(audio.duration) && audio.currentTime >= audio.duration - 0.1) {
+      if (audio.error || audio.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
+        audio.src = `/amostra_joana.mp3?t=${Date.now()}`;
+        audio.load();
+      } else if (audio.duration && Number.isFinite(audio.duration) && audio.currentTime >= audio.duration - 0.1) {
         audio.currentTime = 0;
       }
+
+      audio.muted = false;
+      if (audio.volume === 0) {
+        audio.volume = 1;
+      }
+
       await audio.play();
     } catch {
-      setIsPlayingSample(false);
+      try {
+        await playWithBlobFallback(audio);
+      } catch {
+        setIsPlayingSample(false);
+        setAudioError('Não foi possível iniciar o áudio automaticamente. Prima o botão Play no leitor abaixo.');
+      }
     }
   };
 
@@ -103,10 +146,15 @@ const Hero: React.FC<HeroProps> = () => {
 
     const syncDuration = () => {
       if (audio.duration && Number.isFinite(audio.duration)) {
-        setDurationSeconds(Math.round(audio.duration));
+        const rounded = Math.round(audio.duration);
+        durationRef.current = rounded;
+        setDurationSeconds(rounded);
       }
     };
-    const onPlay = () => setIsPlayingSample(true);
+    const onPlay = () => {
+      setAudioError(null);
+      setIsPlayingSample(true);
+    };
     const onPause = () => setIsPlayingSample(false);
     const onEnded = () => {
       setIsPlayingSample(false);
@@ -115,7 +163,7 @@ const Hero: React.FC<HeroProps> = () => {
     };
     const onTimeUpdate = () => {
       const t = audio.currentTime;
-      const total = audio.duration && Number.isFinite(audio.duration) ? audio.duration : durationSeconds;
+      const total = audio.duration && Number.isFinite(audio.duration) ? audio.duration : durationRef.current;
       setElapsedSeconds(Math.floor(t));
       const ratio = total > 0 ? t / total : 0;
       if (ratio < 0.38) {
@@ -124,6 +172,15 @@ const Hero: React.FC<HeroProps> = () => {
         setActiveLineIndex(1);
       } else {
         setActiveLineIndex(2);
+      }
+    };
+    const onError = () => {
+      if (!retriedSrcRef.current) {
+        retriedSrcRef.current = true;
+        audio.src = `/amostra_joana.mp3?t=${Date.now()}`;
+        audio.load();
+      } else {
+        setIsPlayingSample(false);
       }
     };
 
@@ -136,7 +193,9 @@ const Hero: React.FC<HeroProps> = () => {
     audio.addEventListener('ended', onEnded);
     audio.addEventListener('loadedmetadata', syncDuration);
     audio.addEventListener('durationchange', syncDuration);
+    audio.addEventListener('canplay', syncDuration);
     audio.addEventListener('timeupdate', onTimeUpdate);
+    audio.addEventListener('error', onError);
 
     return () => {
       audio.removeEventListener('play', onPlay);
@@ -144,8 +203,14 @@ const Hero: React.FC<HeroProps> = () => {
       audio.removeEventListener('ended', onEnded);
       audio.removeEventListener('loadedmetadata', syncDuration);
       audio.removeEventListener('durationchange', syncDuration);
+      audio.removeEventListener('canplay', syncDuration);
       audio.removeEventListener('timeupdate', onTimeUpdate);
+      audio.removeEventListener('error', onError);
       audio.pause();
+      if (blobUrlRef.current) {
+        URL.revokeObjectURL(blobUrlRef.current);
+        blobUrlRef.current = null;
+      }
     };
   }, []);
 
@@ -406,17 +471,22 @@ const Hero: React.FC<HeroProps> = () => {
                         </div>
 
                         {/* Recessed Brushed-Alloy Deck for HTML5 Audio */}
-                        <div className="relative z-10 rounded-xl bg-gradient-to-b from-slate-800/85 to-slate-950/95 border border-slate-500/50 p-1.5 shadow-inner">
+                        <div className="relative z-20 rounded-xl bg-gradient-to-b from-slate-800/85 to-slate-950/95 border border-slate-500/50 p-1.5 shadow-inner pointer-events-auto">
                           <audio
                             ref={audioRef}
                             controls
-                            preload="metadata"
+                            preload="auto"
                             src="/amostra_joana.mp3"
                             aria-label="Ouvir amostra da Joana (30s)"
-                            className="w-full h-9 rounded-lg"
+                            className="w-full h-9 rounded-lg relative z-20"
                           >
                             O seu navegador não suporta a reprodução de áudio HTML5.
                           </audio>
+                          {audioError && (
+                            <p className="mt-1.5 px-1 text-[11px] text-amber-300 text-center leading-snug">
+                              {audioError}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </div>
