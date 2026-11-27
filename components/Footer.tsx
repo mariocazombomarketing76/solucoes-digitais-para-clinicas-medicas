@@ -23,7 +23,7 @@ const Footer: React.FC<FooterProps> = ({ onPrivacyClick, onTermsClick }) => {
               © 2026 Clínicas Digitais. Transformando a saúde em Angola com Inteligência Artificial de Voz. Luanda, Angola.
             </p>
             <p className="text-xs text-slate-500 font-mono">
-              Mario Cazombo e Filhos, Lda · NIF: 5417437034
+              Mario Cazombo e Filhos, Lda
             </p>
           </div>
 

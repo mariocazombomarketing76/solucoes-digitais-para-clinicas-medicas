@@ -33,7 +33,7 @@ const PrivacyPolicy: React.FC<ModalProps> = ({ onClose }) => {
           <h2>Política de Privacidade</h2>
           <p className="text-sm text-gray-500">Última atualização: 22 de Maio de 2026</p>
 
-          <p>A presente Política de Privacidade descreve como as suas informações são recolhidas, usadas e partilhadas quando visita este website. O responsável pelo tratamento dos seus dados é a <strong>Mario Cazombo e Filhos, Lda</strong> (NIF: 5417437034).</p>
+          <p>A presente Política de Privacidade descreve como as suas informações são recolhidas, usadas e partilhadas quando visita este website. O responsável pelo tratamento dos seus dados é a <strong>Mario Cazombo e Filhos, Lda</strong>.</p>
 
           <h3>1. Que informações recolhemos?</h3>
           <p>Recolhemos informações de duas formas:</p>

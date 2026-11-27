@@ -18,9 +18,9 @@ const techPillars = [
     color: 'text-[#28a745] bg-[#ecfdf5] border-[#bbf7d0]'
   },
   {
-    title: 'Segurança de Dados de Saúde',
+    title: 'Privacidade e segurança dos dados',
     description:
-      'Ligações encriptadas, acesso restrito aos dados de agendamento e conformidade institucional com contrato formal em Angola.',
+      'Transmissão encriptada (HTTPS/TLS), acesso restrito aos dados de agendamento e princípio de minimização: não recolhemos dados clínicos sensíveis através do site.',
     icon: ShieldCheck,
     color: 'text-[#0056b3] bg-[#eff6ff] border-[#bfdbfe]'
   }

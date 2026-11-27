@@ -256,10 +256,10 @@ const Plans: React.FC<PlansProps> = ({
             </div>
             <div>
               <p className="text-sm font-semibold text-slate-900">
-                Pagamento por Transferência Bancária ou Multicaixa Express com fatura oficial (NIF: 5417437034)
+                Pagamento por Transferência Bancária ou Multicaixa Express.
               </p>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Contrato formal através da Mario Cazombo e Filhos, Lda · Luanda, Angola.
+              <p className="text-xs sm:text-sm text-slate-500 mt-0.5 leading-relaxed">
+                As condições de faturação são comunicadas durante o processo comercial. Contrato formal através da Mario Cazombo e Filhos, Lda · Luanda, Angola.
               </p>
             </div>
           </div>

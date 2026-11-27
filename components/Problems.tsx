@@ -2,7 +2,15 @@ import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { PhoneIncoming, CalendarCheck2, HeartHandshake } from 'lucide-react';
 
-const lifecycleCards = [
+interface LifecycleCard {
+  title: string;
+  description: string;
+  badge?: string;
+  icon: React.ElementType;
+  iconWrap: string;
+}
+
+const lifecycleCards: LifecycleCard[] = [
   {
     title: 'Atendimento 24/7 por Voz',
     description: 'A Joana atende, identifica a especialidade e marca em tempo real.',
@@ -10,14 +18,18 @@ const lifecycleCards = [
     iconWrap: 'bg-[#eff6ff] text-[#0056b3] border-[#bfdbfe]'
   },
   {
-    title: "Fim dos 'No-Shows'",
-    description: 'Lembretes automáticos por voz e WhatsApp 24h e 2h antes da consulta.',
+    title: 'Menos faltas por esquecimento',
+    badge: 'Fase 2 · em integração',
+    description:
+      'Confirmações e lembretes automáticos antes da consulta, por voz e WhatsApp, para reduzir as faltas por esquecimento.',
     icon: CalendarCheck2,
     iconWrap: 'bg-[#ecfdf5] text-[#28a745] border-[#bbf7d0]'
   },
   {
     title: 'Follow-up e Fidelização',
-    description: 'A Joana contacta 24h depois para saber se o paciente foi bem atendido e pedir feedback.',
+    badge: 'Fase 2 · em integração',
+    description:
+      'Contacto automático 24h depois da consulta para avaliar a satisfação e reagendar pacientes que faltaram.',
     icon: HeartHandshake,
     iconWrap: 'bg-[#eff6ff] text-[#0056b3] border-[#bfdbfe]'
   }
@@ -62,12 +74,19 @@ const Problems: React.FC = () => {
                 initial={{ opacity: 0, y: 18 }}
                 animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 }}
                 transition={{ duration: 0.45, delay: index * 0.1 }}
-                className="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition-shadow duration-200 p-7 flex flex-col"
+                className="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition-shadow duration-200 p-6 sm:p-7 flex flex-col"
               >
-                <div
-                  className={`w-12 h-12 rounded-xl border flex items-center justify-center mb-5 ${card.iconWrap}`}
-                >
-                  <IconComponent className="w-6 h-6" />
+                <div className="flex items-start justify-between gap-2 mb-5">
+                  <div
+                    className={`w-12 h-12 rounded-xl border flex items-center justify-center shrink-0 ${card.iconWrap}`}
+                  >
+                    <IconComponent className="w-6 h-6" />
+                  </div>
+                  {card.badge && (
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold tracking-tight bg-amber-50 text-amber-800 border border-amber-200/90 leading-none shrink-0">
+                      {card.badge}
+                    </span>
+                  )}
                 </div>
 
                 <h3 className="font-display text-xl font-bold text-slate-900 mb-2.5 leading-snug">
@@ -81,6 +100,11 @@ const Problems: React.FC = () => {
             );
           })}
         </div>
+
+        {/* Legenda explicativa Fase 2 */}
+        <p className="mt-8 text-center text-xs sm:text-sm text-slate-500 max-w-4xl mx-auto leading-relaxed">
+          Os selos 'Fase 2 · em integração' identificam funcionalidades em desenvolvimento, ativadas na sua clínica conforme o plano contratado. As funcionalidades sem selo (atendimento por voz, marcação e sincronização com o calendário) já se encontram validadas em ambiente de testes.
+        </p>
       </div>
     </section>
   );

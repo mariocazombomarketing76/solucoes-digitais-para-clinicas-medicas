@@ -17,8 +17,8 @@ const processSteps = [
   },
   {
     step: '03',
-    title: 'A consulta fica marcada no Google Calendar da clínica e o paciente recebe um lembrete automático.',
-    desc: 'A receção acompanha tudo em tempo real no calendário e o paciente recebe confirmação e lembretes por voz e WhatsApp.',
+    title: 'A consulta fica marcada em tempo real no Google Calendar da clínica.',
+    desc: 'A marcação aparece em tempo real no Google Calendar da clínica, sem trabalho manual da recepção. Confirmações e lembretes automáticos ao paciente são ativados conforme o plano (Fase 2).',
     icon: CalendarCheck2
   }
 ];

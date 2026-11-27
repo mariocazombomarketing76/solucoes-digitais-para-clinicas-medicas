@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { Building2, ShieldCheck, FileText, Landmark } from 'lucide-react';
+import { Landmark } from 'lucide-react';
 
 const Authority: React.FC = () => {
   const ref = useRef(null);
@@ -49,7 +49,7 @@ const Authority: React.FC = () => {
               </p>
 
               {/* Legal Credentials Box */}
-              <div className="pt-6 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="pt-6 border-t border-slate-200">
                 <div className="flex items-start gap-3">
                   <div className="bg-slate-200/70 text-slate-700 p-2 rounded-lg">
                     <Landmark className="w-4 h-4" />
@@ -57,16 +57,6 @@ const Authority: React.FC = () => {
                   <div>
                     <p className="text-xs text-slate-500 font-semibold">Entidade Gestora</p>
                     <p className="text-sm font-bold text-slate-900">Mario Cazombo e Filhos, Lda</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="bg-slate-200/70 text-slate-700 p-2 rounded-lg">
-                    <FileText className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-500 font-semibold">NIF de Angola</p>
-                    <p className="text-sm font-mono font-bold text-slate-900 tabular-nums">5417437034</p>
                   </div>
                 </div>
               </div>
